@@ -1,0 +1,53 @@
+## Basic Configuration
+baseurl = "https://mentalbreaks.rbind.io/"
+languageCode = "en"
+
+theme = "hyde-hyde"
+
+## Hugo Built-in Features
+# disqusShortname = "your-disqus-shortname"
+# googleAnalytics = "your-google-analytics-id"
+# enableRobotsTXT = true
+
+#ignore certain files as recommended
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+
+[taxonomies]
+    category = "categories"
+    tags = "tags"
+    
+## Site Settings
+[params]
+    author = "Anthony Nguyen"
+    title = "mentalBreaks"
+    # description = "this is a test"
+    authorimage = "/img/lucky_ball_hyde_hyde2.png"
+    dateformat = "2 Jan 2006"
+    highlightjs = true
+    highlightjsstyle = "github"
+    # please choose either GraphComment or Disqus
+
+## Social Accounts
+[params.social]
+    instagram = "anguyen1210"
+    twitter = "anguyen1210"
+    linkedin = "<username>"
+    github = "anguyen1210"
+    email = "anguyen1210@example.com"
+
+## Main Menu
+[[menu.main]]
+    name = "Posts"
+    weight = 100
+    identifier = "posts"
+    url = "/posts/"
+[[menu.main]]
+    name = "Portfolio"
+    identifier = "portfolio"
+    weight = 200
+    url = "/portfolio/"
+[[menu.main]]
+    name = "About"
+    identifier = "about"
+    weight = 300
+    url = "/about/"
