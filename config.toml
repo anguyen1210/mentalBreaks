@@ -24,7 +24,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     authorimage = "/img/lucky_ball_hyde_hyde2.png"
     dateformat = "2 Jan 2006"
     highlightjs = true
-    highlightjsstyle = "github"
+    highlightjsTheme = "github-gist"
     # please choose either GraphComment or Disqus
 
 ## Social Accounts

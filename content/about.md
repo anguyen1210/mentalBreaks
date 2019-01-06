@@ -3,13 +3,7 @@ title = "About Me"
 date = "2019-01-03"
 +++
 
-Still road testing this blog. Looking to launch this soon for 2019!  
-  
-Right now, some ideas are to use this blog to share some data-related projects and analysis I've done for work and/or school.  
-
-Otherwise, maybe I can use this blog to start exploring a particular topic in depth (refugee stats, integration, social policy?).   
-
-Or finally, I'm thinking about using it to discuss going back to school and the career change journey.  
+Still setting up and testing this blog. Looking to launch this in 2019, exact date TBC!  
   
 Example links:
 
