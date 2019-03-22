@@ -4,6 +4,8 @@ languageCode = "en"
 
 theme = "hyde-hyde"
 
+toc = false
+
 ## Hugo Built-in Features
 # disqusShortname = "your-disqus-shortname"
 # googleAnalytics = "your-google-analytics-id"
@@ -37,17 +39,23 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 ## Main Menu
 [[menu.main]]
-    name = "Posts"
+    name = "Home"
+    identifier = "home"
     weight = 100
+    url = "/"
+[[menu.main]]
+    name = "About"
+    identifier = "about"
+    weight = 200
+    url = "/about/"
+[[menu.main]]
+    name = "Posts"
+    weight = 300
     identifier = "posts"
     url = "/posts/"
 [[menu.main]]
     name = "Portfolio"
     identifier = "portfolio"
-    weight = 200
+    weight = 400
     url = "/portfolio/"
-[[menu.main]]
-    name = "About"
-    identifier = "about"
-    weight = 300
-    url = "/about/"
+

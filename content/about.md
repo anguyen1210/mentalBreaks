@@ -3,7 +3,9 @@ title = "About Me"
 date = "2019-01-03"
 +++
 
-Still setting up and testing this blog. Looking to launch this in 2019, exact date TBC!  
+Still setting up and testing this blog. Looking to launch this in 2019, exact date TBC! 
+  
+Gettin there...  
   
 Example links:
 
