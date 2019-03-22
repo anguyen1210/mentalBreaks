@@ -1,12 +1,10 @@
 ---
-title: Pass the Pigs Probabilities (Draft)
+title: Pass the Pigs Probabilities
 author: Anthony Nguyen
 date: '2019-01-03'
-slug: pass-the-pigs-probabilities-draft
+slug: pass-the-pigs-probabilities
 categories:
-  - test
 tags:
-  - draft
   - probability
   - games
 lastmod: '2019-01-03T18:21:44+01:00'
@@ -19,7 +17,7 @@ library(tidyverse)
 ```
 
 <div style= "float:right;position: relative; top: -10px; left: 20px;">
-![](/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/pig2_300px.png)
+![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pig2_300px.png)
 </div>  
 
 It's the holiday season, family is in town, and the board games are out!  
@@ -70,7 +68,7 @@ sum(P)
 ```
   
 ##Scoring points as a random variable 
-![](/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/pass_pigs_pts.jpg) 
+![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pass_pigs_pts.jpg) 
 For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.  
 
 We can summarize all of the different point outcome in a table as follows:  
@@ -220,5 +218,5 @@ Back to enjoying my holiday time.  Let the games continue!
   
 <br>    
 <center>    
-![](/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/ptp_2017_500px.jpg)
+![](/posts/2019-01-03-pass-the-pigs-probabilities_files/ptp_2017_500px.jpg)
 </center>

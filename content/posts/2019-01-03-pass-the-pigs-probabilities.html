@@ -1,12 +1,10 @@
 ---
-title: Pass the Pigs Probabilities (Draft)
+title: Pass the Pigs Probabilities
 author: Anthony Nguyen
 date: '2019-01-03'
-slug: pass-the-pigs-probabilities-draft
+slug: pass-the-pigs-probabilities
 categories:
-  - test
 tags:
-  - draft
   - probability
   - games
 lastmod: '2019-01-03T18:21:44+01:00'
@@ -19,7 +17,7 @@ type: post
 
 <div style="float:right;position: relative; top: -10px; left: 20px;">
 <div class="figure">
-<img src="/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/pig2_300px.png" />
+<img src="/posts/2019-01-03-pass-the-pigs-probabilities_files/pig2_300px.png" />
 
 </div>
 </div>
@@ -61,7 +59,7 @@ P</code></pre>
 </div>
 <div id="scoring-points-as-a-random-variable" class="section level2">
 <h2>Scoring points as a random variable</h2>
-<p><img src="/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/pass_pigs_pts.jpg" /> For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.</p>
+<p><img src="/posts/2019-01-03-pass-the-pigs-probabilities_files/pass_pigs_pts.jpg" /> For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.</p>
 <p>We can summarize all of the different point outcome in a table as follows:</p>
 <pre class="r"><code>#points table taken from Wiki entry  
 PTS &lt;- matrix(c(1,0,5,5,10,15,
@@ -175,7 +173,7 @@ t_sim %&gt;% ggplot(aes(x = t, y = Exp.Value)) + geom_smooth(color = &quot;deepp
   geom_hline(yintercept = 0, linetype = &quot;dashed&quot;, color = &quot;grey50&quot;) + 
   annotate(geom = &quot;point&quot;, x = 22.38921, y = 0, color = &quot;deeppink4&quot;) + 
   annotate(geom = &quot;text&quot;, x = 22.38921, y = 0, label = &quot;t = 22.39&quot;, color = &quot;deeppink4&quot;, size = 3.5, hjust= -0.1, vjust= -0.2)  </code></pre>
-<p><img src="/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/figure-html/create%20vectors%20for%20t%20values%20and%20expected%20values%20then%20plot-1.png" width="672" /> As you can see in the graph, when our starting point total (<span class="math inline">\(t\)</span>) is low, our expected value–i.e. the points we would expect to receive after rolling–is positive. However, as our starting point total (<span class="math inline">\(t\)</span>) increases, the points we would expect after each roll starts to decrease, and in fact, becomes negative after a certain threshold. I’ve already added that point threshold to the above plot (<span class="math inline">\(t\)</span>= 22.39), but we can solve for this value algebraically, by taking our expected value formula from before, setting it equal to zero and solving for <span class="math inline">\(t\)</span>:</p>
+<p><img src="/posts/2019-01-03-pass-the-pigs-probabilities_files/figure-html/create%20vectors%20for%20t%20values%20and%20expected%20values%20then%20plot-1.png" width="672" /> As you can see in the graph, when our starting point total (<span class="math inline">\(t\)</span>) is low, our expected value–i.e. the points we would expect to receive after rolling–is positive. However, as our starting point total (<span class="math inline">\(t\)</span>) increases, the points we would expect after each roll starts to decrease, and in fact, becomes negative after a certain threshold. I’ve already added that point threshold to the above plot (<span class="math inline">\(t\)</span>= 22.39), but we can solve for this value algebraically, by taking our expected value formula from before, setting it equal to zero and solving for <span class="math inline">\(t\)</span>:</p>
 <span class="math display">\[\begin{align}
 t &amp;= \frac{1\cdot p(Z=1) + \dots + 60\cdot p(Z=60)}{p(Z=0)}
 \end{align}\]</span>
@@ -186,7 +184,7 @@ t &amp;= \frac{1\cdot p(Z=1) + \dots + 60\cdot p(Z=60)}{p(Z=0)}
 <br><br />
 
 <center>
-<img src="/posts/2019-01-03-pass-the-pigs-probabilities-draft_files/ptp_2017_500px.jpg" />
+<img src="/posts/2019-01-03-pass-the-pigs-probabilities_files/ptp_2017_500px.jpg" />
 </center>
 </div>
 </div>
