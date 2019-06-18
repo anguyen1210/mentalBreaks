@@ -3,7 +3,7 @@ title: Economics journals and software preferences
 author: Anthony Nguyen
 date: '2019-03-22'
 slug: economics-journals-and-software
-categories: 
+categories:
 tags:
   - r
   - stata
@@ -16,7 +16,7 @@ highlight: tango
 output:
   blogdown::html_page:
       toc: TRUE
-     
+
 ---
 
 
@@ -28,17 +28,14 @@ output:
 <li><a href="#how-has-the-use-of-different-analytical-software-changed-over-time">How has the use of different analytical software changed over time?</a></li>
 <li><a href="#software-package-tendencies-by-journal">Software package tendencies by journal</a></li>
 </ul></li>
-<li><a href="#keywords-and-topics">Keywords and topics</a><ul>
-<li><a href="#term-frequency---inverse-document-frequency">Term Frequency - Inverse Document Frequency</a></li>
-<li><a href="#lda-topic-modeling">LDA topic modeling</a></li>
-</ul></li>
+<li><a href="#and-the-textual-data">And the textual data?</a></li>
 </ul>
 </div>
 
 <p>As part of my Applied Econometrics course this semester, we have lab time each week where we’re working in Stata. As it’s been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it’s important to learn it, not only for it’s relative ease of use, but also, to be able to better communicate with other Economists.</p>
 <p>Anyway, for our thesis work, we’ve been told that we’re free to use whatever software we would like. I’ve been chewing on this topic for a couple of weeks now, as I’ve spent a lot of time over the past two years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn <a href="https://data.princeton.edu/stata/markdown">Markstat</a>? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?</p>
 <p>With all of that said, I was very excited to see this post, ‘<a href="http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html">Finding Economic Articles with Data</a>’, from Sebastian Kranz on the <a href="https://www.r-bloggers.com/">R-bloggers</a> mailing list the other week.</p>
-<p>Because the <a href="https://www.aeaweb.org/journals/">AEA</a> requires all authors to upload their data and replication code to go along with journal submissions, there’s a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a great Shiny <a href="http://econ.mathematik.uni-ulm.de:3200/ejd/">app that allows you to search the AEA data archives</a> to see what data is available. Definitely have a look, it’s well done.</p>
+<p>Because the <a href="https://www.aeaweb.org/journals/">AEA</a> requires all authors to upload their data and replication code to go along with journal submissions, there’s a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a nice little Shiny <a href="http://econ.mathematik.uni-ulm.de:3200/ejd/">app that allows you to search the AEA data archives</a> to see what data is available. Definitely have a look, it’s well done.</p>
 <div id="overview-of-the-database" class="section level2">
 <h2>Overview of the database</h2>
 <p>Using the data provided in the blog post, I thought it would be fun to run the analysis myself to see if there is any additional insight we can mine from what’s been submitted to AEA.</p>
@@ -64,7 +61,7 @@ output:
 </table>
 <p>The database provided contains information related to published articles submitted to different economic journals over a 15 year span, from 2005 until the present (March 2019 at the time of writing). Among those articles, 51% include code snippets, which we can use to analyze software package preferences.</p>
 <p>Consult the app for a <a href="http://econ.mathematik.uni-ulm.de:3200/ejd/">list of journal abbreviations</a> covered in the database.</p>
-<p>When we plot the number of submssions by journal, we can see that the <em>American Economic Review</em> contains the bulk of papers in this database at the present.<br />
+<p>When we plot the number of submssions by journal, we can see that the <em>American Economic Review</em> contains the bulk of papers in this database at the present.
 <img src="/posts/2019-03-14-economics-journals-and-software_files/figure-html/Plot%20number%20of%20articles%20by%20journal-1.png" width="672" /></p>
 </div>
 <div id="software-preferences" class="section level2">
@@ -160,7 +157,7 @@ output:
 </tr>
 </tbody>
 </table>
-<p>The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. <code>length(unique(filed$id))</code>) would result in our percentages summing to greater than 1. Instead, I’ve chosen to use the total number of <code>file_type</code> entries that remained after filtering the data, which lets our <code>file_type</code> share percentages sum nicely.</p>
+<p>The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. <code>length(unique(filed$id))</code>) would result in our percentages summing to greater than 1. Instead, I’ve chosen to use the total number of <code>file_type</code> entries that remained after filtering the data, which lets our <code>file_type</code> share percentages sum nicely.</p>
 <p>I’ve left all of the different file types in for this first summary table, but regardless, we can see that Stata is indeed dominant (In fact, we can throw out the .ado files–a Stata format–as they are always coupled with .do files for any journal article in question).</p>
 <p>Among the other top languages that show up here, we can see that SAS is still in the top five, and C and Python are both more or less in the top ten. The other file extensions are either below 1%, or come from software packages that seem to be quite niche (i.e. I don’t recognize them), so we’ll drop them for the rest of our analysis.</p>
 <p>Re-running our table from above with the additional filters, we have:</p>
@@ -213,42 +210,18 @@ output:
 <p><img src="/posts/2019-03-14-economics-journals-and-software_files/figure-html/plot%20code%20shares%20over%20time-1.png" width="672" /></p>
 <p>Looking at the use of different packages over time, the picture changes a bit. In this plot we can clearly see Stata’s consistent dominance in the economics field, remaining stable around 70% throughout all years despite the movement of the other software packages. Matlab is the next most popular software package, and its usage is also fairly stable–with maybe a slight tailing off in the past decade.</p>
 <p>Among the rest, it’s interesting to see that SAS and C usage has really dropped off over the past 14 years, while conversely, R and Python have had comparable increases in usage. What the aggregate figures from before don’t show is that, by roughly 2015, R has overtaken SAS as the third most popular software package, and that, by 2018, both R and Python are more popular than either SAS or C.</p>
-<p>While the plot clearly shows that both R and Python users are still a minority in the Economics field at the moment (6.7% and 4.8% shares in 2019 respectively), I’m curious to see if their upward trend will continue and if they will get closer to Matlab and Stata at any point in the future. For a number of reasons, I suspect that R and Python usage will only continue to increase going forward (for R in particular), though the question of how close they will get to Stata and Matlab I’m less sure of.</p>
+<p>While the plot clearly shows that both R and Python users are still a minority in the Economics field at the moment (6.7% and 4.8% shares in 2019 respectively), I’m curious to see if their upward trend will continue and if they will get closer to Matlab and Stata at any point in the future. For a number of reasons, I suspect that R and Python usage will only continue to increase going forward, though the question of how close they will get to Stata and Matlab I’m less sure of. I can’t imagine that Matlab will be able to maintain its current share going forward, but we’ll see.</p>
 </div>
 <div id="software-package-tendencies-by-journal" class="section level3">
 <h3>Software package tendencies by journal</h3>
-<p>The last thing I wanted to look at here is the relation between the different journals and coding preferences. In aggregate, we can calculate the shares of our main languages per journal and plot them as follows:<br />
+<p>The last thing I wanted to look at here is the relation between the different journals and coding preferences. In aggregate, we can calculate the shares of our main languages per journal and plot them as follows:
 <img src="/posts/2019-03-14-economics-journals-and-software_files/figure-html/plot%20code%20share%20by%20journal-1.png" width="672" /></p>
 <p>Looking at the plot, a few things stand out to me: first, it appears that the distribution of Stata/Matlab dominance is certainly not even across all journals. The five journals on the right have quite large shares of the Matlab submissions–in particular, <em>Econometrica</em> (51%) and <em>AEJ Macroeconomics</em> (48.2%), where Matlab submissions are actually greater than Stata.</p>
 <p>From the R perspective, it’s interesting to note that <em>Econometrica</em> and the <em>Journal of Economic Perspectives</em> both have over 10% of their submissions in R, making them the two leading journals for R users.</p>
 <p>Lastly, we can see that the three journals on the left-hand side–<em>Journal of the Association of Environmental and Resource Economists</em>, <em>Quarterly Journal of Economics</em>, and the <em>Journal of Political Economy</em>–are notable in that they do not have any R or Python submissions at all.</p>
 </div>
 </div>
-<div id="keywords-and-topics" class="section level2">
-<h2>Keywords and topics</h2>
-<p>In addition to the information about code and data submitted to the journals, the data set also includes all of the journal article titles and abstracts, which potentially allows us to derive some insight the topics covered by the journals.</p>
-<p>Similar to what we did above, we can start by just looking at keyword popularity among all of the article submissions in the database.</p>
-<div id="term-frequency---inverse-document-frequency" class="section level3">
-<h3>Term Frequency - Inverse Document Frequency</h3>
-<p>Here, we start with a standard TF-IDF analysis of words used in submissions to the journals using the <code>tidytext</code> package. You can read more about the technique in detail in Silge and Robinson’s (2017) book <a href="https://www.tidytextmining.com/">Text Mining with R</a>.</p>
-<p>To keep it simple here, I’m only showing the last four years, comparing Stata submissions to R submissions. These are the results across all journals:</p>
-<div class="figure">
-<img src="/posts/2019-03-14-economics-journals-and-software_files/p_tfidf_do_r.png" alt="Keywords 2016-2019" />
-<p class="caption">Keywords 2016-2019</p>
-</div>
-<p>A quick read shows that keywords seem to be quite different from year-to-year and across the different software languages. Given that academic journals are curated very closely to showcase novel subjects and/or methods, this finding is not so surprising.</p>
-</div>
-<div id="lda-topic-modeling" class="section level3">
-<h3>LDA topic modeling</h3>
-<p>We can also try to extract some insight from all of textual data using Latent Dirichlet Allocation (LDA) analysis, which can easily be done with the <code>topicmodels</code> package. Again, <a href="https://www.tidytextmining.com/topicmodeling.html">the process is described in detail</a> in Silge and Robinson (2017).</p>
-<p>Again to keep it very simple, below, I’ve plotted the topic models for 2019, just for the R submissions:</p>
-<div class="figure">
-<img src="/posts/2019-03-14-economics-journals-and-software_files/p_lda_r2019.png" alt="LDA topic models for R submssions in 2019" />
-<p class="caption">LDA topic models for R submssions in 2019</p>
-</div>
-<p>Here, we are summing over all text in the database and trying to see if we can detect <code>k = 10</code> distinct topic groups.</p>
-<p>There’s considerable overalap between the 10 blocks, but we can see that pretty much all of our keywords from our TF-IDF analysis of R submissions in 2019 show up here, and that the topic groups give a bit more context for us to extract the broader themes for the year.</p>
-<p>Moreover, what these two plots (TF-IDF and LDA) tell me is that there’s alot more work that needs to be done here in terms figuring out how to partition and analyze all of this textual data if we are to extract any meaningful insight from this. My quick and dirty analysis here tells me looking at all the text as one large block does not work in the same way it did for our analysis of the software preferences, so we need to refine our questions of interest here–perhaps looking at smaller subsets or trying out many more different values for our topic clusters.</p>
-<p>But as this exercise has taken me far, far longer than I planned, I will have to save the refined textual analysis for a Part II to this post. In the meantime, anyone with suggestions or ideas on how to better approach this textual analysis, I would be happy to hear from you!</p>
-</div>
+<div id="and-the-textual-data" class="section level2">
+<h2>And the textual data?</h2>
+<p>In addition to the information about code and data submitted to the journals, the dataset also includes all of the journal article titles and abstracts, which potentially allows us to derive some insight about the topics covered by the journals. My initial attempts at doing some text analysis using <a href="https://www.tidytextmining.com/">TF-IDF and LDA techniques</a> didn’t reveal very much, but given how curated the journals are, not finding any interesting patterns in the term and topic frequency patterns here is not so surprising in retrospect. I’m not sure if there’s any interesting insight buried in here somewhere, but a harder re-think of the research question is definitely required. For the moment, I’ll have to leave that for a part two of this post.</p>
 </div>

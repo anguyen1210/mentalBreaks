@@ -3,8 +3,6 @@ title = "About Me"
 date = "2019-01-03"
 +++
 
-*$H_0:$ You can't teach an old dog new tricks.*
-
 I've worked as a writer in Texas, a global events organizer in  Switzerland, and now, on the wrong side of 40, I'm a student all over again, excited to see what's next.
 
 I'm interested in economics and migration, the future of work, and data science.
