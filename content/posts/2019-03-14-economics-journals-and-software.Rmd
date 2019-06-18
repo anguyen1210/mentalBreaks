@@ -3,7 +3,7 @@ title: Economics journals and software preferences
 author: Anthony Nguyen
 date: '2019-03-22'
 slug: economics-journals-and-software
-categories: 
+categories:
 tags:
   - r
   - stata
@@ -16,7 +16,7 @@ highlight: tango
 output:
   blogdown::html_page:
       toc: TRUE
-     
+
 ---
 
 ```{r setup environment, include = FALSE}
@@ -33,117 +33,117 @@ load("article.rda")
 load("files.rda")
 ```
 
-As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it's important to learn it, not only for it's relative ease of use, but also, to be able to better communicate with other Economists. 
-  
-Anyway, for our thesis work, we've been told that we're free to use whatever software we would like. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past two years trying to learn R.  Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?   
-  
-With all of that said, I was very excited to see this post, '[Finding Economic Articles with Data](http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html)', from Sebastian Kranz on the [R-bloggers](https://www.r-bloggers.com/) mailing list the other week.  
-  
-Because the [AEA](https://www.aeaweb.org/journals/) requires all authors to upload their data and replication code to go along with journal submissions, there's a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a great Shiny [app that allows you to search the AEA data archives](http://econ.mathematik.uni-ulm.de:3200/ejd/) to see what data is available. Definitely have a look, it's well done.  
-  
-## Overview of the database  
-  
-Using the data provided in the blog post, I thought it would be fun to run the analysis myself to see if there is any additional insight we can mine from what's been submitted to AEA.  
-  
-Follow the link to download the [database of economic articles](http://econ.mathematik.uni-ulm.de/ejd/articles.zip) used by Kranz's Shiny app.  
-  
+As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it's important to learn it, not only for it's relative ease of use, but also, to be able to better communicate with other Economists.
+
+Anyway, for our thesis work, we've been told that we're free to use whatever software we would like. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past two years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?
+
+With all of that said, I was very excited to see this post, '[Finding Economic Articles with Data](http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html)', from Sebastian Kranz on the [R-bloggers](https://www.r-bloggers.com/) mailing list the other week.
+
+Because the [AEA](https://www.aeaweb.org/journals/) requires all authors to upload their data and replication code to go along with journal submissions, there's a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a nice little Shiny [app that allows you to search the AEA data archives](http://econ.mathematik.uni-ulm.de:3200/ejd/) to see what data is available. Definitely have a look, it's well done.
+
+## Overview of the database
+
+Using the data provided in the blog post, I thought it would be fun to run the analysis myself to see if there is any additional insight we can mine from what's been submitted to AEA.
+
+Follow the link to download the [database of economic articles](http://econ.mathematik.uni-ulm.de/ejd/articles.zip) used by Kranz's Shiny app.
+
 Here is a quick summary of the data of interest:
 ```{r summary statistics, echo = FALSE, results = "asis"}
 
 test <- article %>%
-    select(id, year) %>% 
-    left_join(select(files, id, file_type, is_code), by = "id") %>% 
-    mutate(n_articles = length(unique(id)), 
+    select(id, year) %>%
+    left_join(select(files, id, file_type, is_code), by = "id") %>%
+    mutate(n_articles = length(unique(id)),
            n_w_code = n_distinct(id[is_code==1])
-           ) %>% 
+           ) %>%
     summarise(n_articles = mean(n_articles),
               pct_w_code = round(mean(n_w_code)/mean(n_articles),3),
-              yr_min = min(year), 
+              yr_min = min(year),
               yr_max = max(year)
               )
 
 knitr::kable(test)
 ```
 
-The database provided contains information related to published articles submitted to  different economic journals over a 15 year span, from 2005 until the present (March 2019 at the time of writing). Among those articles, 51% include code snippets, which we can use to analyze software package preferences. 
-    
-Consult the app for a [list of journal abbreviations](http://econ.mathematik.uni-ulm.de:3200/ejd/) covered in the database.  
-  
-When we plot the number of submssions by journal, we can see that the *American Economic Review* contains the bulk of papers in this database at the present.     
+The database provided contains information related to published articles submitted to  different economic journals over a 15 year span, from 2005 until the present (March 2019 at the time of writing). Among those articles, 51% include code snippets, which we can use to analyze software package preferences.
+
+Consult the app for a [list of journal abbreviations](http://econ.mathematik.uni-ulm.de:3200/ejd/) covered in the database.
+
+When we plot the number of submssions by journal, we can see that the *American Economic Review* contains the bulk of papers in this database at the present.
 ```{r Plot number of articles by journal, echo = FALSE}
 
 # Number of articles by journal
-p_articles_journ <- article %>% 
+p_articles_journ <- article %>%
     group_by(journ) %>%
     summarize(papers = n_distinct(id)) %>%
-    arrange(desc(papers)) %>% 
+    arrange(desc(papers)) %>%
     ggplot(aes(x = reorder(journ, -papers), y = papers, fill = journ)) +
     geom_col(show.legend = FALSE) +
     theme_minimal() +
     ggtitle("Number of articles by journal (2005 - 2019)") +
-    ylab("Number of articles") + 
+    ylab("Number of articles") +
     xlab("Journal abbreviation") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 p_articles_journ
 ```
 
-## Software preferences  
-  
-In the original Kranz blog post, he does a quick analysis to show what share of all code submitted to the various AER journals is written in what language. His results confirm that Stata does, in fact, dominate all other software (70% share, compared to 23% for Matlab and only 2.8% for R). After quickly peeking at the data, I can see that there are a few other popular languages in there that were not factored into his analysis, which we will factor into our analysis here.   
-  
-### What is the most popular analytical package?  
-  
-Using the file extension data from the included code snippets, we can easily match these to specific software packages to see what the most popular analytical packages are among all of the journal articles in this database.  
-  
-Here's what the top 15 results look like: 
+## Software preferences
+
+In the original Kranz blog post, he does a quick analysis to show what share of all code submitted to the various AER journals is written in what language. His results confirm that Stata does, in fact, dominate all other software (70% share, compared to 23% for Matlab and only 2.8% for R). After quickly peeking at the data, I can see that there are a few other popular languages in there that were not factored into his analysis, which we will factor into our analysis here.
+
+### What is the most popular analytical package?
+
+Using the file extension data from the included code snippets, we can easily match these to specific software packages to see what the most popular analytical packages are among all of the journal articles in this database.
+
+Here's what the top 15 results look like:
 ```{r filter out data files calculate counts and percentages, echo = FALSE, results="asis"}
 
 # Filter out any rows referring to data, only keep coding observations
 files_w_code <- files %>% filter(is_code == 1)
 
 # Language as % of total languages listed
-types_share <- files_w_code %>% 
-    group_by(file_type) %>% 
-    summarize(count = n(), 
-              share = round(count/length(files_w_code$id)*100, 2)) %>% 
+types_share <- files_w_code %>%
+    group_by(file_type) %>%
+    summarize(count = n(),
+              share = round(count/length(files_w_code$id)*100, 2)) %>%
     arrange(desc(share))
 
 # results
-kable(head(types_share, 15))  
-```  
-  
-The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. `length(unique(filed$id))`) would result in our percentages summing to greater than 1. Instead, I've chosen to use the total number of `file_type` entries that remained after filtering the data, which lets our `file_type` share percentages sum nicely.  
-  
-I've left all of the different file types in for this first summary table, but regardless, we can see that Stata is indeed dominant (In fact, we can throw out the .ado files--a Stata format--as they are always coupled with .do files for any journal article in question).  
-  
-Among the other top languages that show up here, we can see that SAS is still in the top five, and C and Python are both more or less in the top ten. The other file extensions are either below 1%, or come from software packages that seem to be quite niche (i.e. I don't recognize them), so we'll drop them for the rest of our analysis.  
-  
-Re-running our table from above with the additional filters, we have:  
+kable(head(types_share, 15))
+```
+
+The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. `length(unique(filed$id))`) would result in our percentages summing to greater than 1. Instead, I've chosen to use the total number of `file_type` entries that remained after filtering the data, which lets our `file_type` share percentages sum nicely.
+
+I've left all of the different file types in for this first summary table, but regardless, we can see that Stata is indeed dominant (In fact, we can throw out the .ado files--a Stata format--as they are always coupled with .do files for any journal article in question).
+
+Among the other top languages that show up here, we can see that SAS is still in the top five, and C and Python are both more or less in the top ten. The other file extensions are either below 1%, or come from software packages that seem to be quite niche (i.e. I don't recognize them), so we'll drop them for the rest of our analysis.
+
+Re-running our table from above with the additional filters, we have:
 ```{r filter out minor languages and re-run shares, echo = FALSE, results = "asis"}
 
 # Remove .ado files
 files_w_code_main <- files_w_code %>% filter(file_type %in% c("do", "m", "sas", "r", "c", "py"))
 
 # Calculate main languages as % of total languages listed
-types_share_main <- files_w_code_main %>% 
-    group_by(file_type) %>% 
-    summarize(count = n(), 
-              share = round(count/length(files_w_code_main$id)*100, 2)) %>% 
+types_share_main <- files_w_code_main %>%
+    group_by(file_type) %>%
+    summarize(count = n(),
+              share = round(count/length(files_w_code_main$id)*100, 2)) %>%
     arrange(desc(share))
 
 # Print results
 kable(types_share_main)
 ```
-  
-Again, we see that Stata dominates code submissions with a 67.4% share, followed by a very large share for Matlab at 23.3%. And while the data science community has made R and Python their languages of choice, we can see that among economists, they are still a minority. The aggregate figures show that SAS still has an edge over R, and even C has an edge over Python.  
-  
-### How has the use of different analytical software changed over time?  
-  
-Next we can have have a look to see how the choice of code has evolved over the years: 
+
+Again, we see that Stata dominates code submissions with a 67.4% share, followed by a very large share for Matlab at 23.3%. And while the data science community has made R and Python their languages of choice, we can see that among economists, they are still a minority. The aggregate figures show that SAS still has an edge over R, and even C has an edge over Python.
+
+### How has the use of different analytical software changed over time?
+
+Next we can have have a look to see how the choice of code has evolved over the years:
 ```{r join and sum over Year, include  = FALSE}
 
-types_main_year <- files_w_code_main %>% 
+types_main_year <- files_w_code_main %>%
   left_join(select(article, year, id), by="id") %>%
   group_by(year) %>%
   mutate(n_type_year = length(file_type)) %>%
@@ -152,13 +152,13 @@ types_main_year <- files_w_code_main %>%
     count = n(),
     share=round((count / first(n_type_year))*100,2)
   ) %>%
-  arrange(year,desc(share))  
+  arrange(year,desc(share))
 ```
 
 ```{r plot code shares over time, echo = FALSE}
 p_journ_year <- types_main_year %>%
-    ggplot(aes(x=year, y=share, color=file_type)) + 
-    geom_line(show.legend = FALSE) + 
+    ggplot(aes(x=year, y=share, color=file_type)) +
+    geom_line(show.legend = FALSE) +
     scale_x_continuous(breaks = seq(2005, 2019, by = 4)) +
     scale_y_log10(breaks = c(0, 1, 3, 10, 30, 70)) +
     theme_minimal() +
@@ -167,20 +167,20 @@ p_journ_year <- types_main_year %>%
     ylab("log(share)")
 
 p_journ_year
-```        
+```
 
-Looking at the use of different packages over time, the picture changes a bit. In this plot we can clearly see Stata's consistent dominance in the economics field, remaining stable around 70% throughout all years despite the movement of the other software packages. Matlab is the next most popular software package, and its usage is also fairly stable--with maybe a slight tailing off in the past decade.    
-     
-Among the rest, it's interesting to see that SAS and C usage has really dropped off over the past 14 years, while conversely, R and Python have had comparable increases in usage. What the aggregate figures from before don't show is that, by roughly 2015, R has overtaken SAS as the third most popular software package, and that, by 2018, both R and Python are more popular than either SAS or C.  
-  
-While the plot clearly shows that both R and Python users are still a minority in the Economics field at the moment (6.7% and 4.8% shares in 2019 respectively), I'm curious to see if their upward trend will continue and if they will get closer to Matlab and Stata at any point in the future. For a number of reasons, I suspect that R and Python usage will only continue to increase going forward (for R in particular), though the question of how close they will get to Stata and Matlab I'm less sure of.  
-  
-### Software package tendencies by journal  
-  
-The last thing I wanted to look at here is the relation between the different journals and coding preferences. In aggregate, we can calculate the shares of our main languages per journal and plot them as follows:      
+Looking at the use of different packages over time, the picture changes a bit. In this plot we can clearly see Stata's consistent dominance in the economics field, remaining stable around 70% throughout all years despite the movement of the other software packages. Matlab is the next most popular software package, and its usage is also fairly stable--with maybe a slight tailing off in the past decade.
+
+Among the rest, it's interesting to see that SAS and C usage has really dropped off over the past 14 years, while conversely, R and Python have had comparable increases in usage. What the aggregate figures from before don't show is that, by roughly 2015, R has overtaken SAS as the third most popular software package, and that, by 2018, both R and Python are more popular than either SAS or C.
+
+While the plot clearly shows that both R and Python users are still a minority in the Economics field at the moment (6.7% and 4.8% shares in 2019 respectively), I'm curious to see if their upward trend will continue and if they will get closer to Matlab and Stata at any point in the future. For a number of reasons, I suspect that R and Python usage will only continue to increase going forward, though the question of how close they will get to Stata and Matlab I'm less sure of. I can't imagine that Matlab will be able to maintain its current share going forward, but we'll see.
+
+### Software package tendencies by journal
+
+The last thing I wanted to look at here is the relation between the different journals and coding preferences. In aggregate, we can calculate the shares of our main languages per journal and plot them as follows:
 ```{r plot code share by journal, echo = FALSE}
 
-types_main_journ <- files_w_code_main %>% 
+types_main_journ <- files_w_code_main %>%
   left_join(select(article, journ, id), by="id") %>%
   group_by(journ) %>%
   mutate(n_type_journ = length(file_type)) %>%
@@ -189,54 +189,26 @@ types_main_journ <- files_w_code_main %>%
     count = n(),
     share=round((count / first(n_type_journ))*100,2)
   ) %>%
-  arrange(journ,desc(share))  
+  arrange(journ,desc(share))
 
-p_code_journ <- types_main_journ %>% 
+p_code_journ <- types_main_journ %>%
     ggplot(aes(x = reorder(journ, -share), y = share, fill = file_type)) +
     geom_bar(stat = "identity", position = "fill", show.legend = TRUE) +
     theme_minimal() +
     ggtitle("Code submsission share per journal (2005 - 2019)") +
-    ylab("Share") + 
+    ylab("Share") +
     xlab("Journal abbreviation") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
 p_code_journ
-```  
+```
 
-Looking at the plot, a few things stand out to me: first, it appears that the distribution of Stata/Matlab dominance is certainly not even across all journals. The five journals on the right have quite large shares of the Matlab submissions--in particular, *Econometrica* (51%) and *AEJ Macroeconomics* (48.2%), where Matlab submissions are actually greater than Stata.  
-  
-From the R perspective, it's interesting to note that *Econometrica* and the *Journal of Economic Perspectives* both have over 10% of their submissions in R, making them the two leading journals for R users.  
-  
-Lastly, we can see that the three journals on the left-hand side--*Journal of the Association of Environmental and Resource Economists*, *Quarterly Journal of Economics*, and the *Journal of Political Economy*--are notable in that they do not have any R or Python submissions at all.    
-      
-## Keywords and topics
+Looking at the plot, a few things stand out to me: first, it appears that the distribution of Stata/Matlab dominance is certainly not even across all journals. The five journals on the right have quite large shares of the Matlab submissions--in particular, *Econometrica* (51%) and *AEJ Macroeconomics* (48.2%), where Matlab submissions are actually greater than Stata.
 
-In addition to the information about code and data submitted to the journals, the data set also includes all of the journal article titles and abstracts, which potentially allows us to derive some insight the topics covered by the journals.    
+From the R perspective, it's interesting to note that *Econometrica* and the *Journal of Economic Perspectives* both have over 10% of their submissions in R, making them the two leading journals for R users.
 
-Similar to what we did above, we can start by just looking at keyword popularity among all of the article submissions in the database.    
-  
-### Term Frequency - Inverse Document Frequency
+Lastly, we can see that the three journals on the left-hand side--*Journal of the Association of Environmental and Resource Economists*, *Quarterly Journal of Economics*, and the *Journal of Political Economy*--are notable in that they do not have any R or Python submissions at all.
 
-Here, we start with a standard TF-IDF analysis of words used in submissions to the journals using the `tidytext` package. You can read more about the technique in detail in Silge and Robinson's (2017) book [Text Mining with R](https://www.tidytextmining.com/). 
+## And the textual data?
 
-To keep it simple here, I'm only showing the last four years, comparing Stata submissions to R submissions. These are the results across all journals:
-  
-![Keywords 2016-2019](/posts/2019-03-14-economics-journals-and-software_files/p_tfidf_do_r.png)  
-
-A quick read shows that keywords seem to be quite different from year-to-year and across the different software languages. Given that academic journals are curated very closely to showcase novel subjects and/or methods, this finding is not so surprising. 
-
-### LDA topic modeling
- 
-We can also try to extract some insight from all of textual data using Latent Dirichlet Allocation (LDA) analysis, which can easily be done with the `topicmodels` package.  Again, [the process is described in detail](https://www.tidytextmining.com/topicmodeling.html) in Silge and Robinson (2017).
-
-Again to keep it very simple, below, I've plotted the topic models for 2019, just for the R submissions:  
-
-![LDA topic models for R submssions in 2019](/posts/2019-03-14-economics-journals-and-software_files/p_lda_r2019.png)  
-
-Here, we are summing over all text in the database and trying to see if we can detect `k = 10` distinct topic groups. 
-    
-There's considerable overalap between the 10 blocks, but we can see that pretty much all of our keywords from our TF-IDF analysis of R submissions in 2019 show up here, and that the topic groups give a bit more context for us to extract the broader themes for the year.  
-
-Moreover, what these two plots (TF-IDF and LDA) tell me is that there's alot more work that needs to be done here in terms figuring out how to partition and analyze all of this textual data if we are to extract any meaningful insight from this. My quick and dirty analysis here tells me looking at all the text as one large block does not work in the same way it did for our analysis of the software preferences, so we need to refine our questions of interest here--perhaps looking at smaller subsets or trying out many more different values for our topic clusters.
-
-But as this exercise has taken me far, far longer than I planned, I will have to save the refined textual analysis for a Part II to this post. In the meantime, anyone with suggestions or ideas on how to better approach this textual analysis, I would be happy to hear from you!
+In addition to the information about code and data submitted to the journals, the dataset also includes all of the journal article titles and abstracts, which potentially allows us to derive some insight about the topics covered by the journals. My initial attempts at doing some text analysis using [TF-IDF and LDA techniques](https://www.tidytextmining.com/) didn't reveal very much, but given how curated the journals are, not finding any interesting patterns in the term and topic frequency patterns here is not so surprising in retrospect. I'm not sure if there's any interesting insight buried in here somewhere, but a harder re-think of the research question is definitely required. For the moment, I'll have to leave that for a part two of this post.

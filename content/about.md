@@ -3,16 +3,12 @@ title = "About Me"
 date = "2019-01-03"
 +++
 
-Still setting up and testing this blog. Looking to launch this in 2019, exact date TBC! 
-  
-Gettin there...  
-  
-Example links:
+*$H_0:$ You can't teach an old dog new tricks.*
 
-* [Site1](https://github.com/spf13/cobra)
-* [Site2](https://github.com/spf13/viper)
-* [J Walter Weatherman](https://github.com/spf13/jWalterWeatherman)
-* [Cast](https://github.com/spf13/cast)
+I've worked as a writer in Texas, a global events organizer in  Switzerland, and now, on the wrong side of 40, I'm a student all over again, excited to see what's next.
 
-Learn more and contribute on [GitHub](https://github.com/gohugoio).
+I'm interested in economics and migration, the future of work, and data science.
 
+Back when I used to have free time, I was an avid reader of news and contemporary fiction, and was often at my happiest on a road bike, rolling through Swiss country side.
+
+The blog--along with everything else--is a work in progress.

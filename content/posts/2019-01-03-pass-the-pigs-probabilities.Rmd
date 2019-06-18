@@ -18,32 +18,32 @@ library(tidyverse)
 
 <div style= "float:right;position: relative; top: -10px; left: 20px;">
 ![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pig2_300px.png)
-</div>  
+</div>
 
-It's the holiday season, family is in town, and the board games are out!  
+It's the holiday season, family is in town, and the board games are out!
 
-At the moment, we have a few games that are in our main rotation, and oddly enough, [Pass the Pigs](https://www.amazon.com/Winning-Moves-Games-Pass-Pigs/dp/B00005JG3Y) is one of them.  It's a ridiculous game, but after a few rounds, people lock in, the throws get a bit more dramatic, and it always makes for some good fun.  
-  
-Pass the Pigs is essentially a dice game, but instead of dice, you are throwing two little plastic pigs that can land in any number of different ways. Depending on how they land, you score points (or lose points). The first person to reach whatever number you set--usually 100--wins. Consult the [Pass the Pigs Wiki](https://en.wikipedia.org/wiki/Pass_the_Pigs) page for a full description with rules of the game. 
+At the moment, we have a few games in our main rotation, and oddly enough, [Pass the Pigs](https://www.amazon.com/Winning-Moves-Games-Pass-Pigs/dp/B00005JG3Y) is one of them. It's a *ridiculous* game, but after a few rounds, people lock in, the throws get a bit more dramatic, and it actually leads to some good fun.
 
-At some point after our first session playing the game this year, I started thinking that it would be fun to look at the probability distributions for scoring points, which seemed like they would be pretty straightforward. The only tricky thing would be to figure out the probabilities for how the pigs landed, but luckily, people have already done some extensive work on this, and I've found some good write ups of probability models and strategies [here](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) [and here](http://paulowengames.blogspot.com/2012/01/risk-management-and-pigs-running.html). 
-  
-In the end, I took a fairly similar approach to Dayne Batten in his blogpost on this game, but I still had fun working through all the calculations myself, so here it is!  
-  
-##Determining pig probabilities  
-  
-The most difficult part of modeling this game is figuring out the probabilities for how each pig can land. Quickly scanning the internet, I saw different numbers [here](https://boardgamegeek.com/thread/708103/serious-stats-silly-game) and [here](http://passpigs.tripod.com/prob.html), but in the end, I just went with what is listed on the [Wikipedia page](https://en.wikipedia.org/wiki/Pass_the_Pigs#Relative_frequencies), as it was taken from an [academic paper](http://jse.amstat.org/v14n3/datasets.kern.html) that seemed to have this most rigorous approach to figuring this out.  
-  
-The first step was to create vector with the probabilities for the six different ways the pigs can land, along with the names of all the landing  positions, and build up our marginal and joint probabilities from there.  
+Pass the Pigs is essentially a dice game, but instead of dice, you throw two little plastic pigs that can land in any number of different ways. Depending on how they land, you score points (or lose points). The first person to reach whatever number you set--usually 100--wins. Consult the [Pass the Pigs Wiki](https://en.wikipedia.org/wiki/Pass_the_Pigs) page for a full description with rules of the game.
+
+At some point after our first session this Xmas break, I started thinking that it would be fun to look at the probability distributions for scoring points, which seemed like they would be pretty straightforward. The only tricky thing would be to figure out the probabilities for how the pigs landed. Amazingly enough, people have already done some extensive work on this, and there are some good write-ups of probability models and strategies [here](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) [and here](http://paulowengames.blogspot.com/2012/01/risk-management-and-pigs-running.html).
+
+In the end, I took a fairly similar approach to [Dayne Batten](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) in his blogpost on this game, but I still had fun working through all the calculations myself, so here it is!
+
+##Pig probabilities
+
+The most difficult part of modeling this game is figuring out the probabilities for how each pig can land. Quickly scanning the internet, I saw different numbers [here](https://boardgamegeek.com/thread/708103/serious-stats-silly-game) and [here](http://passpigs.tripod.com/prob.html), but in the end, I just went with what is listed on the [Wikipedia page](https://en.wikipedia.org/wiki/Pass_the_Pigs#Relative_frequencies), as it was taken from an [academic paper](http://jse.amstat.org/v14n3/datasets.kern.html) that seemed to have this most rigorous approach to figuring this out.
+
+The first step was to create vector with the probabilities for the six different ways the pigs can land, along with the names of all the landing  positions, and build up our marginal and joint probabilities from there.
 
 ```{r create probability vector, echo=TRUE}
-  
-position <- c("dot", "no_dot", "razorback", "trotter", "snouter", "jowler")  
-  
+
+position <- c("dot", "no_dot", "razorback", "trotter", "snouter", "jowler")
+
 p <- c(.349, .302, .224, .088, .030, .0061)
 ```
-Because each roll of the pigs is independent from the other, we can find the joint probability distribution by just simply multiplying the individual probabilities.     
-  
+Because each roll of the pigs is independent from the other, we can find the joint probability distribution by just simply multiplying the individual probabilities.
+
 We can do this quickly through matrix multiplication, where the `p` object we just created represents a (6 x 1) vector of probabilities $p$ for the first pig, which we can multiply by its transpose $p'$, the second pig, to arrive at a (6 x 6) matrix ($P$) representing the joint probabilities for (i.e. [joint PMF](https://www.probabilitycourse.com/chapter5/5_1_1_joint_pmf.php)) for our two pigs. In other words:
 $$
 P = pp'
@@ -51,30 +51,30 @@ $$
 
 ```{r find joint probability distribution, echo = TRUE}
 
-#create matrix with joint probabilities  
-P <- p %*% t(p)  
-  
-#label the rows and columns  
+#create matrix with joint probabilities
+P <- p %*% t(p)
+
+#label the rows and columns
 rownames(P) <- position
 colnames(P) <- position
-  
-#print results  
+
+#print results
 P
 ```
-  
+
 As a quick sanity check, we know that all of these probabilities should sum up to one, which we can quickly verify:
 ```{r sum P, echo = TRUE}
 sum(P)
 ```
-  
-##Scoring points as a random variable 
-![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pass_pigs_pts.jpg) 
-For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.  
 
-We can summarize all of the different point outcome in a table as follows:  
+##Scoring points as a random variable
+![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pass_pigs_pts.jpg)
+For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.
+
+We can summarize all of the different point outcome in a table as follows:
 ```{r create points outcome matrix, echo = TRUE}
-  
-#points table taken from Wiki entry  
+
+#points table taken from Wiki entry
 PTS <- matrix(c(1,0,5,5,10,15,
                 0,1,5,5,10,15,
                 5,5,20,10,15,20,
@@ -82,34 +82,34 @@ PTS <- matrix(c(1,0,5,5,10,15,
                 10,10,15,15,40,25,
                 15,15,20,20,25,60
                 ), nrow = 6, ncol = 6)
-  
-#add labels  
+
+#add labels
 rownames(PTS) <- position
-colnames(PTS) <- position 
-  
-#print results  
+colnames(PTS) <- position
+
+#print results
 PTS
 ```
-The different point outcomes for each roll of the two pigs is also, therefore, a random variable that can take on any of nine different values (0, 1, 5, 10, 15, 20, 25, 40, 60).  
-    
-So for each turn, every time we roll the two pigs, we can think of the points we get a random variable, $Z$, which takes on one of the nine values, $z$, with a probability equal to the sum of the probabilities of all the different pig combinations that results in that point total:     
+The different point outcomes for each roll of the two pigs is also, therefore, a random variable that can take on any of nine different values (0, 1, 5, 10, 15, 20, 25, 40, 60).
+
+So for each turn, every time we roll the two pigs, we can think of the points we get a random variable, $Z$, which takes on one of the nine values, $z$, with a probability equal to the sum of the probabilities of all the different pig combinations that results in that point total:
 
 \begin{align*}
-p(Z=0) =& \,p(\text{dot, no_dot}) + p(\text{no_dot, dot}) \\  
-p(Z=1) =& \,p(\text{dot, dot}) + p(\text{no_dot, no_dot}) \\      
+p(Z=0) =& \,p(\text{dot, no_dot}) + p(\text{no_dot, dot}) \\
+p(Z=1) =& \,p(\text{dot, dot}) + p(\text{no_dot, no_dot}) \\
 p(Z=5) =& \,p(\text{razorback, dot}) + p(\text{trotter, dot}) + p(\text{razorback, no_dot}) + p(\text{trotter, no_dot}) + \\
-  &p(\text{dot, razorback}) + p(\text{no_dot, razorback}) + p(\text{dot, trotter}) + p(\text{no_dot, trotter}) \\ 
-p(Z=10) =& \,p(\text{snouter, dot}) + p(\text{snouter, no_dot}) + p(\text{trotter, razorback}) + p(\text{razorback, trotter}) + \\ 
-  &p(\text{dot, snouter}) + p(\text{no_dot, snouter}) \\  
+  &p(\text{dot, razorback}) + p(\text{no_dot, razorback}) + p(\text{dot, trotter}) + p(\text{no_dot, trotter}) \\
+p(Z=10) =& \,p(\text{snouter, dot}) + p(\text{snouter, no_dot}) + p(\text{trotter, razorback}) + p(\text{razorback, trotter}) + \\
+  &p(\text{dot, snouter}) + p(\text{no_dot, snouter}) \\
 p(Z=15) =& \,p(\text{jowler, dot}) + p(\text{jowler, no_dot}) + p(\text{snouter, razorback}) + p(\text{snouter, trotter}) + \\
   &p(\text{razorback, snouter}) + p(\text{trotter, snouter}) + p(\text{dot, jowler}) + p(\text{no_dot, jowler})\\
 p(Z=20) =& \,p(\text{razorback, razorback}) + p(\text{jowler, razorback}) + p(\text{trotter, trotter}) +p(\text{jowler, trotter}) + \\
   &p(\text{razorback, jowler}) + p(\text{trotter, jowler}) \\
 p(Z=25) =& \,p(\text{jowler, snouter}) + p(\text{snouter, jowler}) \\
 p(Z=40) =& \,p(\text{snouter, snouter}) \\
-p(Z=60) =& \,p(\text{jowler, jowler}) 
-\end{align*}    
-  
+p(Z=60) =& \,p(\text{jowler, jowler})
+\end{align*}
+
 Thus, we can express the full PMF of $Z$ as:
 
 \begin{equation}
@@ -126,12 +126,12 @@ Thus, we can express the full PMF of $Z$ as:
       `r P[6,6]`, & \text{if}\ z=60 \\
       0, & \text{otherwise.}
     \end{cases}
-  \end{equation}  
-  
+  \end{equation}
 
-##Expected value and Pass the Pigs strategy  
-  
-The expected value $Z$ is the mean point outcome we should get for each roll of our pigs, which we can calculate by summing all of the different point outcomes multiplied by their respective probabilities: 
+
+##Expected value and Pass the Pigs strategy
+
+The expected value $Z$ is the mean point outcome we should get for each roll of our pigs, which we can calculate by summing all of the different point outcomes multiplied by their respective probabilities:
 
 \begin{align}
 E[Z] &= \sum z p_Z(z) \\
@@ -140,36 +140,36 @@ E[Z] &= \sum z p_Z(z) \\
 
 ```{r calcuate expected value of Z, echo=TRUE}
 
-#create vector for different point outcomes  
-z <- c(0, 1, 5, 10, 15, 20, 25, 40, 60)   
-  
-#create vector for corresponding probabilities  
+#create vector for different point outcomes
+z <- c(0, 1, 5, 10, 15, 20, 25, 40, 60)
+
+#create vector for corresponding probabilities
 p_Z <- c(
-         (P[1,2] + P[2,1]), 
-         (P[1,1] + P[2,2]), 
+         (P[1,2] + P[2,1]),
+         (P[1,1] + P[2,2]),
          (P[1,3] + P[1,4] + P[2,3] + P[2,4] + P[3,1] + P[3,2] + P[4,1] +P[4,2]),
          (P[1,5] + P[2,5] + P[3,4] + P[4,3] + P[5,1] +P[5,2]),
          (P[1,6] + P[2,6] + P[3,5] + P[4,5] +P[5,3] + P[5,4] + P[6,1] + P[6,2]),
-         (P[3,3] + P[3,6] + P[4,4] + P[4,6] + P[6,3] + P[6,4]), 
-         (P[5,6] + P[6,5]), 
+         (P[3,3] + P[3,6] + P[4,4] + P[4,6] + P[6,3] + P[6,4]),
+         (P[5,6] + P[6,5]),
          P[5,5],
          P[6,5]
-         )  
-  
-E_Z <- sum(z*p_Z)  
-  
-#print result  
+         )
+
+E_Z <- sum(z*p_Z)
+
+#print result
 E_Z
 ```
-Assuming this is our first roll of the game and we are starting with zero points, the expected value would be, $E[Z]$= `r E_Z`.  
+Assuming this is our first roll of the game and we are starting with zero points, the expected value would be, $E[Z]$= `r E_Z`.
 
-###Strategy!  
-  
-The key to Pass the Pigs is knowing when to keep rolling to get more points and knowing when to stop and keep the points you've accumulated during your turn before you "pig out" and go back to zero. What is important to keep in mind is that rolling a "pig out"--that is, some combination of pigs that gives you zero points--is not so much being awarded zero points, as it is having all the points you've accumulated during your turn taken away from you.  
-  
-In other words, if $t$ is the total points you've been accumulating over all the rolls during your turn, then rolling a "pig out" at probability $p(Z=0)$ gives you $-t$ points.  
+###Strategy!
 
-Going back to our expected value calculation with this information, we now have:  
+The key to Pass the Pigs is knowing when to keep rolling to get more points and knowing when to stop and keep the points you've accumulated during your turn before you "pig out" and go back to zero. What is important to keep in mind is that rolling a "pig out"--that is, some combination of pigs that gives you zero points--is not so much being awarded zero points, as it is having all the points you've accumulated during your turn taken away from you.
+
+In other words, if $t$ is the total points you've been accumulating over all the rolls during your turn, then rolling a "pig out" at probability $p(Z=0)$ gives you $-t$ points.
+
+Going back to our expected value calculation with this information, we now have:
 
 \begin{align}
 E[Z] &= \sum z p_Z(z) \\
@@ -179,44 +179,44 @@ E[Z] &= \sum z p_Z(z) \\
 Given our formula now involves the variable $t$, our expected value for each roll of the pigs will be different depending on what our current point total $t$ is. We can easily see this when we plot the expected value function for different $t$ values.  Here, let's have a look at what happens to our expected value for each roll of the pigs for $t$ values ranging from 0 to 100:
 
 ```{r create vectors for t values and expected values then plot, echo=TRUE}
-  
-#create vector of the different starting values of t  
+
+#create vector of the different starting values of t
 t_vec <- 0:100
-  
-#calculate different expected values for each starting t   
-t_exp_val <- (p_Z[1]*-t_vec) + sum(z[2:9] * p_Z[2:9])   
-  
-#bind the two objects together in order to plot  
-t_sim <- as_tibble(cbind(t_vec, t_exp_val))   
-  
-#add labels  
-names(t_sim) <- c("t", "Exp.Value")  
-  
-#plot expected value~t-value  
+
+#calculate different expected values for each starting t
+t_exp_val <- (p_Z[1]*-t_vec) + sum(z[2:9] * p_Z[2:9])
+
+#bind the two objects together in order to plot
+t_sim <- as_tibble(cbind(t_vec, t_exp_val))
+
+#add labels
+names(t_sim) <- c("t", "Exp.Value")
+
+#plot expected value~t-value
 t_sim %>% ggplot(aes(x = t, y = Exp.Value)) + geom_smooth(color = "deeppink", method = "loess") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") + 
-  annotate(geom = "point", x = 22.38921, y = 0, color = "deeppink4") + 
-  annotate(geom = "text", x = 22.38921, y = 0, label = "t = 22.39", color = "deeppink4", size = 3.5, hjust= -0.1, vjust= -0.2)  
-```  
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  annotate(geom = "point", x = 22.38921, y = 0, color = "deeppink4") +
+  annotate(geom = "text", x = 22.38921, y = 0, label = "t = 22.39", color = "deeppink4", size = 3.5, hjust= -0.1, vjust= -0.2)
+```
 As you can see in the graph, when our starting point total ($t$) is low, our expected value--i.e. the points we would expect to receive after rolling--is positive.  However, as our starting point total ($t$) increases, the points we would expect after each roll starts to decrease, and in fact, becomes negative after a certain threshold. I've already added that point threshold to the above plot ($t$= 22.39), but we can solve for this value algebraically, by taking our expected value formula from before, setting it equal to zero and solving for $t$:
 
 \begin{align}
 t &= \frac{1\cdot p(Z=1) + \dots + 60\cdot p(Z=60)}{p(Z=0)}
-\end{align}  
+\end{align}
 
 ```{r solve for t, include=FALSE}
 
 t <- (sum(z[2:9] *p_Z[2:9]))/p_Z[1]
 ```
-This gives us $t =$ `r t`  
-  
-In other words, until we hit `r t` points, we can still expect to receive a positive value on our next roll.  After we hit `r t` for each additional role, our expected value is negative, meaning we would expect to lose all our points by "pigging out".  
-  
-I haven't had a chance to try out the strategy yet, but it seems to make sense, even though it would make for very boring game play.  
-  
-Back to enjoying my holiday time.  Let the games continue!  
-  
-<br>    
-<center>    
+This gives us $t =$ `r t`
+
+In other words, until we hit `r t` points, we can still expect to receive a positive value on our next roll.  After we hit `r t` for each additional role, our expected value is negative, meaning we would expect to lose all our points by "pigging out".
+
+I haven't actually had the chance to try out this strategy yet, but it seems to make sense, even though it might make for very boring game play. We'll see.
+
+Anyway, back to enjoying my holiday time. Let the games continue!
+
+<br>
+<center>
 ![](/posts/2019-01-03-pass-the-pigs-probabilities_files/ptp_2017_500px.jpg)
 </center>
