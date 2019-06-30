@@ -1,0 +1,127 @@
+---
+title: "The Balkan refugee shock and the Swiss labor market, Part I."
+author: "Anthony Nguyen"
+date: '2019-05-29'
+highlight: no
+lastmod: '2019-06-23T23:20:00+02:00'
+layout: post
+slug: the-balkan-refugee-shock-and-the-swiss-labor-market-part-i
+tags:
+- migration
+- refugees
+- labor
+- employment
+categories: []
+type: post
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+As part of a short assignment for my Applied Econometrics course, I decided to have a look, myself, at the impact of the Balkan refugee immigration shock of the 1990s on the Swiss labor market.
+
+As has been extensively documented in the economic literature, the impact of migration on local labor markets in the developed countries of the global north is a contested topic that has important ramifications for national economic and social policy-making, and is, perhaps, an important factor that shapes popular sentiment and behavior towards foreigners more generally[^1].
+
+To recap: the primary challenges of estimating labor market impacts of immigration stems from endogeneity issues arising from local economic conditions that could drive migration flows and outcomes, as well as the selection bias problems associated with the different potential outcomes of economic migrants with either the will, motivation, opportunities or means to move to different countries. With that said, refugee shocks are argued to be exogenous to local market conditions in terms of their timing, quantity of labor supplied, and skill-composition[^2].
+
+Research on this topic typically uses partial equilibrium models that combine different factors of production in a constant, returns-to scale production function. Seen this way, immigration alters the distribution of the supply, skill, and ultimately marginal productivity of native and foreign workers, which leads to different outcomes for the respective groups in the labor market. The model predicts that as the supply of foreign workers increases, the labor market outcomes for native workers with very similar skill levels should go down. The empirical evidence, however, is inconclusive.
+
+# Empirical strategy and methods
+
+This analysis closely follows the national skill-cell approach developed by Borjas[^3]. The refugee exodus spawned by the Balkan wars in Bosnia and Kosovo in the 1990s provides an exogenous source of variation of immigrant flows to Europe and Switzerland[^2]. The empirical specification used to estimate the impact of this influx takes the form:
+
+\begin{align}
+\Delta log(u_{rs}) = \theta_r+ \theta_s - \eta \cdot log\frac{L_{rs1}}{L_{rs0}} - \eta \cdot m_{rs} + ϵ_{rs}
+(\#eq:eq1)
+\end{align}
+
+where the proportion ($m_rs$) of refugees entering a defined region-skill cell ($r,s$) in Switzerland can be used to identify the relative labor market effect ($\eta$) of immigration. Here I will estimate dependent variables for both unemployment rate and employment rate.
+
+The Balkan refugee wave spanned a period of just over ten years, with the peak years between 1992-1995 and a gradual tapering off to pre-shock levels only after 2004 [Figure 1[^4]]. 
+
+![Figure 1](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/iseni_etal_2014_balkan_asylum_apps_1986-2012.png) 
+
+# Data
+
+The data comes from the [IPUMS-International database](https://international.ipums.org/international/index.shtml)[^5],  where an extract containing national census data in Switzerland for the years 1990 and 2000 was taken. As these two years closely match the span of the Balkan refugee wave [Figure 1], they provide a before and after snapshot of the Swiss labor market with respect to the immigration shock. Additionally, the sample contains the requisite information about regions (i.e. cantons), employment status and education that is required for the specification.
+
+# Summary statistics
+
+## Supply shocks by canton
+
+Table B, below, shows the Balkan refugee supply shock in each Swiss canton as well as the corresponding change in unemployment and employment.
+
+![Table B. Balken refugee supply shock by canton](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_b_web.png)
+
+Viewed by canton, the Balkan shocks are quite small in fact. To wit, Glarus experienced a 4.13% increase in its labor force, but for all other cantons, the labor supply shock attributed to the Balkan refugee wave of the 1990s was under 1%. Similarly, the change in unemployment and employment rates do not appear to be very large  either. Only a handful of cantons experienced increases in unemployment of greater than 1%, and for nearly all cantons in this analysis, the change in employment rate was not statistically different from zero.
+
+## Distribution of educational attainment between groups
+
+Economic theory tells us that labor supply shocks will have the greatest effects on workers or similar skill levels or skill types, and in keeping with standard practice, we can have a look at the skill distributions (as measured through educational attainment) of our native and foreign worker groups to have and idea of where we would expect to see the greatest effects of this migration episode on the local labor market.
+
+![Figure 2](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/edattain_native.png)
+
+![Figure 3](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/edattain_balkan.png)
+
+It's clear from Figures 2 and 3 that the distribution of educational attainment is quite different for the Native and Balkan population in our sample. Specifically, the majority of the Balkan population only has a primary level of education or less, whereas the mahjority of the Native Swiss population has completed Secondary education.
+
+In Table C, below, we can see how the Balkan labor supply shock affected the different education/skill groups:
+![](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_c_web.png)
+  
+Unsurprisingly, the table shows that low-education/low-skill workers experience the greatest relative increase in labor supply at 15.36%, and that the unemployment rate for this group increased by 3.26% in 2000 (in contrast with less than 1% for the other education groups).
+
+# Results
+
+Regressions were run for two different dependent variables—the change in unemployment rate (Table D) and the change in employment rate (Table E).
+
+Following equation \@ref(eq:eq1) the relative Balkan immigration shock was calculated for each region-skill cell in the data set, which serves as the primary regressor of interest. A second regressor, the change in supply of native workers, was also calculated for all region-skill cells, serving as a control variable in the regression.  
+  
+## Impact on unemployment 
+
+![](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_d_web.png)
+
+With regards to the effect of the Balkan immigration shock on unemployment, columns 1-3 in Table D give a baseline estimate using OLS .  The point estimate from Column 1 shows that a 10% increase in refugee labor supply increases the unemployment rate by 1.09%. This result does not change when the control is added (Column 2).  When sample weights  are added to each region-skill cell, we can see that both the effect and the statistical significance increase slightly (Column 3), but also the effect of native labor supply change also becomes significant.
+
+With regards to the results of the fixed effects regressions, while the signs remain the same, the effects are weaker and are not significantly different from zero. Interestingly, unlike with the OLS estimations, when the cell weights were added to the fixed effect models, the effect of the shock actually became weaker, though again, none coefficients were significant.  
+  
+## Impact on employment
+  
+![](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_e_web.png)
+  
+Table E reports the same regressions as before, only with the dependent variable set to equal the change in the employment rate. Here, all results are not significantly different from zero, apart from the OLS regression coefficients in Column 3, which, as mentioned are likely to be heavily biased.
+
+Graphically, the relationship between the size of the refugee shock and unemployment/employment rates are clearly illustrated in Figures 3 and 4 below, where only the low-skill workers seem to be affected by the size of the refugee shock, while the other two groups are unresponsive to shocks of any size. [*Note: Figures 4 and 5 do not include fixed effects*]
+  
+![Figure 4](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/ue_rate_shock.png) 
+  
+![Figure 5](/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/e_rate_shock.png)
+  
+# A few remarks
+
+The results of this quick analysis seem to confirm the overarching consensus in the migration economics literature that points towards immigration having little to zero effects on the labor market outcomes of native workers.[^6]
+
+It's important to bear in mind, however, that apart from the very restricted sample of prime age working males that I looked at here, the analysis, more broadly, has many other limitations and areas of potential measurement error.
+
+With regard to the former, the analysis relies on a couple of critical assumptions—foremost among them that refugees were randomly assigned to the different cantons within Switzerland, and that any unexplained factors (the residuals, $ϵ_{rs}$) are uncorrelated with size of the refugee shock as well as the response.
+
+Furthermore, the education proxy used here for worker skill-level is very broad, and it is assumed that native workers and migrants are perfect substitutes, which intuitively and empirically is not likely. The span of ten years with only two cross sections also hints at other areas where the results are potentially biased or severely confounded.
+
+This particular analysis would be greatly improved with additional checks using different measures of worker skill, or using higher dimension region-skill cells. For example, it would be interesting to look at a region-skill-age cell that would potentially capture differences in labor market experience, but given that some of the canton-cells contained so few observations, this might further reduce the number and variation of the cells, which needs further consideration.
+
+Finally, it would be interesting to calculate the cross-effects between different skill groups, using instrumental variables to control for ethnic enclaves, or to use a different model specification that accounts for imperfect elasticity of supply between groups for future analysis.
+
+# References
+
+[^1]: Hainmueller, J., Hiscox, M.J., 2007. Educated preferences: Explaining attitudes toward immigration in Europe. International organization 61, 399–442.
+
+[^2]: Borjas, G.J., Monras, J., 2017. The labour market consequences of refugee supply shocks. Economic Policy 32, 361–413.
+
+[^3]: Borjas, G.J., 2003. The labor demand curve is downward sloping: Reexamining the impact of immigration on the labor market. The quarterly journal of economics 118, 1335–1374.
+
+[^4]: Iseni, B., Ruedin, D., Bader, D., Efionayi-Mäder, D., 2014. The population of Bosnia and Herzegovina in Switzerland. Swiss Federal Office for Migration, Bern.
+
+[^5]: [Integrated Public Use Microdata Series, International](https://international.ipums.org/international/index.shtml): Version 7.1 [dataset]. Minneapolis, MN: IPUMS., 2018.
+
+[^6]: Dustmann, C., Schönberg, U., Stuhler, J., 2016. The impact of immigration: Why do studies reach such different results? Journal of Economic Perspectives 30, 31–56.
