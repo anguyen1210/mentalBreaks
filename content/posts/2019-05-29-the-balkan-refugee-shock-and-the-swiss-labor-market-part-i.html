@@ -31,7 +31,7 @@ type: post
 <p>where the proportion (<span class="math inline">\(m_rs\)</span>) of refugees entering a defined region-skill cell (<span class="math inline">\(r,s\)</span>) in Switzerland can be used to identify the relative labor market effect (<span class="math inline">\(\eta\)</span>) of immigration. Here I will estimate dependent variables for both unemployment rate and employment rate.</p>
 <p>The Balkan refugee wave spanned a period of just over ten years, with the peak years between 1992-1995 and a gradual tapering off to pre-shock levels only after 2004 [Figure 1<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>].</p>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/iseni_etal_2014_balkan_asylum_apps_1986-2012.png" alt="Figure 1" />
+<img src="/img/iseni_etal_2014_balkan_asylum_apps_1986-2012.png" alt="Figure 1" />
 <p class="caption">Figure 1</p>
 </div>
 </div>
@@ -45,7 +45,7 @@ type: post
 <h2>Supply shocks by canton</h2>
 <p>Table B, below, shows the Balkan refugee supply shock in each Swiss canton as well as the corresponding change in unemployment and employment.</p>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_b_web.png" alt="Table B. Balken refugee supply shock by canton" />
+<img src="/img/table_b_web.png" alt="Table B. Balken refugee supply shock by canton" />
 <p class="caption">Table B. Balken refugee supply shock by canton</p>
 </div>
 <p>Viewed by canton, the Balkan shocks are quite small in fact. To wit, Glarus experienced a 4.13% increase in its labor force, but for all other cantons, the labor supply shock attributed to the Balkan refugee wave of the 1990s was under 1%. Similarly, the change in unemployment and employment rates do not appear to be very large either. Only a handful of cantons experienced increases in unemployment of greater than 1%, and for nearly all cantons in this analysis, the change in employment rate was not statistically different from zero.</p>
@@ -54,16 +54,16 @@ type: post
 <h2>Distribution of educational attainment between groups</h2>
 <p>Economic theory tells us that labor supply shocks will have the greatest effects on workers or similar skill levels or skill types, and in keeping with standard practice, we can have a look at the skill distributions (as measured through educational attainment) of our native and foreign worker groups to have and idea of where we would expect to see the greatest effects of this migration episode on the local labor market.</p>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/edattain_native.png" alt="Figure 2" />
+<img src="/img/edattain_native.png" alt="Figure 2" />
 <p class="caption">Figure 2</p>
 </div>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/edattain_balkan.png" alt="Figure 3" />
+<img src="/img/edattain_balkan.png" alt="Figure 3" />
 <p class="caption">Figure 3</p>
 </div>
 <p>It’s clear from Figures 2 and 3 that the distribution of educational attainment is quite different for the Native and Balkan population in our sample. Specifically, the majority of the Balkan population only has a primary level of education or less, whereas the mahjority of the Native Swiss population has completed Secondary education.</p>
 <p>In Table C, below, we can see how the Balkan labor supply shock affected the different education/skill groups:
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_c_web.png" /></p>
+<img src="/img/table_c_web.png" /></p>
 <p>Unsurprisingly, the table shows that low-education/low-skill workers experience the greatest relative increase in labor supply at 15.36%, and that the unemployment rate for this group increased by 3.26% in 2000 (in contrast with less than 1% for the other education groups).</p>
 </div>
 </div>
@@ -73,21 +73,21 @@ type: post
 <p>Following equation <a href="#eq:eq1">(1)</a> the relative Balkan immigration shock was calculated for each region-skill cell in the data set, which serves as the primary regressor of interest. A second regressor, the change in supply of native workers, was also calculated for all region-skill cells, serving as a control variable in the regression.</p>
 <div id="impact-on-unemployment" class="section level2">
 <h2>Impact on unemployment</h2>
-<p><img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_d_web.png" /></p>
+<p><img src="/img/table_d_web.png" /></p>
 <p>With regards to the effect of the Balkan immigration shock on unemployment, columns 1-3 in Table D give a baseline estimate using OLS . The point estimate from Column 1 shows that a 10% increase in refugee labor supply increases the unemployment rate by 1.09%. This result does not change when the control is added (Column 2). When sample weights are added to each region-skill cell, we can see that both the effect and the statistical significance increase slightly (Column 3), but also the effect of native labor supply change also becomes significant.</p>
 <p>With regards to the results of the fixed effects regressions, while the signs remain the same, the effects are weaker and are not significantly different from zero. Interestingly, unlike with the OLS estimations, when the cell weights were added to the fixed effect models, the effect of the shock actually became weaker, though again, none coefficients were significant.</p>
 </div>
 <div id="impact-on-employment" class="section level2">
 <h2>Impact on employment</h2>
-<p><img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/table_e_web.png" /></p>
+<p><img src="/img/table_e_web.png" /></p>
 <p>Table E reports the same regressions as before, only with the dependent variable set to equal the change in the employment rate. Here, all results are not significantly different from zero, apart from the OLS regression coefficients in Column 3, which, as mentioned are likely to be heavily biased.</p>
 <p>Graphically, the relationship between the size of the refugee shock and unemployment/employment rates are clearly illustrated in Figures 3 and 4 below, where only the low-skill workers seem to be affected by the size of the refugee shock, while the other two groups are unresponsive to shocks of any size. [<em>Note: Figures 4 and 5 do not include fixed effects</em>]</p>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/ue_rate_shock.png" alt="Figure 4" />
+<img src="/img/ue_rate_shock.png" alt="Figure 4" />
 <p class="caption">Figure 4</p>
 </div>
 <div class="figure">
-<img src="/posts/the-balkan-refugee-shock-and-the-swiss-labor-market-part-i/e_rate_shock.png" alt="Figure 5" />
+<img src="/img/e_rate_shock.png" alt="Figure 5" />
 <p class="caption">Figure 5</p>
 </div>
 </div>
