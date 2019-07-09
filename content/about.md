@@ -1,6 +1,6 @@
 +++
 title = "About Me"
-date = "2019-01-03"
+date = "2019-01-01"
 +++
 
 I've worked as a writer in Texas, a global events organizer in Japan, France and Switzerland, and now, I'm a student all over again, excited to see what's next.
