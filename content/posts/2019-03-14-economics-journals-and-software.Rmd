@@ -1,5 +1,5 @@
 ---
-title: Economics journals and software preferences
+title: Econ journals and software 
 author: Anthony Nguyen
 date: '2019-03-22'
 slug: economics-journals-and-software
@@ -33,9 +33,9 @@ load("article.rda")
 load("files.rda")
 ```
 
-As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it's important to learn it, not only for it's relative ease of use, but also, to be able to better communicate with other Economists.
+As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it carries distinct advantages--namely, it's relative ease of use, along with its status as the lingua franca among Economists.
 
-Anyway, for our thesis work, we've been told that we're free to use whatever software we would like. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past two years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?
+In spite of our classes, we've been told that we're free to use whatever software we would like for our assignments and thesis. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past couple years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? What about integrating everything into my text editor and doing it that way? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?
 
 With all of that said, I was very excited to see this post, '[Finding Economic Articles with Data](http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html)', from Sebastian Kranz on the [R-bloggers](https://www.r-bloggers.com/) mailing list the other week.
 

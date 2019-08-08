@@ -4,7 +4,7 @@
 
 {{ define "content" }}
   <div class="post-list">
-    {{ range (where .Data.Pages "Type" "not in" (slice "about" "portfolio")).GroupBy "Section" }}
+    {{ range (where .Data.Pages "Type" "in" (slice "post" )).GroupBy "Section" }}
     {{ range .Pages }}
       <div class="post-list__item">
         <span class="item__title--big">

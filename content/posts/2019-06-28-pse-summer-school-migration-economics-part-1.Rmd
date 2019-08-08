@@ -1,5 +1,5 @@
 ---
-title: PSE Summer School, Migration Economics, Part 1
+title: PSE Summer School, Migration Economics, Part I.
 author: Anthony Nguyen
 date: '2019-06-28'
 slug: pse-summer-school-migration-economics-part-1
@@ -16,14 +16,17 @@ type: post
 highlight: no
 ---
 
-**Insert Lead paragraph here.**
+# Summer school and migration economics
+  
+Classes are finally over for the semester, and the summer break means I have a bit of extra personal time for all of the little events and projects I've been planning for over the past year. At the top of the list is one of two summer courses I've signed up for: [Migration Economics at the Paris School of Economics](https://www.parisschoolofeconomics.eu/en/teaching/pse-summer-school/migration-economics/).  
+  
+I was looking at a few different summer school options, and what sold me on this particular course, was the very [detailed agenda and reading list that they published online](https://www.parisschoolofeconomics.eu/IMG/pdf/migration-economics-sumschool-pse-2019.pdf). I'm not aware of any comparable program in Europe that would give me such a wide exposure to different areas of migration economics research within such a short time frame, and in this respect, I was very happy with the course.  
+ 
+The course was divded into four parts.
 
-A augue nunc lacus auctor efficitur tempor placerat, dictum volutpat mi vitae viverra porta non sem, himenaeos senectus vivamus potenti cubilia sollicitudin. Curae cursus inceptos tincidunt magna mi nibh ad enim etiam, molestie eu quis primis hendrerit taciti phasellus. Feugiat ultricies dictumst iaculis potenti odio laoreet urna at, ultrices curae leo accumsan proin sem lobortis. 
+# Migration and 
 
-## Heading 2
+The first part of the course (taught by David McKenzie) addresses the challenge of identifying the microeconomic impacts of migration. It discusses the various channels through which migration has a measurable impact on the migrant household, the key obstacles to being able to attribute effects to migration itself, and different empirical methods that can be used to identify the impacts of migration.
+The second part (taught by Hillel Rapoport) studies the relationship between globalization and development. It analyzes how migration affects other dimensions of globalization, such as trade, FDI, technology diffusion and the transmission of socio-cultural norms.
 
-Sollicitudin ornare odio blandit aenean enim lacus accumsan elementum vestibulum porta mauris lorem, ullamcorper class fermentum sem hendrerit ante augue penatibus scelerisque felis leo proin,ad nascetur venenatis sodales dignissim viverra suspendisse turpis convallis condimentum sapien.
-
-### Heading 3
-
-At quisque litora ullamcorper maecenas ultricies ut dignissim luctus curabitur, cras congue eget primis aliquam fringilla nulla dictum posuere, vestibulum sit magnis nisl praesent eros ipsum nunc. Ligula lacus ipsum orci aenean integer pharetra habitasse interdum, porttitor etiam hac feugiat placerat morbi posuere turpis leo, quam at amet gravida commodo fringilla erat.
+ terms of methodology, the course combines theoretical modeling in the migration literature with the most recent and rigorous empirical evidence.
