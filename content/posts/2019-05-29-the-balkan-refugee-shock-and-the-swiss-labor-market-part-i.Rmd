@@ -1,5 +1,5 @@
 ---
-title: "The Balkan refugee shock and the Swiss labor market, Part I."
+title: "Refugee supply shocks and the Swiss labor market, Part I."
 author: "Anthony Nguyen"
 date: '2019-05-29'
 highlight: no
@@ -13,6 +13,9 @@ tags:
 - employment
 categories: 
 type: post
+output:
+  blogdown::html_page:
+      toc: TRUE
 ---
 
 ```{r setup, include=FALSE}
