@@ -5,7 +5,7 @@ date: '2019-07-24'
 link: 'https://github.com/'
 screenshot: 's2r_draft.png'
 layout: 'portfolio'
-featured: 'true'
+featured: 'false'
 ---
 
 [Stata to R](https://github.com/anguyen1210/) is inspired by Rstudio's collection of produced and contributed cheat sheets. 
