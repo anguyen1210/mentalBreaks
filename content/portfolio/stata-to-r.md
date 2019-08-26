@@ -8,9 +8,7 @@ layout: 'portfolio'
 featured: 'false'
 ---
 
-[Stata to R](https://github.com/anguyen1210/) is inspired by Rstudio's collection of produced and contributed cheat sheets. 
-
-This cheat sheet aims to capture the most commonly used Stata commands for econometric analysis along with their equivalent expressions in R.
+[Stata to R](https://github.com/anguyen1210/) aims to summarize commonly used Stata commands for econometric analysis along with their equivalent expressions in R. This cheat sheet is inspired by Rstudio's collection of produced and contributed cheat sheets, and is intended for students with some basic familiarity with the R software environment. 
 
 
 

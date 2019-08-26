@@ -17,7 +17,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [taxonomies]
     category = "categories"
     tags = "tags"
-    
+
 ## Site Settings
 [params]
     #themeColor = "theme-base-0d"
@@ -34,7 +34,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [params.social]
     instagram = "anguyen1210"
     twitter = "anguyen1210"
-    linkedin = "<username>"
+    linkedin = "anguyen1210"
     github = "anguyen1210"
     email = "anguyen1210@gmail.com"
 
@@ -59,4 +59,3 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     identifier = "portfolio"
     weight = 400
     url = "/portfolio/"
-

@@ -30,26 +30,18 @@ At some point after our first session this Xmas break, I started thinking that i
 
 In the end, I took a fairly similar approach to [Dayne Batten](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) in his blogpost on this game, but I still had fun working through all the calculations myself, so here it is!
 
-##Pig probabilities
+## Pig probabilities
 
 The most difficult part of modeling this game is figuring out the probabilities for how each pig can land. Quickly scanning the internet, I saw different numbers [here](https://boardgamegeek.com/thread/708103/serious-stats-silly-game) and [here](http://passpigs.tripod.com/prob.html), but in the end, I just went with what is listed on the [Wikipedia page](https://en.wikipedia.org/wiki/Pass_the_Pigs#Relative_frequencies), as it was taken from an [academic paper](http://jse.amstat.org/v14n3/datasets.kern.html) that seemed to have this most rigorous approach to figuring this out.
 
-The first step was to create vector with the probabilities for the six different ways the pigs can land, along with the names of all the landing  positions, and build up our marginal and joint probabilities from there.
+Knowing the relative frequencies for the single pig rolls (i.e. the marginal probabilities), we can quickly calculate the joint probabilities from there:
 
-```{r create probability vector, echo=TRUE}
+```{r calculate joint probability, echo=FALSE}
 
+#create probability vector
 position <- c("dot", "no_dot", "razorback", "trotter", "snouter", "jowler")
 
 p <- c(.349, .302, .224, .088, .030, .0061)
-```
-Because each roll of the pigs is independent from the other, we can find the joint probability distribution by just simply multiplying the individual probabilities.
-
-We can do this quickly through matrix multiplication, where the `p` object we just created represents a (6 x 1) vector of probabilities $p$ for the first pig, which we can multiply by its transpose $p'$, the second pig, to arrive at a (6 x 6) matrix ($P$) representing the joint probabilities for (i.e. [joint PMF](https://www.probabilitycourse.com/chapter5/5_1_1_joint_pmf.php)) for our two pigs. In other words:
-$$
-P = pp'
-$$
-
-```{r find joint probability distribution, echo = TRUE}
 
 #create matrix with joint probabilities
 P <- p %*% t(p)
@@ -67,12 +59,12 @@ As a quick sanity check, we know that all of these probabilities should sum up t
 sum(P)
 ```
 
-##Scoring points as a random variable
+## Scoring points as a random variable
 ![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pass_pigs_pts.jpg)
 For every roll of the two pigs, players are awarded points according to how the pigs land as illustrated in the image above.
 
-We can summarize all of the different point outcome in a table as follows:
-```{r create points outcome matrix, echo = TRUE}
+We can summarize all of the different point outcomes in a table as follows:
+```{r create points outcome matrix, echo = FALSE}
 
 #points table taken from Wiki entry
 PTS <- matrix(c(1,0,5,5,10,15,
@@ -129,7 +121,7 @@ Thus, we can express the full PMF of $Z$ as:
   \end{equation}
 
 
-##Expected value and Pass the Pigs strategy
+## Expected value and Pass the Pigs strategy
 
 The expected value $Z$ is the mean point outcome we should get for each roll of our pigs, which we can calculate by summing all of the different point outcomes multiplied by their respective probabilities:
 
@@ -138,7 +130,7 @@ E[Z] &= \sum z p_Z(z) \\
   &= 0\cdot p(Z=0) + 1\cdot p(Z=1) + \dots 60\cdot p(Z=60)
 \end{align}
 
-```{r calcuate expected value of Z, echo=TRUE}
+```{r calcuate expected value of Z, echo=FALSE}
 
 #create vector for different point outcomes
 z <- c(0, 1, 5, 10, 15, 20, 25, 40, 60)
@@ -163,7 +155,7 @@ E_Z
 ```
 Assuming this is our first roll of the game and we are starting with zero points, the expected value would be, $E[Z]$= `r E_Z`.
 
-###Strategy!
+### Strategy!
 
 The key to Pass the Pigs is knowing when to keep rolling to get more points and knowing when to stop and keep the points you've accumulated during your turn before you "pig out" and go back to zero. What is important to keep in mind is that rolling a "pig out"--that is, some combination of pigs that gives you zero points--is not so much being awarded zero points, as it is having all the points you've accumulated during your turn taken away from you.
 
@@ -178,7 +170,7 @@ E[Z] &= \sum z p_Z(z) \\
 
 Given our formula now involves the variable $t$, our expected value for each roll of the pigs will be different depending on what our current point total $t$ is. We can easily see this when we plot the expected value function for different $t$ values.  Here, let's have a look at what happens to our expected value for each roll of the pigs for $t$ values ranging from 0 to 100:
 
-```{r create vectors for t values and expected values then plot, echo=TRUE}
+```{r create vectors for t values and expected values then plot, echo=FALSE}
 
 #create vector of the different starting values of t
 t_vec <- 0:100
