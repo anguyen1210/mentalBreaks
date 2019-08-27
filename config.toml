@@ -8,7 +8,7 @@ toc = false
 
 ## Hugo Built-in Features
 disqusShortname = "mentalbreaks"
-# googleAnalytics = "your-google-analytics-id"
+googleAnalytics = "UA-146526607-1"
 # enableRobotsTXT = true
 
 #ignore certain files as recommended
