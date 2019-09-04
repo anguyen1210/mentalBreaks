@@ -33,6 +33,8 @@ load("article.rda")
 load("files.rda")
 ```
 
+**Stata vs. the rest--examining software preferences in journal submissions to the AEA.**
+
 As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it carries distinct advantages--namely, it's relative ease of use, along with its status as the lingua franca among Economists.
 
 In spite of our classes, we've been told that we're free to use whatever software we'd like for our assignments and thesis. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past couple years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? What about integrating everything into my text editor and doing it that way? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?
