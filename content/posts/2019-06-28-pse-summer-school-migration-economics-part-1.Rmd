@@ -20,21 +20,41 @@ highlight: no
 
 Classes are finally over for the semester, and the summer break means I have a bit of extra personal time for some of the personal projects and events that I've been planning during the past year. At the top of the list is one of two summer courses I've signed up for: [Migration Economics at the Paris School of Economics](https://www.parisschoolofeconomics.eu/en/teaching/pse-summer-school/migration-economics/).
 
-I was looking at a few different summer school options, and what sold me on this particular course, was the very [detailed agenda and reading list that they published online](https://www.parisschoolofeconomics.eu/IMG/pdf/migration-economics-sumschool-pse-2019.pdf). I'm not aware of any comparable program in Europe that would give me such a wide exposure to different areas of migration economics research within such a short time frame. The days were long, and the lack of A/C in the classrooms during a week of record-breaking heat didn't help, but the content and instruction was top-notch, and I left satisfied, and with a lot of new ideas to mull over.
+After looking at a few different summer school options, what sold me on this particular course, was the very [detailed agenda and reading list that they published online beforehand](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/migration-economics-sumschool-pse-2019.pdf). I'm not aware of any comparable program in Europe that provides such a wide exposure to different areas of migration economics research within such a short time frame. The days were long, and the lack of A/C in the classrooms during a week of record-breaking heat didn't help, but the content and instruction was top-notch, and I left satisfied with the time spent there and with a lot of new ideas to mull over.
 
-The course was divded into four parts: (i) the relationship between migration, globalization and development; (ii) the microeconomic (household) impacts of migration; (iii) public finance and demographic effects of immigration on the host country; and (iv) the barriers to migrant assimilation.
-
+The course was divded into four parts:    
+* i. the relationship between migration, globalization and development;   
+* ii. the microeconomic (household) impacts of migration;    
+* iii. public finance and demographic effects of immigration on the host country; and    
+* iv. the barriers to migrant assimilation.  
+  
 I'm not going to do justice to the program by trying to summarize all of the content in any meaningful way, but I've posted the different lecture slides below, along with a few remarks on things that really jumped out at me. If you have more specific questions about the program, or I can answer questions about logistical concerns and the like, feel free to email me directly, or post a comment below. 
 
 # Migration, globalization and development
 
-The first part of the course (taught by David McKenzie) addresses the challenge of identifying the microeconomic impacts of migration. It discusses the various channels through which migration has a measurable impact on the migrant household, the key obstacles to being able to attribute effects to migration itself, and different empirical methods that can be used to identify the impacts of migration.
-The second part (taught by Hillel Rapoport) studies the relationship between globalization and development. It analyzes how migration affects other dimensions of globalization, such as trade, FDI, technology diffusion and the transmission of socio-cultural norms.
+The first part of the course, taught by [Hillel Rapoport](http://www.parisschoolofeconomics.eu/en/rapoport-hillel/), focused on different aspects of the relationship between globalization and development. Among other things, we analyzed how migration affects various dimensions of globalization, such as trade, FDI, technology diffusion and the transmission of socio-cultural norms.
+    
+In particular, for very personal reasons, I really enjoyed the discussion of the paper by [Parsons and Vezina (2018)--"Migrant Networks and Trade: The Vietnamese Boat People as a Natural Experiment](https://onlinelibrary.wiley.com/doi/abs/10.1111/ecoj.12457)”, where my family is a data point in the analysis.  
 
- terms of methodology, the course combines theoretical modeling in the migration literature with the most recent and rigorous empirical evidence.
+* [*Migration and Development: the Diaspora Externality*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/Rapoport_Day01.pdf).
+  
+# The Microeconomic (household) impacts of Migration
+The second part of the course, taught by [David McKenzie](https://sites.google.com/site/decrgdmckenzie/), addressed the challenge of identifying the microeconomic impacts of migration. It discussed the various channels through which migration has a measurable impact on the migrant household, the key obstacles to being able to attribute effects to migration itself, and different empirical methods that can be used to identify the impacts of migration. 
+  
+* [*Why is identification an issue? Identifying the impacts on migrants themselves?*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/DMLecture1_2019.pptx)
+* [*Impacts on Poverty*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/DMLecture2_2019.pptx)
+* [*Using Matching, DD, and RD*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/DMLecture3_2019.pptx)
+* [*Instrumental Variables*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/DMLecture4_2019.pptx)
+* [*Migration Lotteries and Migration Experiments*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/DMLecture5_2019.pptx)
+  
+# Public finance and demographic effects of immigration on the host country
+ 
+[Hippolyte d'Albis](http://www.parisschoolofeconomics.eu/en/d-albis-hippolyte/)
 
- # The Microeconomic (household) impacts of Migration
+* [*Migration and Ageing*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/dalbis_slidesHA19.pdf)
 
- # Public finance and demographic effects of immigration on the host country
+# Barriers to migrant assimilation
 
- # Barriers to migrant assimilation
+[Biagio Speciale](http://www.parisschoolofeconomics.eu/en/speciale-biagio/)
+
+* [*Immigrants in their host society: Barriers to immigrants’ assimilation*](https://github.com/anguyen1210/pse-migration-summer-2019/blob/master/Biagio_Speciale_PSE_Summer_School_2019.pdf)

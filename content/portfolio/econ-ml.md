@@ -1,6 +1,6 @@
 ---
 title: "Economics and Machine Learning"
-description: "Resources for Economists"
+description: "Resources students"
 date: '2019-04-01'
 link: 'https://github.com/'
 screenshot: 'hyde-hyde.png'
