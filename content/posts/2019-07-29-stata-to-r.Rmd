@@ -17,7 +17,7 @@ type: post
 highlight: no
 ---
 
-R was the first statistical software package I learned, and I still prefer it to everything else, despite Stata being both easier to use as well as [the dominant software package for economists](https://mentalbreaks.rbind.io/posts/economics-journals-and-software/)s.
+R was the first statistical software package I learned, and I still prefer it to everything else, despite Stata being both easier to use as well as [the dominant software package for economists](https://mentalbreaks.rbind.io/posts/economics-journals-and-software/).
 
 Inspired by my classes at [UNINE](https://www.unine.ch/unine/en/home.html), as well as all of the great [cheatsheets on the Rstudio site](https://rstudio.com/resources/cheatsheets/), I tried to capture some of the more common Stata commands used in an applied econometrics and their equivalent expressions in R in this [Stata to R cheatsheet](https://github.com/anguyen1210/stata2r).     
   
