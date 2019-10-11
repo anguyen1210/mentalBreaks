@@ -21,13 +21,10 @@ output:
 
 
 
-<blockquote>
-<p><strong>Stata vs. the rest–examining software preferences in journal submissions to the AEA.</strong></p>
-</blockquote>
 <p>As part of my Applied Econometrics course this semester, we have lab time each week where we’re working in Stata. As it’s been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it carries distinct advantages–namely, it’s relative ease of use, along with its status as the lingua franca among Economists.</p>
-<p>In spite of our classes, we’ve been told that we’re free to use whatever software we’d like for our assignments and thesis. I’ve been chewing on this topic for a couple of weeks now, as I’ve spent a lot of time over the past couple years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn <a href="https://data.princeton.edu/stata/markdown">Markstat</a>? What about integrating everything into my text editor and doing it that way? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?</p>
-<p>With all of that said, I was very excited to see this post, ‘<a href="http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html">Finding Economic Articles with Data</a>’, from Sebastian Kranz on the <a href="https://www.r-bloggers.com/">R-bloggers</a> mailing list the other week.</p>
-<p>Because the <a href="https://www.aeaweb.org/journals/">AEA</a> requires all authors to upload their data and replication code to go along with journal submissions, there’s a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a Shiny <a href="http://econ.mathematik.uni-ulm.de:3200/ejd/">app that allows you to search the AEA data archives</a> to see what data is available. Definitely have a look, it’s well done.</p>
+<p>In spite of our classes, we’ve been told that we’re free to use whatever software we’d like for our assignments and thesis. I’ve been chewing on this topic for a couple of weeks now, as I’ve spent a lot of time over the past couple years trying to learn R.</p>
+<p>With that said, I was excited to see this timely post, ‘<a href="http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html">Finding Economic Articles with Data</a>’, from Sebastian Kranz on the <a href="https://www.r-bloggers.com/">R-bloggers</a> mailing list the other week.</p>
+<p>Because the AEA requires all authors to upload their data and replication code to go along with journal submissions, there’s a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a Shiny <a href="http://econ.mathematik.uni-ulm.de:3200/ejd/">app that allows you to search the AEA data archives</a> to see what data is available. Definitely have a look, it’s well done.</p>
 <div id="overview-of-the-database" class="section level2">
 <h2>Overview of the database</h2>
 <p>Using the data provided in the blog post, I thought it would be fun to run the analysis myself to see if there is any additional insight we can mine from what’s been submitted to AEA.</p>
@@ -149,7 +146,6 @@ output:
 </tr>
 </tbody>
 </table>
-<p>The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. <code>length(unique(filed$id))</code>) would result in our percentages summing to greater than 1. Instead, I’ve chosen to use the total number of <code>file_type</code> entries that remained after filtering the data, which lets our <code>file_type</code> percentages sum nicely.</p>
 <p>I’ve left all of the different file types in for this first summary table, but regardless, we can see that Stata is indeed dominant (In fact, we can throw out the .ado files–a Stata format–as they are always coupled with .do files for any journal article in question).</p>
 <p>Among the other top languages that show up here, we can see that SAS is still in the top five, and C and Python are both more or less in the top ten. The other file extensions are either below 1%, or come from more niche software packages, so we’ll drop them for the rest of our analysis.</p>
 <p>Re-running our table from above with the additional filters, we have:</p>

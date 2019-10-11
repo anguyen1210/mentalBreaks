@@ -5,6 +5,7 @@ date: '2019-10-11'
 slug: stata-to-r
 categories:
   - projects
+  - r-bloggers
 tags:
   - stata
   - r
@@ -16,11 +17,7 @@ type: post
 highlight: no
 ---
 
-> **Presenting a cheatsheat for Economics students looking to switch from Stata to R**
-
-## Stata to R cheatsheet
-
-R was the first statistical software package I learned, and I still prefer it to everything else, despite Stata being both easier to use as well as [the dominant software package for economists](https://mentalbreaks.rbind.io/posts/economics-journals-and-software/), which I've discussed in a previous post.
+R was the first statistical software package I learned, and I still prefer it to everything else, despite Stata being both easier to use as well as [the dominant software package for economists](https://mentalbreaks.rbind.io/posts/economics-journals-and-software/)s.
 
 Inspired by my classes at [UNINE](https://www.unine.ch/unine/en/home.html), as well as all of the great [cheatsheets on the Rstudio site](https://rstudio.com/resources/cheatsheets/), I tried to capture some of the more common Stata commands used in an applied econometrics and their equivalent expressions in R in this [Stata to R cheatsheet](https://github.com/anguyen1210/stata2r).     
   
@@ -34,6 +31,6 @@ The content is biased towards my own experience, but if this cheat sheet is at a
 
 All comments and suggestions are welcome!
 
-* [State to R cheatsheet](https://github.com/anguyen1210/stata2r/blob/master/stata2r_1.0.0.pdf)
+![[Stata to R cheatsheet](https://github.com/anguyen1210/stata2r/blob/master/stata2r_1.0.0.pdf)](/posts/2019-07-29-stata-to-r_files/s2r_thumb.png)
 
    

@@ -33,15 +33,14 @@ load("article.rda")
 load("files.rda")
 ```
 
-> **Stata vs. the rest--examining software preferences in journal submissions to the AEA.**
 
 As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it carries distinct advantages--namely, it's relative ease of use, along with its status as the lingua franca among Economists.
 
-In spite of our classes, we've been told that we're free to use whatever software we'd like for our assignments and thesis. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past couple years trying to learn R. Should I go ahead and write my thesis using Stata? Does that imply learning and writing with LaTeX as a separate application instead of doing everything in Rmarkdown? Is it worth investing time to learn [Markstat](https://data.princeton.edu/stata/markdown)? What about integrating everything into my text editor and doing it that way? Is it really worth the extra effort to calculate robust standard errors or generate dummy variables in R?
+In spite of our classes, we've been told that we're free to use whatever software we'd like for our assignments and thesis. I've been chewing on this topic for a couple of weeks now, as I've spent a lot of time over the past couple years trying to learn R. 
 
-With all of that said, I was very excited to see this post, '[Finding Economic Articles with Data](http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html)', from Sebastian Kranz on the [R-bloggers](https://www.r-bloggers.com/) mailing list the other week.
+With that said, I was excited to see this timely post, '[Finding Economic Articles with Data](http://skranz.github.io/r/2019/02/21/FindingEconomicArticles.html)', from Sebastian Kranz on the [R-bloggers](https://www.r-bloggers.com/) mailing list the other week.
 
-Because the [AEA](https://www.aeaweb.org/journals/) requires all authors to upload their data and replication code to go along with journal submissions, there's a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a Shiny [app that allows you to search the AEA data archives](http://econ.mathematik.uni-ulm.de:3200/ejd/) to see what data is available. Definitely have a look, it's well done.
+Because the AEA requires all authors to upload their data and replication code to go along with journal submissions, there's a nice little repository of articles, data and code that goes back a little over a decade. Kranz has built a Shiny [app that allows you to search the AEA data archives](http://econ.mathematik.uni-ulm.de:3200/ejd/) to see what data is available. Definitely have a look, it's well done.
 
 ## Overview of the database
 
@@ -115,7 +114,10 @@ types_share <- files_w_code %>%
 kable(head(types_share, 15))
 ```
 
-The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. `length(unique(filed$id))`) would result in our percentages summing to greater than 1. Instead, I've chosen to use the total number of `file_type` entries that remained after filtering the data, which lets our `file_type` percentages sum nicely.
+```{r eval=FALSE, include=FALSE}
+
+#NOTE: The results we have here are slightly different from what Kranz showed on his blog. One consideration where I took a different approach is choosing what denominator to scale over. As some studies include multiple code snippets in different languages, simply using the number of individual studies as the denominator (i.e. `length(unique(filed$id))`) would result in our percentages summing to greater than 1. Instead, I've chosen to use the total number of `file_type` entries that remained after filtering the data, which lets our `file_type` percentages sum nicely.
+```
 
 I've left all of the different file types in for this first summary table, but regardless, we can see that Stata is indeed dominant (In fact, we can throw out the .ado files--a Stata format--as they are always coupled with .do files for any journal article in question).
 
