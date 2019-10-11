@@ -22,7 +22,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-In this post, I have a look, myself, at the impact of the Balkan refugee immigration shock of the 1990s on the Swiss labor market Using the region-skill-cell approach.
+In this post, I have a look, myself, at the impact of the Balkan refugee immigration shock of the 1990s on the Swiss labor market Using the region-skill-cell approach. 
 
 As has been widely discussed in the economic literature, the impact of migration on local labor markets in the developed countries of the global north is a contested topic that has important ramifications for national economic and social policy-making, and is, perhaps, an important factor that shapes popular sentiment and behavior towards foreigners more generally[^1].
 
@@ -133,3 +133,5 @@ To build on this analysis it would be interesting to calculate the cross-effects
 [^6]: Woolridge, J., 2012. Introductory Econometrics a Modern Approach.
 
 [^7]: Dustmann, C., Schönberg, U., Stuhler, J., 2016. The impact of immigration: Why do studies reach such different results? Journal of Economic Perspectives 30, 31–56.
+
+*Stata code used for this analysis available on [my github](https://github.com/anguyen1210/balkan_shock_ch).
