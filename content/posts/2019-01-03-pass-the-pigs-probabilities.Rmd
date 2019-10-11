@@ -1,5 +1,5 @@
 ---
-title: Pass the Pigs Probabilities
+title: Pass the Pigs 
 author: Anthony Nguyen
 date: '2019-01-03'
 slug: pass-the-pigs-probabilities
@@ -15,11 +15,6 @@ type: post
 ```{r load packages, include=FALSE}
 library(tidyverse)
 ```
-
-<div style= "float:right;position: relative; top: -10px; left: 20px;">
-![](/posts/2019-01-03-pass-the-pigs-probabilities_files/pig2_300px.png)
-</div>
-
 It's the holiday season, family is in town, and the board games are out!
 
 At the moment, we have a few games in our main rotation, and oddly enough, [Pass the Pigs](https://www.amazon.com/Winning-Moves-Games-Pass-Pigs/dp/B00005JG3Y) is one of them. It's a *ridiculous* game, but after a few rounds, people lock in, the throws get a bit more dramatic, and it actually leads to some good fun.
@@ -28,7 +23,7 @@ Pass the Pigs is essentially a dice game, but instead of dice, you throw two lit
 
 At some point after our first session this Xmas break, I started thinking that it would be fun to look at the probability distributions for scoring points, which seemed like they would be pretty straightforward. The only tricky thing would be to figure out the probabilities for how the pigs landed. Amazingly enough, people have already done some extensive work on this, and there are some good write-ups of probability models and strategies [here](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) [and here](http://paulowengames.blogspot.com/2012/01/risk-management-and-pigs-running.html).
 
-In the end, I took a fairly similar approach to [Dayne Batten](http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/) in his blogpost on this game, but I still had fun working through all the calculations myself, so here it is!
+In the end, I took a fairly standard approach to this problem, but I still had fun working through all the calculations myself, so here it is!
 
 ## Pig probabilities
 
@@ -54,8 +49,9 @@ colnames(P) <- position
 P
 ```
 
-As a quick sanity check, we know that all of these probabilities should sum up to one, which we can quickly verify:
-```{r sum P, echo = TRUE}
+```{r sum P, eval=FALSE, include=FALSE}
+#As a quick sanity check, we know that all of these probabilities should sum up to one, which we can quickly verify:
+
 sum(P)
 ```
 
@@ -119,7 +115,6 @@ Thus, we can express the full PMF of $Z$ as:
       0, & \text{otherwise.}
     \end{cases}
   \end{equation}
-
 
 ## Expected value and Pass the Pigs strategy
 

@@ -15,14 +15,14 @@ categories:
 type: post
 output:
   blogdown::html_page:
-      toc: TRUE
+      toc: FALSE
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-**Using the region-skill-cell approach to assess the impact of the Balkan refugee supply shock of the 1990s on the Swiss labor market**
+> **Using the region-skill-cell approach to assess the impact of the Balkan refugee supply shock of the 1990s on the Swiss labor market**
 
 As part of a short assignment for my Applied Econometrics course at UNINE, I decided to have a look, myself, at the impact of the Balkan refugee immigration shock of the 1990s on the Swiss labor market.
 

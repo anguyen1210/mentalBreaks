@@ -1,5 +1,5 @@
 ---
-title: Pass the Pigs Probabilities
+title: Pass the Pigs 
 author: Anthony Nguyen
 date: '2019-01-03'
 slug: pass-the-pigs-probabilities
@@ -15,14 +15,11 @@ type: post
 
 
 
-<div style="float:right;position: relative; top: -10px; left: 20px;">
-<p><img src="/posts/2019-01-03-pass-the-pigs-probabilities_files/pig2_300px.png" /></p>
-</div>
 <p>It’s the holiday season, family is in town, and the board games are out!</p>
 <p>At the moment, we have a few games in our main rotation, and oddly enough, <a href="https://www.amazon.com/Winning-Moves-Games-Pass-Pigs/dp/B00005JG3Y">Pass the Pigs</a> is one of them. It’s a <em>ridiculous</em> game, but after a few rounds, people lock in, the throws get a bit more dramatic, and it actually leads to some good fun.</p>
 <p>Pass the Pigs is essentially a dice game, but instead of dice, you throw two little plastic pigs that can land in any number of different ways. Depending on how they land, you score points (or lose points). The first person to reach whatever number you set–usually 100–wins. Consult the <a href="https://en.wikipedia.org/wiki/Pass_the_Pigs">Pass the Pigs Wiki</a> page for a full description with rules of the game.</p>
 <p>At some point after our first session this Xmas break, I started thinking that it would be fun to look at the probability distributions for scoring points, which seemed like they would be pretty straightforward. The only tricky thing would be to figure out the probabilities for how the pigs landed. Amazingly enough, people have already done some extensive work on this, and there are some good write-ups of probability models and strategies <a href="http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/">here</a> <a href="http://paulowengames.blogspot.com/2012/01/risk-management-and-pigs-running.html">and here</a>.</p>
-<p>In the end, I took a fairly similar approach to <a href="http://daynebatten.com/2015/09/optimal-pass-the-pigs-strategy/">Dayne Batten</a> in his blogpost on this game, but I still had fun working through all the calculations myself, so here it is!</p>
+<p>In the end, I took a fairly standard approach to this problem, but I still had fun working through all the calculations myself, so here it is!</p>
 <div id="pig-probabilities" class="section level2">
 <h2>Pig probabilities</h2>
 <p>The most difficult part of modeling this game is figuring out the probabilities for how each pig can land. Quickly scanning the internet, I saw different numbers <a href="https://boardgamegeek.com/thread/708103/serious-stats-silly-game">here</a> and <a href="http://passpigs.tripod.com/prob.html">here</a>, but in the end, I just went with what is listed on the <a href="https://en.wikipedia.org/wiki/Pass_the_Pigs#Relative_frequencies">Wikipedia page</a>, as it was taken from an <a href="http://jse.amstat.org/v14n3/datasets.kern.html">academic paper</a> that seemed to have this most rigorous approach to figuring this out.</p>
@@ -34,9 +31,6 @@ type: post
 ## trotter   0.0307120 0.0265760 0.0197120 0.0077440 0.002640 0.00053680
 ## snouter   0.0104700 0.0090600 0.0067200 0.0026400 0.000900 0.00018300
 ## jowler    0.0021289 0.0018422 0.0013664 0.0005368 0.000183 0.00003721</code></pre>
-<p>As a quick sanity check, we know that all of these probabilities should sum up to one, which we can quickly verify:</p>
-<pre class="r"><code>sum(P)</code></pre>
-<pre><code>## [1] 0.9982008</code></pre>
 </div>
 <div id="scoring-points-as-a-random-variable" class="section level2">
 <h2>Scoring points as a random variable</h2>

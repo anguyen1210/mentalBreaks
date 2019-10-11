@@ -16,6 +16,8 @@ type: post
 highlight: no
 ---
 
+> **Some notes and course slides from the PSE summer school on migration economics 2019**
+
 # Summer school and migration economics
     
 ![*The ENS-PSE Jourdan building, inaugurated Feb. 2017*](/posts/2019-06-28-pse-summer-school-migration-economics-part-1_files/pse_jourdan.jpeg)

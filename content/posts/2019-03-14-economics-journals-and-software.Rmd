@@ -15,7 +15,7 @@ type: post
 highlight: tango
 output:
   blogdown::html_page:
-      toc: TRUE
+      toc: FALSE
 
 ---
 
@@ -33,7 +33,7 @@ load("article.rda")
 load("files.rda")
 ```
 
-**Stata vs. the rest--examining software preferences in journal submissions to the AEA.**
+> **Stata vs. the rest--examining software preferences in journal submissions to the AEA.**
 
 As part of my Applied Econometrics course this semester, we have lab time each week where we're working in Stata. As it's been made clear to us, Stata still dominates all other statistical analysis packages in the field of Economics, and it carries distinct advantages--namely, it's relative ease of use, along with its status as the lingua franca among Economists.
 

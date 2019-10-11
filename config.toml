@@ -34,7 +34,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [params.social]
     instagram = "anguyen1210"
     twitter = "anguyen1210"
-    linkedin = "anguyen1210"
+    #linkedin = "anguyen1210"
     github = "anguyen1210"
     email = "anguyen1210@gmail.com"
 
