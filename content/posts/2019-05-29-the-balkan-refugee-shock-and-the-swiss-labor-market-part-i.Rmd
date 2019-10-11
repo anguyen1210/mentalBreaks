@@ -119,7 +119,9 @@ This particular analysis would be greatly improved with additional checks using 
 To build on this analysis it would be interesting to calculate the cross-effects between different skill groups, use instrumental variables to control for ethnic enclaves, or to use a different model specification that accounts for imperfect elasticity of supply between groups for future analysis. Also, the Swiss statistical office also groups the cantons into *grand regions*, which could be used to address the problem of the region-skill cells being too small. Otherwise, it would be interesting to re-run the analysis dropping certain cantons that do not have enough observations.
 
 # References
-
+  
+*Stata code used for this analysis available on [my github](https://github.com/anguyen1210/balkan_shock_ch).
+  
 [^1]: Hainmueller, J., Hiscox, M.J., 2007. Educated preferences: Explaining attitudes toward immigration in Europe. International organization 61, 399–442.
 
 [^2]: Borjas, G.J., Monras, J., 2017. The labour market consequences of refugee supply shocks. Economic Policy 32, 361–413.
@@ -134,4 +136,4 @@ To build on this analysis it would be interesting to calculate the cross-effects
 
 [^7]: Dustmann, C., Schönberg, U., Stuhler, J., 2016. The impact of immigration: Why do studies reach such different results? Journal of Economic Perspectives 30, 31–56.
 
-*Stata code used for this analysis available on [my github](https://github.com/anguyen1210/balkan_shock_ch).
+
