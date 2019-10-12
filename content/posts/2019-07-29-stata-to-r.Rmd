@@ -21,11 +21,11 @@ Within the field, [Stata is the dominant software package for economists](https:
 
 Outside of Economics, however, R is more widely used, more versatile, and just as importantly, free. It's also true that R is far less user friendly than Stata and can be confusing given the wide range of different approaches, packages and even syntax that are all used to do the same things that seem so effortless in Stata.
 
-With that said, inspired by the great [cheatsheets on the Rstudio site](https://rstudio.com/resources/cheatsheets/), I tried to capture some of the more common Stata commands used in an applied econometrics and their equivalent expressions in R in this [Stata to R cheatsheet](https://github.com/anguyen1210/stata2r).     
+With that said, inspired by the great [cheatsheets on the Rstudio site](https://rstudio.com/resources/cheatsheets/), I tried to capture some of the more common Stata commands used in an applied econometrics and their equivalent expressions in R in this [Stata to R cheatsheet](https://github.com/anguyen1210/stata2r/blob/master/stata2r_1.0.0.pdf).     
   
-This cheatsheet assumes a basic familiarity with R--how to read in files, install and load packages, and work with dataframes. 
+This cheatsheet assumes a basic familiarity with R: how to read-in files, install and load packages, and work with dataframes. 
   
-I went back and forth on whether to use or include [Tidyverse commands](http://varianceexplained.org/r/teach-tidyverse/), but based on what I've seen within the Economics department at my own university, I've opted to keep everything in base R and minimize the use of packages in order to make this cheatsheet as useful to the broadest range of R beginners. When there really was no simple way to do things (e.g. calculating robust standard errors), I just picked the package that I knew of that best replicated the simplicity of the Stata solution.
+I went back and forth on whether to use or include [Tidyverse commands](http://varianceexplained.org/r/teach-tidyverse/), but based on what I've seen within the Economics department at my own university, I've opted to keep everything in base R and tried to minimize the use of packages in order to make this cheatsheet as useful to the broadest range of R beginners. When there really was no simple way to do things (e.g. calculating robust standard errors), I just picked the package that I knew of that best replicated the simplicity of the Stata solution.
       
 Lastly, it should be noted that it's impossible to cover everything in two pages, so this meant to be a "survival" level cheat sheet--a handy reference for the core commands you would need to replicate a while doing a basic econometric analysis in Stata. 
       
