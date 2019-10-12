@@ -32,7 +32,10 @@
 	{{ with .Site.Params.social.keybase }}
 	&nbsp;<a href="https://keybase.io/{{.}}"><i class="fab fa-keybase fa-lg" aria-hidden="true"></i></a>
 	{{ end }}
+	{{ with .Site.Params.social.soundcloud }}
+	&nbsp;<a href="https://soundcloud.com/{{.}}"><i class="fab fa-soundcloud fa-lg" aria-hidden="true"></i></a>
+	{{ end }}
 	{{ with .Site.Params.social.email }}
-	&nbsp;<a href="mailto:{{.}}"><i class="fas fa-at fa-lg" aria-hidden="true"></i></a>
+	&nbsp;<a href="mailto:{{.}}"><i class="fas fa-paper-plane fa-lg" aria-hidden="true"></i></a>
 	{{ end }}
 </section>
