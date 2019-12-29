@@ -33,4 +33,4 @@ The content is biased towards my own experience, but if this cheat sheet is at a
 
 All comments and suggestions are welcome!
 
-![[Stata to R cheatsheet](https://github.com/anguyen1210/stata2r/raw/master/stata2r.pdf)](/posts/2019-07-29-stata-to-r_files/s2r_thumb.png)
+![[Stata to R cheatsheet](http://github.com/rstudio/cheatsheets/raw/master/stata2r.pdf)](/posts/2019-07-29-stata-to-r_files/s2r_thumb.png)
