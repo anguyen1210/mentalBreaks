@@ -29,8 +29,8 @@ library(tidytext)
 library(topicmodels)
 
 # Load saved data
-load("article.rda")
-load("files.rda")
+load("../../../econ-journals/rda/article.rda")
+load("../../../econ-journals/rda/files.rda")
 ```
 
 

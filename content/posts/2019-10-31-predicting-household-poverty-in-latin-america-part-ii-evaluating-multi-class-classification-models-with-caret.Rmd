@@ -10,6 +10,7 @@ tags:
   - machine-learning
   - supervised-learning
   - classification
+  - r-caret
 lastmod: '2020-01-03T07:32:24+01:00'
 layout: post
 type: post

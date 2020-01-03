@@ -9,6 +9,7 @@ tags:
   - machine-learning
   - supervised-learning
   - classification
+  - r-caret
 lastmod: '2020-01-02T15:10:50+01:00'
 layout: post
 type: post
@@ -68,9 +69,8 @@ Now that we have our working dataset, we can quickly go through some basic clean
   
 When we read in our data, we can see that our new `train` set has 1,908 observations and 143 variables. Furthermore, it looks like the overwhelming majority of this data is already one-hot encoded, and that there are only a handful of other columns that take integer values greater than 1, or that contain character strings:
 ```{r, echo=FALSE}
-library(kableExtra)
-
-kable(head(train, 10))
+# for this blogpost, I only show the first 10 columns due to space limitations
+head(train[, 1:10], 10)
 ```
   
 ### Missing values
