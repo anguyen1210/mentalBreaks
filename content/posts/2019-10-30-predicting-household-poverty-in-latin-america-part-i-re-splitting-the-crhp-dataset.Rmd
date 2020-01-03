@@ -24,7 +24,7 @@ train <- readRDS("../../../../documents/coursework/edX/harvardx-ds-ph125.9x-caps
 test <- readRDS("../../../../documents/coursework/edX/harvardx-ds-ph125.9x-capstone/data/test.Rds")
 ```
 
-I rarely every come across publicly available datasets that I find interesting from a socio-economic welfare perspective, so when I spotted the [Costa Rican Household Poverty (CRHP) dataset](https://www.kaggle.com/c/costa-rican-household-poverty-prediction/overview) on Kaggle, I jumped at the chance to dig in and explore it a bit. Unfortunately, the full training and test sets have still to be released on the site, so in this post, I re-purpose the available data, clean and pre-process it. In [Part II of this post](), I used this data to evaluate a handful of widely-known classification algorithms using `caret`.
+I rarely every come across publicly available datasets that I find interesting from a socio-economic welfare perspective, so when I spotted the [Costa Rican Household Poverty (CRHP) dataset](https://www.kaggle.com/c/costa-rican-household-poverty-prediction/overview) on Kaggle, I jumped at the chance to dig in and explore it a bit. Unfortunately, the full training and test sets have still to be released on the site, so in this post, I re-purpose the available data, clean and pre-process it. In [Part II of this post](https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/), I used this data to evaluate a handful of widely-known classification algorithms using `caret`.
 
 ## About the data
 
@@ -292,10 +292,10 @@ test_filtered$edjefe <- as.numeric(ifelse(test_filtered$edjefe == "no", 0, ifels
 test_filtered$edjefa <- as.numeric(ifelse(test_filtered$edjefa == "no", 0, ifelse(test_filtered$edjefa == "yes", 1, test_filtered$edjefa)))
 ```
 
-With that, we've taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the second part of this post, we will see how some common classification algorithms compare with one another using `caret`.
+With that, we've taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the [second part of this post](https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/), we will see how some common classification algorithms compare with one another using `caret`.
 
-```{r}
+```{r include=FALSE}
 #save these two objects for use in the next post
-saveRDS(train_filtered, file= "../../../mentalBreaks-draft-posts/train_filtered.Rds")
-saveRDS(test_filtered, file= "../../../mentalBreaks-draft-posts/train_filtered.Rds")
+# saveRDS(train_filtered, file= "../../../mentalBreaks-draft-posts/train_filtered.Rds")
+# saveRDS(test_filtered, file= "../../../mentalBreaks-draft-posts/train_filtered.Rds")
 ```

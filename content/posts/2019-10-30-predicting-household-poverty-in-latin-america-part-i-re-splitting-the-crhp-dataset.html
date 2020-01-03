@@ -18,7 +18,7 @@ highlight: no
 
 
 
-<p>I rarely every come across publicly available datasets that I find interesting from a socio-economic welfare perspective, so when I spotted the <a href="https://www.kaggle.com/c/costa-rican-household-poverty-prediction/overview">Costa Rican Household Poverty (CRHP) dataset</a> on Kaggle, I jumped at the chance to dig in and explore it a bit. Unfortunately, the full training and test sets have still to be released on the site, so in this post, I re-purpose the available data, clean and pre-process it. In <a href="">Part II of this post</a>, I used this data to evaluate a handful of widely-known classification algorithms using <code>caret</code>.</p>
+<p>I rarely every come across publicly available datasets that I find interesting from a socio-economic welfare perspective, so when I spotted the <a href="https://www.kaggle.com/c/costa-rican-household-poverty-prediction/overview">Costa Rican Household Poverty (CRHP) dataset</a> on Kaggle, I jumped at the chance to dig in and explore it a bit. Unfortunately, the full training and test sets have still to be released on the site, so in this post, I re-purpose the available data, clean and pre-process it. In <a href="https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/">Part II of this post</a>, I used this data to evaluate a handful of widely-known classification algorithms using <code>caret</code>.</p>
 <div id="about-the-data" class="section level2">
 <h2>About the data</h2>
 <p>This dataset was released on Kaggle as part of a competition sponsored by the <a href="https://www.iadb.org/en">Inter-american Development Bank (IDB)</a>, with the hopes that the Kaggle community would be able to help them discover new and improved methods for identifying the segments of the population in most need of social assistance.</p>
@@ -261,8 +261,5 @@ test_filtered &lt;- test_filtered %&gt;%
 
 test_filtered$edjefe &lt;- as.numeric(ifelse(test_filtered$edjefe == &quot;no&quot;, 0, ifelse(test_filtered$edjefe == &quot;yes&quot;, 1, test_filtered$edjefe)))
 test_filtered$edjefa &lt;- as.numeric(ifelse(test_filtered$edjefa == &quot;no&quot;, 0, ifelse(test_filtered$edjefa == &quot;yes&quot;, 1, test_filtered$edjefa)))</code></pre>
-<p>With that, we’ve taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the second part of this post, we will see how some common classification algorithms compare with one another using <code>caret</code>.</p>
-<pre class="r"><code>#save these two objects for use in the next post
-saveRDS(train_filtered, file= &quot;../../../mentalBreaks-draft-posts/train_filtered.Rds&quot;)
-saveRDS(test_filtered, file= &quot;../../../mentalBreaks-draft-posts/train_filtered.Rds&quot;)</code></pre>
+<p>With that, we’ve taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the <a href="https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/">second part of this post</a>, we will see how some common classification algorithms compare with one another using <code>caret</code>.</p>
 </div>

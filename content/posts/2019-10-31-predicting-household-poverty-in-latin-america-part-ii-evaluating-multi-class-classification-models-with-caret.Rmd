@@ -32,7 +32,7 @@ In Latin America, as in many other parts of the world, accurate targeting of soc
   
 ## Exploratory analysis
 
-In this section we will conduct some basic exploratory analysis to see if we can learn anything about our data that will help us with building or model. We will make use of the following packages:
+In [Part I of this post](http://127.0.0.1:4321/posts/predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret/), I re-split, cleaned and pre-processed the original data from Kaggle in order for us to be able conduct our own analysis. In this second part, I will conduct some basic exploratory analysis to see if we can learn anything about our data that will help us with building or model. As these two posts are really aimed at beginners, I display and annotate as much code as possible. To get started, we will make use of the following packages:
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse) 
 library(caret)
