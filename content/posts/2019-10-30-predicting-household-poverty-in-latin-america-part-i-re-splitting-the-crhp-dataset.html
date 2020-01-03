@@ -1,0 +1,5003 @@
+---
+title: "Predicting household poverty in Latin America, Part I: Re-splitting the CRHP dataset"
+author: Anthony Nguyen
+date: '2019-10-30'
+slug: predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret
+categories: []
+tags:
+  - poverty
+  - machine-learning
+  - supervised-learning
+  - classification
+lastmod: '2020-01-02T15:10:50+01:00'
+layout: post
+type: post
+highlight: no
+---
+
+
+
+<p>I rarely every come across publicly available datasets that I find interesting from a socio-economic welfare perspective, so when I spotted the <a href="https://www.kaggle.com/c/costa-rican-household-poverty-prediction/overview">Costa Rican Household Poverty (CRHP) dataset</a> on Kaggle, I jumped at the chance to dig in and explore it a bit. Unfortunately, the full training and test sets have still to be released on the site, so in this post, I re-purpose the available data, clean and pre-process it. In <a href="">Part II of this post</a>, I used this data to evaluate a handful of widely-known classification algorithms using <code>caret</code>.</p>
+<div id="about-the-data" class="section level2">
+<h2>About the data</h2>
+<p>This dataset was released on Kaggle as part of a competition sponsored by the <a href="https://www.iadb.org/en">Inter-american Development Bank (IDB)</a>, with the hopes that the Kaggle community would be able to help them discover new and improved methods for identifying the segments of the population in most need of social assistance.</p>
+<p>Just glancing at the data on the Kaggle the page, we can see that there’s a fair amount of information available, with the bulk of the dataset is already split into a train set (9,557 x 143) and a test set (23,856 x 142). Oddly, the test set contains 70% of the data, and has one less column, which in this case, happens to be the target column. For the remaining columns, there are two identifiers, plus 140 different columns describing individual and household attributes. I’m not going to go through all of these feature columns here, but the organizers have made a codebook available, and there is a nice <a href="(https://www.kaggle.com/c/costa-rican-household-poverty-prediction/data)">summary of all the feature variables</a> on the website.</p>
+<div id="the-core-data-fields" class="section level3">
+<h3>The core data fields</h3>
+<p>The main ‘target’ variable in this dataset is a poverty-level classification with four values: “<em>extreme poverty</em>”, “<em>moderate poverty</em>”, “<em>vulnerable</em>”, and “<em>non-vulnerable</em>”.</p>
+<p>There are two variables that serve as identifiers–‘id’ and ‘idhogar’, a unique individual-level identifier and an identifier for which individuals belong to the same household, respectively. An additional variable, ‘parentesco1’ is a dummy that indicates whether a given individual is the head of a household.</p>
+</div>
+<div id="re-splitting-the-data" class="section level3">
+<h3>Re-splitting the data</h3>
+<p>The main problem with this dataset is that the available test set does not include the target variable. This was done so that, separately, competing teams could build their models and make their predictions, and organizers could see which teams had the most accurate predictions and select the competition winners. The competition concluded in September of 2018, and the organizers have, at present, still not released the full test set including the target variable, and thus, this data is unusable to us for supervised learning approaches.</p>
+<p>The good news is that the training set that is available still contains over 9,500 observations and the target variable, which will allow us to train some basic machine learning algorithms after we re-split it into new training and test sets.</p>
+<p>The prime consideration when re-splitting this data is how to manage the two identifiers–‘id’ and ‘idhogar’. As the goal of the original Kaggle competition was to predict <em>household</em> poverty levels, the ‘idhogar’ grouping is quite important, and indeed the original Kaggle dataset does not divide any households between training and test sets, but rather, keeps the households together on their respective partitions, which makes sense.</p>
+<p>While it simple and quick to partition the original training data into new training and test sets using the built-in functions in <code>caret</code> or <code>caTools</code>, neither of these packages currently includes an easy way to partition based on a target variable, while preserving entire household groupings in a balanced way between training and test sets.</p>
+<p>In the end, in order to do a proper blocking of the ‘idhogar’ variable and ensure that households were not randomly divided over both the new training and test sets, I performed the data partitioning manually, using <code>dplyr</code> to do repeated random splits of the data in such a way as to preserve the households groupings, and then identifying the seed used where the random split resulted in the most balanced <code>target</code> distribution in both the new training and test set.</p>
+<p>First, we can have a look a the distribution of the ‘target’ variable in the original
+CRHP training set:</p>
+<p><img src="/posts/2019-10-30-predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret_files/p_crhp_target.png" /></p>
+<p>Next, I did 1000 random splits, and then looked for the seed where the frequencies of the different target variable classes between the two sets were the most similar. We can see in the plot below that the balance of the ‘target’ variable classes in our final re-split data is both very well balanced and also matches quite nicely with the original CHRP training set:</p>
+<p><img src="/posts/2019-10-30-predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret_files/p_target_train_test.png" /></p>
+<p>While I do not exploit the household grouping information for this particular analysis, our newly split data captures all of this information and can be used for future analysis. Visit my github site to <a href="https://github.com/anguyen1210/harvardx-ds-ph125.9x-capstone/tree/master/data/crhp-resplit-data">download the CRHP re-split dataset</a>.</p>
+<p>Similarly, I also have an Rmarkdown document that contains <a href="https://github.com/anguyen1210/harvardx-ds-ph125.9x-capstone/blob/master/crhp_02_repartition.Rmd">further analysis on the re-split CRHP data</a>, where I show that the proportion of unique households and the size of households between both sets is also well-balanced.</p>
+</div>
+</div>
+<div id="cleaning-and-pre-processing-the-training-data" class="section level2">
+<h2>Cleaning and pre-processing the training data</h2>
+<p>Now that we have our working dataset, we can quickly go through some basic cleaning and pre-processing. As my goal for this particular analysis is to evaluate the performance of several common classification algorithms, I skip feature engineering completely. As we will see later, our predictive accuracy across all models is pretty low, so this would be a good starting place to re-visit in the future should we wish to find easy way to boost performance.</p>
+When we read in our data, we can see that our new <code>train</code> set has 1,908 observations and 143 variables. Furthermore, it looks like the overwhelming majority of this data is already one-hot encoded, and that there are only a handful of other columns that take integer values greater than 1, or that contain character strings:
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Id
+</th>
+<th style="text-align:right;">
+v2a1
+</th>
+<th style="text-align:right;">
+hacdor
+</th>
+<th style="text-align:right;">
+rooms
+</th>
+<th style="text-align:right;">
+hacapo
+</th>
+<th style="text-align:right;">
+v14a
+</th>
+<th style="text-align:right;">
+refrig
+</th>
+<th style="text-align:right;">
+v18q
+</th>
+<th style="text-align:right;">
+v18q1
+</th>
+<th style="text-align:right;">
+r4h1
+</th>
+<th style="text-align:right;">
+r4h2
+</th>
+<th style="text-align:right;">
+r4h3
+</th>
+<th style="text-align:right;">
+r4m1
+</th>
+<th style="text-align:right;">
+r4m2
+</th>
+<th style="text-align:right;">
+r4m3
+</th>
+<th style="text-align:right;">
+r4t1
+</th>
+<th style="text-align:right;">
+r4t2
+</th>
+<th style="text-align:right;">
+r4t3
+</th>
+<th style="text-align:right;">
+tamhog
+</th>
+<th style="text-align:right;">
+tamviv
+</th>
+<th style="text-align:right;">
+escolari
+</th>
+<th style="text-align:right;">
+rez_esc
+</th>
+<th style="text-align:right;">
+hhsize
+</th>
+<th style="text-align:right;">
+paredblolad
+</th>
+<th style="text-align:right;">
+paredzocalo
+</th>
+<th style="text-align:right;">
+paredpreb
+</th>
+<th style="text-align:right;">
+pareddes
+</th>
+<th style="text-align:right;">
+paredmad
+</th>
+<th style="text-align:right;">
+paredzinc
+</th>
+<th style="text-align:right;">
+paredfibras
+</th>
+<th style="text-align:right;">
+paredother
+</th>
+<th style="text-align:right;">
+pisomoscer
+</th>
+<th style="text-align:right;">
+pisocemento
+</th>
+<th style="text-align:right;">
+pisoother
+</th>
+<th style="text-align:right;">
+pisonatur
+</th>
+<th style="text-align:right;">
+pisonotiene
+</th>
+<th style="text-align:right;">
+pisomadera
+</th>
+<th style="text-align:right;">
+techozinc
+</th>
+<th style="text-align:right;">
+techoentrepiso
+</th>
+<th style="text-align:right;">
+techocane
+</th>
+<th style="text-align:right;">
+techootro
+</th>
+<th style="text-align:right;">
+cielorazo
+</th>
+<th style="text-align:right;">
+abastaguadentro
+</th>
+<th style="text-align:right;">
+abastaguafuera
+</th>
+<th style="text-align:right;">
+abastaguano
+</th>
+<th style="text-align:right;">
+public
+</th>
+<th style="text-align:right;">
+planpri
+</th>
+<th style="text-align:right;">
+noelec
+</th>
+<th style="text-align:right;">
+coopele
+</th>
+<th style="text-align:right;">
+sanitario1
+</th>
+<th style="text-align:right;">
+sanitario2
+</th>
+<th style="text-align:right;">
+sanitario3
+</th>
+<th style="text-align:right;">
+sanitario5
+</th>
+<th style="text-align:right;">
+sanitario6
+</th>
+<th style="text-align:right;">
+energcocinar1
+</th>
+<th style="text-align:right;">
+energcocinar2
+</th>
+<th style="text-align:right;">
+energcocinar3
+</th>
+<th style="text-align:right;">
+energcocinar4
+</th>
+<th style="text-align:right;">
+elimbasu1
+</th>
+<th style="text-align:right;">
+elimbasu2
+</th>
+<th style="text-align:right;">
+elimbasu3
+</th>
+<th style="text-align:right;">
+elimbasu4
+</th>
+<th style="text-align:right;">
+elimbasu5
+</th>
+<th style="text-align:right;">
+elimbasu6
+</th>
+<th style="text-align:right;">
+epared1
+</th>
+<th style="text-align:right;">
+epared2
+</th>
+<th style="text-align:right;">
+epared3
+</th>
+<th style="text-align:right;">
+etecho1
+</th>
+<th style="text-align:right;">
+etecho2
+</th>
+<th style="text-align:right;">
+etecho3
+</th>
+<th style="text-align:right;">
+eviv1
+</th>
+<th style="text-align:right;">
+eviv2
+</th>
+<th style="text-align:right;">
+eviv3
+</th>
+<th style="text-align:right;">
+dis
+</th>
+<th style="text-align:right;">
+male
+</th>
+<th style="text-align:right;">
+female
+</th>
+<th style="text-align:right;">
+estadocivil1
+</th>
+<th style="text-align:right;">
+estadocivil2
+</th>
+<th style="text-align:right;">
+estadocivil3
+</th>
+<th style="text-align:right;">
+estadocivil4
+</th>
+<th style="text-align:right;">
+estadocivil5
+</th>
+<th style="text-align:right;">
+estadocivil6
+</th>
+<th style="text-align:right;">
+estadocivil7
+</th>
+<th style="text-align:right;">
+parentesco1
+</th>
+<th style="text-align:right;">
+parentesco2
+</th>
+<th style="text-align:right;">
+parentesco3
+</th>
+<th style="text-align:right;">
+parentesco4
+</th>
+<th style="text-align:right;">
+parentesco5
+</th>
+<th style="text-align:right;">
+parentesco6
+</th>
+<th style="text-align:right;">
+parentesco7
+</th>
+<th style="text-align:right;">
+parentesco8
+</th>
+<th style="text-align:right;">
+parentesco9
+</th>
+<th style="text-align:right;">
+parentesco10
+</th>
+<th style="text-align:right;">
+parentesco11
+</th>
+<th style="text-align:right;">
+parentesco12
+</th>
+<th style="text-align:left;">
+idhogar
+</th>
+<th style="text-align:right;">
+hogar_nin
+</th>
+<th style="text-align:right;">
+hogar_adul
+</th>
+<th style="text-align:right;">
+hogar_mayor
+</th>
+<th style="text-align:right;">
+hogar_total
+</th>
+<th style="text-align:left;">
+dependency
+</th>
+<th style="text-align:left;">
+edjefe
+</th>
+<th style="text-align:left;">
+edjefa
+</th>
+<th style="text-align:right;">
+meaneduc
+</th>
+<th style="text-align:right;">
+instlevel1
+</th>
+<th style="text-align:right;">
+instlevel2
+</th>
+<th style="text-align:right;">
+instlevel3
+</th>
+<th style="text-align:right;">
+instlevel4
+</th>
+<th style="text-align:right;">
+instlevel5
+</th>
+<th style="text-align:right;">
+instlevel6
+</th>
+<th style="text-align:right;">
+instlevel7
+</th>
+<th style="text-align:right;">
+instlevel8
+</th>
+<th style="text-align:right;">
+instlevel9
+</th>
+<th style="text-align:right;">
+bedrooms
+</th>
+<th style="text-align:right;">
+overcrowding
+</th>
+<th style="text-align:right;">
+tipovivi1
+</th>
+<th style="text-align:right;">
+tipovivi2
+</th>
+<th style="text-align:right;">
+tipovivi3
+</th>
+<th style="text-align:right;">
+tipovivi4
+</th>
+<th style="text-align:right;">
+tipovivi5
+</th>
+<th style="text-align:right;">
+computer
+</th>
+<th style="text-align:right;">
+television
+</th>
+<th style="text-align:right;">
+mobilephone
+</th>
+<th style="text-align:right;">
+qmobilephone
+</th>
+<th style="text-align:right;">
+lugar1
+</th>
+<th style="text-align:right;">
+lugar2
+</th>
+<th style="text-align:right;">
+lugar3
+</th>
+<th style="text-align:right;">
+lugar4
+</th>
+<th style="text-align:right;">
+lugar5
+</th>
+<th style="text-align:right;">
+lugar6
+</th>
+<th style="text-align:right;">
+area1
+</th>
+<th style="text-align:right;">
+area2
+</th>
+<th style="text-align:right;">
+age
+</th>
+<th style="text-align:right;">
+SQBescolari
+</th>
+<th style="text-align:right;">
+SQBage
+</th>
+<th style="text-align:right;">
+SQBhogar_total
+</th>
+<th style="text-align:right;">
+SQBedjefe
+</th>
+<th style="text-align:right;">
+SQBhogar_nin
+</th>
+<th style="text-align:right;">
+SQBovercrowding
+</th>
+<th style="text-align:right;">
+SQBdependency
+</th>
+<th style="text-align:right;">
+SQBmeaned
+</th>
+<th style="text-align:right;">
+agesq
+</th>
+<th style="text-align:right;">
+Target
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ID_279628684
+</td>
+<td style="text-align:right;">
+190000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+21eb7fcc1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+1849
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+1849
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_f29eb3ddd
+</td>
+<td style="text-align:right;">
+135000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+0e5d7a658
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+67
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:right;">
+4489
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:right;">
+4489
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_68de51c94
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2c7317ea8
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.500000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+92
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+8464
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.250000
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+8464
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_d671db89c
+</td>
+<td style="text-align:right;">
+180000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2b58d945f
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1.333333
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+289
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.777778
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+289
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_d56d6f5f5
+</td>
+<td style="text-align:right;">
+180000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2b58d945f
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1.333333
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+1369
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.777778
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+1369
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_ec05b1a7b
+</td>
+<td style="text-align:right;">
+180000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2b58d945f
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1.333333
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+1444
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.777778
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+1444
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_e9e0c1100
+</td>
+<td style="text-align:right;">
+180000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+2b58d945f
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+11
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1.333333
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1.777778
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_3e04e571e
+</td>
+<td style="text-align:right;">
+130000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+d6dae86b7
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+16.000000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_1284f8aad
+</td>
+<td style="text-align:right;">
+130000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+d6dae86b7
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+900
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+16.000000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+900
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ID_51f52fdd2
+</td>
+<td style="text-align:right;">
+130000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:left;">
+d6dae86b7
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+yes
+</td>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+no
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4.000000
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+784
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+16.000000
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+784
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+</tbody>
+</table>
+<div id="missing-values" class="section level3">
+<h3>Missing values</h3>
+<p>We can check to see what percentage of the dataset is made up of missing values:</p>
+<pre class="r"><code># calculate percentage of data that is NA
+round(sum(is.na(train))/sum(!is.na(train)) * 100, 2)</code></pre>
+<pre><code>## [1] 1.64</code></pre>
+<p>While there are some missing values in our data, the good news is that their percentage is fairly low at 1.66%.</p>
+<p>Next we can calculate the percentage of missing values by column to see if there are some variables that are more problematic than others:</p>
+<pre class="r"><code>na_vars &lt;- colMeans(is.na(train))
+na_vars &lt;- na_vars[na_vars &gt; 0]
+na_vars &lt;- sort(na_vars, decreasing=TRUE)
+na_vars</code></pre>
+<pre><code>##      rez_esc        v18q1         v2a1     meaneduc    SQBmeaned 
+## 0.8276898941 0.7665054255 0.7169564649 0.0006536802 0.0006536802</code></pre>
+<p>Luckily, we can see that there are only five columns in the entire dataset that have missing values, and only three of these have NAs of any meaningful percentage. These variables are:</p>
+<blockquote>
+<ul>
+<li><code>rez_esc</code>, Years behind in school</li>
+<li><code>v18q1</code>, number of tablets household owns</li>
+<li><code>v2a1</code>, Monthly rent payment</li>
+<li><code>meaneduc</code>, average years of education for adults (18+)</li>
+<li><code>SQBmeaned</code>, square of the mean years of education of adults (&gt;=18) in the household</li>
+</ul>
+</blockquote>
+<p>Ordinarily, it would be good to dig deeper into these variables to understand why they have so many NAs and see if we can fill them in, but again, as our main interest is fitting multiple models to see how they compare, we will just drop these variables from our analysis entirely as they are reasonably approximated by other variables in the dataset. Similarly, as we continue pre-processing our data, we will just drop other potentially problematic variables straight away rather than spending extra time during this stage to re-work them.</p>
+<p>And finally, because we will eventually have to drop these same variables later in our test est, we will create a vector to store the names of all variables we eliminate as we go along:</p>
+<pre class="r"><code>library(dplyr)
+
+# store names of NA variables to drop
+drop_cols &lt;- train %&gt;% select(rez_esc, v2a1, v18q1, meaneduc, SQBmeaned) %&gt;% names() %&gt;% as_tibble()
+
+# drop NA values
+train_filtered &lt;- train[ ,!names(train) %in% drop_cols$value]
+
+dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649  138</code></pre>
+</div>
+<div id="zero-variance-predictors" class="section level3">
+<h3>Zero-variance predictors</h3>
+<p>Next, we can continue to pare down our feature set by looking for zero-variance or near-zero-variance predictors. As described in the <code>caret</code>documentation:</p>
+<blockquote>
+<p>In some situations, the data generating mechanism can create predictors that only have a single unique value (i.e. a “zero-variance predictor”). For many models (excluding tree-based models), this may cause the model to crash or the fit to be unstable. Similarly, predictors might have only a handful of unique values that occur with very low frequencies…
+The concern here that these predictors may become zero-variance predictors when the data are split into cross-validation/bootstrap sub-samples or that a few samples may have an undue influence on the model. These “near-zero-variance” predictors may need to be identified and eliminated prior to modeling.</p>
+</blockquote>
+<p>For this, we can use the <code>nearZeroVar</code> function in <code>caret</code> that makes this task fairly simple:</p>
+<pre class="r"><code>library(caret)
+# identify NZV predictors 
+nzv &lt;- nearZeroVar(train_filtered)
+
+# show names of NZV predictors
+train_filtered[, nzv] %&gt;% names()</code></pre>
+<pre><code>##  [1] &quot;hacdor&quot;          &quot;hacapo&quot;          &quot;v14a&quot;           
+##  [4] &quot;refrig&quot;          &quot;pareddes&quot;        &quot;paredzinc&quot;      
+##  [7] &quot;paredfibras&quot;     &quot;paredother&quot;      &quot;pisoother&quot;      
+## [10] &quot;pisonatur&quot;       &quot;pisonotiene&quot;     &quot;techozinc&quot;      
+## [13] &quot;techoentrepiso&quot;  &quot;techocane&quot;       &quot;techootro&quot;      
+## [16] &quot;abastaguadentro&quot; &quot;abastaguafuera&quot;  &quot;abastaguano&quot;    
+## [19] &quot;planpri&quot;         &quot;noelec&quot;          &quot;sanitario1&quot;     
+## [22] &quot;sanitario5&quot;      &quot;sanitario6&quot;      &quot;energcocinar1&quot;  
+## [25] &quot;energcocinar4&quot;   &quot;elimbasu2&quot;       &quot;elimbasu4&quot;      
+## [28] &quot;elimbasu5&quot;       &quot;elimbasu6&quot;       &quot;estadocivil4&quot;   
+## [31] &quot;estadocivil6&quot;    &quot;parentesco4&quot;     &quot;parentesco5&quot;    
+## [34] &quot;parentesco7&quot;     &quot;parentesco8&quot;     &quot;parentesco9&quot;    
+## [37] &quot;parentesco10&quot;    &quot;parentesco11&quot;    &quot;parentesco12&quot;   
+## [40] &quot;instlevel6&quot;      &quot;instlevel7&quot;      &quot;instlevel9&quot;     
+## [43] &quot;tipovivi4&quot;       &quot;mobilephone&quot;</code></pre>
+<p>Again, ideally, we would dig into these variables a bit more to understand what is going on, but to keep this simple, and as our main ID and outcome variables are not included in this list, we will just drop all 44 of these <code>nzv</code> predictors outright. The procedure is as before:</p>
+<pre class="r"><code># store names of NZV variables to drop
+drop_cols &lt;- train_filtered[, nzv] %&gt;% names() %&gt;% as_tibble() %&gt;% rbind(drop_cols, .)
+
+# drop NZV variables
+train_filtered &lt;- train_filtered[, -nzv]
+
+dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649   94</code></pre>
+</div>
+<div id="correlated-predictors" class="section level3">
+<h3>Correlated predictors</h3>
+<p>To weed out any redundant variables we can also create a correlation matrix based on our filtered data and remove any variables that are too highly correlated. In order to use the <code>cor</code> function our data needs to be composed entirely of numeric values, which in our case it is not (i.e. our ID variables are character strings).</p>
+<p>We can run the following code to convert our <code>train_filtered</code> data into a numeric matrix that will be accepted by the <code>cor</code> function, and then run our correlation analysis to identify highly redundant variables:</p>
+<pre class="r"><code># Convert data.frame to integer-class matrix
+l &lt;- lapply(train_filtered, function(X) as.numeric(factor(X, levels=unique(X))))
+m &lt;- as.matrix(data.frame(l))
+
+# Identify pairs of perfectly correlated columns    
+M &lt;- (cor(m,m) == 1)
+
+M[lower.tri(M, diag=TRUE)] &lt;- FALSE
+
+## Extract the names of the redundant columns
+colnames(M)[colSums(M) &gt; 0]</code></pre>
+<pre><code>##  [1] &quot;hhsize&quot;          &quot;female&quot;          &quot;hogar_total&quot;    
+##  [4] &quot;area2&quot;           &quot;SQBescolari&quot;     &quot;SQBage&quot;         
+##  [7] &quot;SQBhogar_total&quot;  &quot;SQBedjefe&quot;       &quot;SQBovercrowding&quot;
+## [10] &quot;SQBdependency&quot;   &quot;agesq&quot;</code></pre>
+<p>Looking at these results, they make intuitive sense. There are other variables besides <code>hhsize</code>and <code>hogar_total</code> that capture how many people live in a household. <code>female</code> is a dummy variable complemented by the <code>male</code> variable which has the same information. The rest of these variables are squared terms of existing variables. We can therefore drop all of these from <code>train_filtered</code> and move on to the next step.</p>
+<pre class="r"><code># Store names of perfectly correlated columns
+drop_cols &lt;- colnames(M)[colSums(M) &gt; 0] %&gt;% as_tibble() %&gt;% rbind(drop_cols, .)
+
+# Drop perfectly correlated columns
+train_filtered &lt;-train_filtered[ ,!names(train_filtered) %in% drop_cols$value]
+
+dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649   83</code></pre>
+</div>
+<div id="linear-combinations" class="section level3">
+<h3>Linear Combinations</h3>
+<p>The <code>caret</code> package includes the <code>findLinearCombos</code> function, a simple solution for identifying and removing linearly dependent variables from our dataset. This will further help us reduce dimensionality and improve the performance of our model.</p>
+<pre class="r"><code># re-run previous code to convert latest train_filtered back to matrix form
+l &lt;- lapply(train_filtered, function(X) as.numeric(factor(X, levels=unique(X))))
+m &lt;- as.matrix(data.frame(l))
+
+# find columns to eliminate linear dependencies
+comboInfo &lt;- findLinearCombos(m)
+
+# print column names to remove
+colnames(m)[comboInfo$remove]</code></pre>
+<pre><code>## [1] &quot;etecho3&quot;      &quot;eviv3&quot;        &quot;lugar6&quot;       &quot;SQBhogar_nin&quot;</code></pre>
+<p>When we look up the descriptions of these four variables, we can see that they all belong to sets of dummy variables that have not had one dropped, so they would have perfect multicolinearity if not removed. We will add these four names to our list, and then drop them from <code>train_filtered</code>:</p>
+<pre class="r"><code># Store names of linearly dependent variables
+drop_cols &lt;- colnames(m)[comboInfo$remove] %&gt;% as_tibble() %&gt;% rbind(drop_cols, .)
+
+# Drop linearly dependent variables
+train_filtered &lt;-train_filtered[ ,!names(train_filtered) %in% drop_cols$value]
+
+dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649   79</code></pre>
+</div>
+</div>
+<div id="string-variables" class="section level2">
+<h2>String variables <chr></h2>
+<p>As we noted when we first glimpsed at our training data, our data is currently has two variable class types–string variables and numeric variables. Here’s how it looks at the moment:</p>
+<pre class="r"><code>table(sapply(train_filtered, class))</code></pre>
+<pre><code>## 
+## character   numeric 
+##         5        74</code></pre>
+<p>We have five variables that contain character strings. As string variables needed to be treated differently than numeric ones, it is worth looking into these in more detail before we proceed any further. Here they are:</p>
+<pre class="r"><code>train_filtered[sapply(train_filtered, is.character)] %&gt;%  glimpse()</code></pre>
+<pre><code>## Observations: 7,649
+## Variables: 5
+## $ Id         &lt;chr&gt; &quot;ID_279628684&quot;, &quot;ID_f29eb3ddd&quot;, &quot;ID_68de51c94&quot;, &quot;ID...
+## $ idhogar    &lt;chr&gt; &quot;21eb7fcc1&quot;, &quot;0e5d7a658&quot;, &quot;2c7317ea8&quot;, &quot;2b58d945f&quot;,...
+## $ dependency &lt;chr&gt; &quot;no&quot;, &quot;8&quot;, &quot;8&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;yes&quot;, &quot;yes&quot;, ...
+## $ edjefe     &lt;chr&gt; &quot;10&quot;, &quot;12&quot;, &quot;no&quot;, &quot;11&quot;, &quot;11&quot;, &quot;11&quot;, &quot;11&quot;, &quot;9&quot;, &quot;9&quot;,...
+## $ edjefa     &lt;chr&gt; &quot;no&quot;, &quot;no&quot;, &quot;11&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no&quot;, &quot;no...</code></pre>
+<p>The first two variables, <code>Id</code> and <code>idhogar</code>, are unique identifiers for individuals and households respectively.</p>
+<pre class="r"><code># reorder `idhogar` to second column after `Id`
+train_filtered &lt;- train_filtered %&gt;%
+  select(Id, idhogar, everything())</code></pre>
+<p>For the other three, which contain a mix of strings and numbers, we can pull up their descriptions from the codebook:</p>
+<blockquote>
+<ul>
+<li><code>dependency</code>, Dependency rate, calculated = (number of members of the household younger than 19 or older than 64)/(number of member of household between 19 and 64)</li>
+<li><code>edjefe</code>, years of education of male head of household, based on the interaction of escolari (years of education), head of household and gender, yes=1 and no=0</li>
+<li><code>edjefa</code>, years of education of female head of household, based on the interaction of escolari (years of education), head of household and gender, yes=1 and no=0</li>
+</ul>
+</blockquote>
+<p>We can see all three are derived variables, and the description specifies how they were calculated. As it is not completely clear to me from these descriptions why these variables take an integer, a “yes” or a “no” value, we can select the relevant columns used for the calculations of these variables and see if we can figure out what is going on after a visual inspection.</p>
+<div id="dependency" class="section level4">
+<h4><code>dependency</code></h4>
+<p>To inspect the <code>dependency</code> variable, we select the relevant columns from its calculation and have a look with the following code:</p>
+<pre class="r"><code>dep_check &lt;- train_filtered %&gt;% select(Id, idhogar, tamhog, tamviv, age, dependency)
+
+head(dep_check, 10)</code></pre>
+<p>I’m only showing the head of this check for illustrative purposes, but going through the entire subset we just took, the calculations still don’t make sense to me with regards to why a value takes a number, a “yes”, or a “no”, so I will drop the column from our training set for the time being.</p>
+<pre class="r"><code>drop_cols &lt;- train_filtered %&gt;% select(dependency) %&gt;% names() %&gt;% as_tibble() %&gt;% rbind(drop_cols, .)
+
+# drop NA values
+train_filtered &lt;- train_filtered[ ,!names(train_filtered) %in% drop_cols$value]
+
+dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649   78</code></pre>
+</div>
+<div id="edjefe-and-edjefa" class="section level4">
+<h4><code>edjefe</code> and <code>edjefa</code></h4>
+<p>Similar to what we did above, we can also subset our data to do a visual inspection of these two variables:</p>
+<pre class="r"><code>edjef_check &lt;- train_filtered %&gt;%  select(Id, idhogar, parentesco1, male, escolari , edjefe, edjefa)
+
+head(edjef_check, 10)</code></pre>
+<p>Here, it seems that each variable just takes on the value of the <code>escolari</code> variable for whoever is identified as the head of household (<code>parentesco1</code>) for any given group with the same <code>idhogar</code> identifier. When <code>escolari</code> is 1 year, it is being converted to a “yes”, and when it is 0 years, it is being converted to a “no”. We can easily fix this by just converting all yes/no values to 1/0 with the following code:</p>
+<pre class="r"><code># replace no/yes with 0/1, convert columns to numeric
+train_filtered$edjefe &lt;- as.numeric(ifelse(train_filtered$edjefe == &quot;no&quot;, 0, ifelse(train_filtered$edjefe == &quot;yes&quot;, 1, train_filtered$edjefe)))
+train_filtered$edjefa &lt;- as.numeric(ifelse(train_filtered$edjefa == &quot;no&quot;, 0, ifelse(train_filtered$edjefa == &quot;yes&quot;, 1, train_filtered$edjefa)))</code></pre>
+</div>
+</div>
+<div id="pre-processing-the-test-set" class="section level2">
+<h2>Pre-processing the test set</h2>
+<pre class="r"><code>dim(train_filtered)</code></pre>
+<pre><code>## [1] 7649   78</code></pre>
+<p><em>To recap</em>: at the end our initial pre-processing work, we’ve filtered our original training data down from 143 variables to 78. We’ve eliminated all of the missing values, near-zero-variance predictors, highly redundant variables and linearly dependent variables. We’ve fixed or removed all string variables so that the only two that remain are our individual and household identifiers.</p>
+<p>Now all that is left to do for this stage of our project is to apply all of these same changes to our <code>test</code> set to ensure the two will match up:</p>
+<pre class="r"><code># drop columns from test set
+test_filtered &lt;- test[ ,!names(test) %in% drop_cols$value]
+
+# reorder `idhogar` to second column in test set
+test_filtered &lt;- test_filtered %&gt;%
+  select(Id, idhogar, everything())
+
+# replace no/yes with 0/1, convert columns to numeric in test set
+
+test_filtered$edjefe &lt;- as.numeric(ifelse(test_filtered$edjefe == &quot;no&quot;, 0, ifelse(test_filtered$edjefe == &quot;yes&quot;, 1, test_filtered$edjefe)))
+test_filtered$edjefa &lt;- as.numeric(ifelse(test_filtered$edjefa == &quot;no&quot;, 0, ifelse(test_filtered$edjefa == &quot;yes&quot;, 1, test_filtered$edjefa)))</code></pre>
+<p>With that, we’ve taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the second part of this post, we will see how some common classification algorithms compare with one another using <code>caret</code>.</p>
+<pre class="r"><code>#save these two objects for use in the next post
+saveRDS(train_filtered, file= &quot;../../../mentalBreaks-draft-posts/train_filtered.Rds&quot;)
+saveRDS(test_filtered, file= &quot;../../../mentalBreaks-draft-posts/train_filtered.Rds&quot;)</code></pre>
+</div>
