@@ -112,8 +112,9 @@ grid.arrange(p_age, p_escolar, p_qmobilephone, p_tamviv, p_overcrowding, p_hogar
 ```
 ![](/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/p_target_selected_features.png)
   
-From these density plots, we can see that those labeled as being in the most extreme poverty (purple line) are likely to be much younger, and have less education than the other groups (which would go together, naturally). With regards to education (`escolari`), we can also see that those who are labeled as not vulnerable to poverty (yellow line) are much more likely than the other groups to have greater than 12 or so years of education. Furthermore, we can see that there is a slightly higher tendencies for extremely and moderately poor households to have more people living in the house (`tamviv`) in the 7+ persons per household range, and similarly, they have tend to have more `overcrowding` in terms of the 2-4 persons per room range. 
-  ### Correlation to `Target` variable
+From these density plots, we can see that those labeled as being in the most extreme poverty (purple line) are likely to be much younger, and have less education than the other groups (which would go together, naturally). With regards to education (`escolari`), we can also see that those who are labeled as not vulnerable to poverty (yellow line) are much more likely than the other groups to have greater than 12 or so years of education. Furthermore, we can see that there is a slightly higher tendencies for extremely and moderately poor households to have more people living in the house (`tamviv`) in the 7+ persons per household range, and similarly, they have tend to have more `overcrowding` in terms of the 2-4 persons per room range.   
+  
+### Correlation to `Target` variable
 
 Another thing we can look at before we start building up our model is the correlation between the `Target` poverty levels with all of the features we've retained so far in our dataset.
 ```{r echo=FALSE}

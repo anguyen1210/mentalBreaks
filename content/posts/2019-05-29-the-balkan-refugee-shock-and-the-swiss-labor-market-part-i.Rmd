@@ -11,6 +11,7 @@ tags:
 - refugees
 - labor
 - employment
+- switzerland
 categories:
 type: post
 output:
