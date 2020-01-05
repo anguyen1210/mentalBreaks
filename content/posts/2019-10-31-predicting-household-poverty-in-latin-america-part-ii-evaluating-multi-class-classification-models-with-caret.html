@@ -4,7 +4,8 @@ title: 'Predicting household poverty in Latin America, Part II: Evaluating multi
 author: Anthony Nguyen
 date: '2019-10-31'
 slug: predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret
-categories: []
+categories:
+   - r-bloggers
 tags:
   - poverty
   - machine-learning
@@ -68,7 +69,7 @@ names(no_dummy)</code></pre>
 ## [17] &quot;hogar_adul&quot;   &quot;hogar_mayor&quot;  &quot;edjefe&quot;       &quot;edjefa&quot;      
 ## [21] &quot;bedrooms&quot;     &quot;overcrowding&quot; &quot;qmobilephone&quot; &quot;age&quot;         
 ## [25] &quot;Target&quot;</code></pre>
-<p>There’s a mix things here. Besides our two ID variables, which we can ignore, there’s a mix of individual and household level variables. After consulting the descriptions for all of these, I’ll just examine a few that may be of more interest:</p>
+<p>We notice a few things here: besides our two ID variables, which we can ignore, there’s a mix of individual and household-level variables. After consulting the descriptions for all of these, I’ll just examine a few that may be of more interest:</p>
 <blockquote>
 <ul>
 <li><code>age</code>, Age in years</li>
@@ -79,7 +80,7 @@ names(no_dummy)</code></pre>
 <li><code>hogar_nin</code>, Number of children 0 to 19 in household</li>
 </ul>
 </blockquote>
-<p>We can have a look at how these variable are distributed according to the poverty level of the indvidual in the plots below:</p>
+<p>We can have a look at how these variable are distributed according to the poverty-level of the indvidual in the plots below:</p>
 <pre class="r"><code>#define function to plot feature variable against target 
 plot_target_by_var &lt;- function(df, variable){
     var &lt;- enquo(variable)
@@ -101,7 +102,7 @@ p_hogar_nin &lt;- plot_target_by_var(train_filtered, hogar_nin)
 #display plots in a grid
 grid.arrange(p_age, p_escolar, p_qmobilephone, p_tamviv, p_overcrowding, p_hogar_nin, nrow = 2, top = textGrob(&quot;Distribution of selected features by `Target` class&quot;, gp=gpar(fontsize=15)))</code></pre>
 <p><img src="/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/p_target_selected_features.png" /></p>
-<p>From these density plots, we can see that those labeled as being in the most extreme poverty (purple line) are likely to be much younger, and have less education than the other groups (which would go together, naturally). With regards to education (<code>escolari</code>), we can also see that those who are labeled as not vulnerable to poverty (yellow line) are much more likely than the other groups to have greater than 12 or so years of education. Furthermore, we can see that there is a slightly higher tendencies for extremely and moderately poor households to have more people living in the house (<code>tamviv</code>) in the 7+ persons per household range, and similarly, they have tend to have more <code>overcrowding</code> in terms of the 2-4 persons per room range.</p>
+<p>From these density plots, we can see that those labeled as being in the most extreme poverty (purple line) are likely to be much younger, and have less education than the other groups (which would go together, naturally). With regards to education (<code>escolari</code>), we can also see that those who are labeled as not vulnerable to poverty (yellow line) are much more likely than the other groups to have greater than 12 or so years of education. Furthermore, we can see that there is a slightly higher tendency for extremely and moderately poor households to have more people living in the house (<code>tamviv</code>) in the 7+ persons per household range, and similarly, they tend to have more <code>overcrowding</code> in terms of the 2-4 persons per room range.</p>
 </div>
 <div id="correlation-to-target-variable" class="section level3">
 <h3>Correlation to <code>Target</code> variable</h3>
@@ -116,7 +117,7 @@ grid.arrange(p_age, p_escolar, p_qmobilephone, p_tamviv, p_overcrowding, p_hogar
 <div id="modeling" class="section level2">
 <h2>Modeling</h2>
 <p>While the original Kaggle competition had participants only focusing on making their predictions for the heads of each household (<code>parentesco</code>= 1), to make our job simpler in this analysis, we will just be making a prediction for all individuals in the dataset.</p>
-<p>Our approach will be to run a small number of different machine learning models on our training data using just the default settings to get and idea of how they each perform. After our initial run through, we’ll then pick a few models and see if we can better tune them and improve our predictions (Part III of this post, forthcoming)</p>
+<p>Our approach will be to run a small number of different machine learning models on our training data using just the default settings to get and idea of how they each perform. After our initial run through, we could then pick a few models and see if we can better tune them and improve our predictions.</p>
 <p>Just before we start, we can drop both of our ID variables (<code>Id</code>, <code>idhogar</code>). Additionally, we need to transform or <code>Target</code> variable into a factor at this stage in order to ensure our machine learning models treat this problem as a classification task.</p>
 <pre class="r"><code># drop ID variables from both `train_filtered` and `test_filtered`
 train_filtered &lt;- train_filtered[ ,3:78]
@@ -155,7 +156,7 @@ names(train_models) &lt;- models</code></pre>
 F_1 = 2 \times \frac{\mbox{precision} \cdot \mbox{recall}}
 {\mbox{precision} + \mbox{recall}}
 \]</span>
-And as we are dealing with a multi-class classification problem it will be useful for us to look at a one number summary of this <span class="math inline">\(F_1\)</span> score, so we will compute both the Macro-<span class="math inline">\(F_1\)</span> and the Weighted-<span class="math inline">\(F_1\)</span>, each of which try to balance the importance of the different classes in our dataset. (Follow the link for a nice <a href="https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1">summary of Macro-<span class="math inline">\(F_1\)</span> and Weighted-<span class="math inline">\(F_1\)</span> scores</a>.</p>
+It can also be useful for us to look at a one number summary of this <span class="math inline">\(F_1\)</span> score, so we will compute both the Macro-<span class="math inline">\(F_1\)</span> and the Weighted-<span class="math inline">\(F_1\)</span>, each of which try to balance the importance of the different classes in our dataset. (Follow the link for a nice <a href="https://towardsdatascience.com/multi-class-metrics-made-simple-part-ii-the-f1-score-ebe8b2c2ca1">summary of Macro-<span class="math inline">\(F_1\)</span> and Weighted-<span class="math inline">\(F_1\)</span> scores</a>.</p>
 <p>To calculate the Macro-<span class="math inline">\(F_1\)</span>, we just take the average of the <span class="math inline">\(F_1\)</span> scores for all our classes (<span class="math inline">\(1,...,k\)</span>) , so that:
 <span class="math display">\[
 \text{Macro}\,F_1 = \frac{1}{k} \sum_{i=1}^{k} 2 \times \frac{\mbox{precision}_i \cdot \mbox{recall}_i}
@@ -166,7 +167,7 @@ And as we are dealing with a multi-class classification problem it will be usefu
 \text{Weighted}\,F_1 = \frac{n_i  \sum_{i=1}^{k} 2 \times \frac{\mbox{precision}_i \cdot \mbox{recall}_i}
 {\mbox{precision}_i + \mbox{recall}_i}}{\sum_{i=1}^{k}n_i}
 \]</span></p>
-<p>The Macro-<span class="math inline">\(F_1\)</span> gives equal weights to all classes, so it should give extra emphasis to our under-represented classes, whereas the Weighted-<span class="math inline">\(F_1\)</span> gives emphasis proportional to the size of each class. We can extract the relevant evaluation metrics from our list of fitted models and have a look in the following summary table:</p>
+<p>The Macro-<span class="math inline">\(F_1\)</span> gives equal weights to all classes, so it should give extra emphasis to our under-represented classes, whereas the Weighted-<span class="math inline">\(F_1\)</span> gives emphasis proportional to the size of each class. We can extract the relevant evaluation metrics from our list of fitted models using <code>caret</code> and the following code:</p>
 <pre class="r"><code># extract elapsed training times
 elapsed &lt;- sapply(train_models, function(object) 
     object$times$everything[&quot;elapsed&quot;])
@@ -204,6 +205,7 @@ F1_W &lt;- sapply(train_models, function(x){
     return((sum(actual*F1, na.rm = TRUE))/(sum(actual)))
   }
 )</code></pre>
+<p>Here we compile our evaluation metrics into a table for comparison:</p>
 <p><img src="/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/resultstable1.png" /></p>
 <p>A few things jump out immediately from this summary: (1) the range of speed at which these models run is quite varied. On one end, <em>linear discriminant analysis (LDA)</em> (<code>lda</code>), <em>naive bayes</em> (<code>naive_bayes</code>), <em>decision tree</em> (<code>rpart</code>) were extremely fast and only took a matter of seconds to compute; while at the other end, <em>multinomial logistic regression</em> (<code>multinom</code>), <em>support vector machine (SVM)</em> (<code>svmLinear</code>), and <em>random forest</em> (<code>ranger</code>) took 30 to 100 times longer to run. Our <em>K-nearest neighbor</em> (<code>knn</code>) is in the middle, and ran relatively fast. With regards to how these model fitting times relate to performance, we can go through each of our evaluation metrics one-by-one.</p>
 <div id="speed-vs.-accuracy" class="section level3">
@@ -281,11 +283,11 @@ class4 %&gt;% kable(caption = &quot;F-Beta Scores, Class: 4, Non-vulnerable&quot
 </div>
 <div id="feature-importance" class="section level1">
 <h1>Feature importance</h1>
-<p>One final thing that would be interesting to look at is the relative importance of the features used to make the predictions. With <code>rpart</code> model we used we can extract this information relatively easily. As we noted above, there were a few models that returned <span class="math inline">\(F_1\)</span> scores of NA, and <code>rpart</code> was one of them. This can happen with a a simple decision tree classifier, as sometimes, there are not enough observations of a particular class to make a difference to the error measurement of the classifier so the class just gets dropped. This issue could potentially be fixed by using <em>upsampling</em> or <em>downsampling</em> techniques, but for the moment, let’s just have a look at the final model:</p>
+<p>One final thing that would be interesting to look at is the relative importance of the features used to make the predictions. With <code>rpart</code>, we can extract this information relatively easily. As we noted above, there were a few models that returned <span class="math inline">\(F_1\)</span> scores of NA, and <code>rpart</code> was one of them. This can happen with a a simple decision tree classifier, as sometimes, there are not enough observations of a particular class to make a difference to the error measurement of the classifier so the class just gets dropped. This issue could potentially be fixed by using <em>upsampling</em> or <em>downsampling</em> techniques, but for the moment, let’s just have a look at the final model:</p>
 <pre class="r"><code>#plot decision tree
 rpart.plot::rpart.plot(train_models$rpart$finalModel)</code></pre>
 <p><img src="/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/rpart.png" /></p>
-<p>This, of course, is an incomplete picture as the <code>Class: 1</code> and <code>Class: 3</code> labels were dropped from this model, but in terms of the most important features used to calculate the overall accuracy, we can get an idea of what variables were considered the most important. The thing that stands out the most here is that, apart from <code>v18q</code>, which is a dummy variable capturing whether or not an individual owns a tablet, all o other splitting nodes are ones that capture information specific to the household, rather than the individual.</p>
+<p>This, of course, is an incomplete picture as the <code>Class: 1</code> and <code>Class: 3</code> labels were dropped from this model, but in terms of the most important features used to calculate the overall accuracy, we can get an idea of what variables were considered the most important. The thing that stands out the most here is that, apart from <code>v18q</code>, which is a dummy variable capturing whether or not an individual owns a tablet, all other splitting nodes are ones that capture information specific to the household, rather than the individual.</p>
 <p>More directly, we can call up a list of the most important features using the <code>varImp</code> function from <code>caret</code>. Among all of the models we have tried to fit so far, the only other model that accepts this function is <code>multinom</code>, so we will call this one up as well to compare. Below is the top 10 most important variables for our decision tree and multinomial logit model:</p>
 <pre class="r"><code>get_imp &lt;- function(modelname){
     imp &lt;- data.frame(varImp(modelname)$importance)
@@ -309,8 +311,8 @@ get_imp &lt;- function(modelname){
 cbind(imp_rpart, imp_multinom) %&gt;% kable(caption = &quot;Top 10 important variables, `rpart` vs. `multinom`&quot;) %&gt;% kable_styling()</code></pre>
 <p><img src="/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/imp_vars.png" /></p>
 <p>With regards to the top-10 most important variables from the <code>rpart</code> list, we’ve seen most of these names already in the decision tree and in the list of the 10 most correlated variables with out <code>Target</code> variable list that we showed earlier. More interestingly, the list of the ten most important <code>multinom</code> variables is completely different than anything we’ve seen so far, which s is also interesting as this was identified as one of the highest performing models among the ones we’ve tested.</p>
-<div id="results" class="section level2">
-<h2>Results</h2>
+<div id="some-concluding-remarks" class="section level2">
+<h2>Some concluding remarks</h2>
 <p>Using our re-split CRHP data, were were able to build and test a few of the most widely known classification models to predict the relative poverty levels for individuals in Costa Rica. We trained seven models in total: <em>multinomial logistic regression</em>, <em>linear discriminant analysis (LDA)</em>, <em>naive bayes</em>, <em>support vector machine (SVM)</em>, <em>K-nearest neighbors</em>, <em>decision tree</em>, and <em>random forest</em>.</p>
 <p>We computed a few different evaluation metrics to analyze the performance of our models, taking into account there overall average performance in predicting among all classes, as well as their performance predicting in the class we are most interested in, the extreme poor. Depending on what we emphasized as most important, different models performed better or worse than the others. For overall predictive performance, <code>multinom</code> and <code>lda</code> appeared to do the best, though time it takes to fit the <code>lda</code> model is a fraction of the time it takes to run the <code>multinom</code> model. When turning our attention to predictive performance for class of extremely poor, we found that <code>naive_bayes</code> outperformed the other models in our current set-up.</p>
 </div>

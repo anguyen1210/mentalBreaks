@@ -30,7 +30,7 @@ I rarely every come across publicly available datasets that I find interesting f
 
 This dataset was released on Kaggle as part of a competition sponsored by the [Inter-american Development Bank (IDB)](https://www.iadb.org/en), with the hopes that the Kaggle community would be able to help them discover new and improved methods for identifying the segments of the population in most need of social assistance.  
   
-Just glancing at the data on the Kaggle the page, we can see that there's a fair amount of information available, with the bulk of the dataset is already split into a train set ($9,557 x 143$) and a test set ($23,856 x 142$). Oddly, the test set contains 70% of the data, and has one less column, which in this case, happens to be the target column. For the remaining columns, there are two identifiers, plus 140 different columns describing individual and household attributes. I'm not going to go  through all of these feature columns here, but the organizers have made a codebook available, and there is a nice [summary of all the feature variables](https://www.kaggle.com/c/costa-rican-household-poverty-prediction/data) on the website.  
+Just glancing at the data on the Kaggle the page, we can see that there's a fair amount of information available, with the bulk of the dataset already split into a train set ($9,557 x 143$) and a test set ($23,856 x 142$). Oddly, the test set contains 70% of the data, and has one less column, which in this case, happens to be the target column. For the remaining columns, there are two identifiers, plus 140 different columns describing individual and household attributes. I'm not going to go  through all of these feature columns here, but the organizers have made a codebook available, and there is a nice [summary of all the feature variables](https://www.kaggle.com/c/costa-rican-household-poverty-prediction/data) on the website.  
 
 ### The core data fields
 
@@ -44,13 +44,13 @@ The main problem with this dataset is that the available test set does not inclu
 
 The good news is that the training set that is available still contains over 9,500 observations and the target variable, which will allow us to train some basic machine learning algorithms after we re-split it into new training and test sets.
 
-The prime consideration when re-splitting this data is how to manage the two identifiers--'id' and 'idhogar'. As the goal of the original Kaggle competition was to predict *household* poverty levels, the 'idhogar' grouping is quite important, and indeed the original Kaggle dataset does not divide any households between training and test sets, but rather, keeps the households together on their respective partitions, which makes sense.
+The prime consideration when re-splitting this data is how to manage the two identifiers--'Id' and 'idhogar'. As the goal of the original Kaggle competition was to predict *household* poverty levels, the 'idhogar' grouping is quite important, and indeed the original Kaggle dataset does not divide any households between training and test sets, but rather, keeps the households together on their respective partitions, which makes sense.
 
-While it simple and quick to partition the original training data into new training and test sets using the built-in functions in `caret` or `caTools`, neither of these packages currently includes an easy way to partition based on a target variable, while preserving entire household groupings in a balanced way between training and test sets.
+While it is quite simple to partition the original training data into new training and test sets using the built-in functions in `caret` or `caTools`, neither of these packages currently includes an easy way to partition based on a target variable, while preserving entire household groupings in a balanced way between training and test sets.
 
-In the end, in order to do a proper blocking of the 'idhogar' variable and ensure that households were not randomly divided over both the new training and test sets, I performed the data partitioning manually, using `dplyr` to do repeated random splits of the data in such a way as to preserve the households groupings, and then identifying the seed used where the random split resulted in the most balanced `target` distribution in both the new training and test set.
+In the end, in order to do a proper blocking of the 'idhogar' variable and ensure that households were not randomly divided over both the new training and test sets, I performed the data partitioning manually, using `dplyr` to do repeated random splits of the data in such a way as to preserve the household groupings, and then identifying the seed used where the random split resulted in the most balanced `Target` distribution in both the new training and test set.
 
-First, we can have a look a the distribution of the 'target' variable in the original
+First, we can have a look a the distribution of the 'Target' variable in the original
 CRHP training set:
 
 ![](/posts/2019-10-30-predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret_files/p_crhp_target.png)
@@ -59,7 +59,7 @@ Next, I did 1000 random splits, and then looked for the seed where the frequenci
 
 ![](/posts/2019-10-30-predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret_files/p_target_train_test.png)
 
-While I do not exploit the household grouping information for this particular analysis, our newly split data captures all of this information and can be used for future analysis. Visit my github site to [download the CRHP re-split dataset](https://github.com/anguyen1210/harvardx-ds-ph125.9x-capstone/tree/master/data/crhp-resplit-data).
+While I do not exploit the household grouping information for this particular analysis, our newly split data captures all of this information and can be used for future projects. Visit my github site to [download the CRHP re-split dataset](https://github.com/anguyen1210/harvardx-ds-ph125.9x-capstone/tree/master/data/crhp-resplit-data).
 
 Similarly, I also have an Rmarkdown document that contains [further analysis on the re-split CRHP data](https://github.com/anguyen1210/harvardx-ds-ph125.9x-capstone/blob/master/crhp_02_repartition.Rmd), where I show that the proportion of unique households and the size of households between both sets is also well-balanced.
 
@@ -132,7 +132,7 @@ nzv <- nearZeroVar(train_filtered)
 train_filtered[, nzv] %>% names()
 ```
     
-Again, ideally, we would dig into these variables a bit more to understand what is going on, but to keep this simple, and as our main ID and outcome variables are not included in this list, we will just drop all 44 of these `nzv` predictors outright. The procedure is as before:
+Again, ideally, we would dig into these variables a bit more to understand what is going on here, but to keep this simple, and as our main identification and outcome variables are not included in this list, we will just drop all 44 of these `nzv` predictors outright. The procedure is as before:
 ```{r}
 # store names of NZV variables to drop
 drop_cols <- train_filtered[, nzv] %>% names() %>% as_tibble() %>% rbind(drop_cols, .)
@@ -293,7 +293,7 @@ test_filtered$edjefe <- as.numeric(ifelse(test_filtered$edjefe == "no", 0, ifels
 test_filtered$edjefa <- as.numeric(ifelse(test_filtered$edjefa == "no", 0, ifelse(test_filtered$edjefa == "yes", 1, test_filtered$edjefa)))
 ```
 
-With that, we've taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the [second part of this post](https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/), we will see how some common classification algorithms compare with one another using `caret`.
+With that, we've taken the original train set from Kaggle, re-split it into new training and test sets, and then cleaned and pre-processed both sets so that they are ready for model fitting and analysis. In the [second part of this post](https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret/), we will use this data to see how some common classification algorithms compare with one another using `caret`.
 
 ```{r include=FALSE}
 #save these two objects for use in the next post
