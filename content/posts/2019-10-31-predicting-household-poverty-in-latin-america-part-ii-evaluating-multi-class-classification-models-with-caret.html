@@ -27,8 +27,8 @@ highlight: no
 </div>
 <div id="exploratory-analysis" class="section level2">
 <h2>Exploratory analysis</h2>
-<p>In <a href="http://127.0.0.1:4321/posts/predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret/">Part I of this post</a>, I re-split, cleaned and pre-processed the original data from Kaggle in order for us to be able conduct our own analysis. In this second part, I will conduct some basic exploratory analysis to see if we can learn anything about our data that will help us with building or model. As these two posts are really aimed at beginners, I display and annotate as much code as possible. To get started, we will make use of the following packages:</p>
-<pre class="r"><code>library(tidyverse) 
+<p>In <a href="https://mentalbreaks.rbind.io/posts/predicting-household-poverty-in-latin-america-evaluating-multi-class-classification-models-in-caret/">Part I of this post</a>, I re-split, cleaned and pre-processed the original data from Kaggle in order for us to be able conduct our own analysis. In this second part, I will conduct some basic exploratory analysis to see if we can learn anything about our data that will help us with building or model. As these two posts are really aimed at beginners, I display and annotate as much code as possible. To get started, we will make use of the following packages:</p>
+<pre class="r"><code>library(tidyverse)
 library(caret)
 library(gridExtra)
 library(kableExtra)
@@ -36,7 +36,7 @@ library(rpart.plot)</code></pre>
 <div id="distribution-of-poverty-levels" class="section level3">
 <h3>Distribution of poverty levels</h3>
 <p>This is a question we already looked at a bit when we partitioned our data, but it seems a natural starting point for our exploratory analysis, so we’ll run through it quickly again. First, we can have a look at the distribution of poverty levels in our filtered training set:</p>
-<pre class="r"><code>train_filtered %&gt;% 
+<pre class="r"><code>train_filtered %&gt;%
   ggplot(aes(as.numeric(Target))) +
   geom_bar(aes(y = ..prop.., fill = factor(..x..)), stat = &quot;count&quot;, show.legend = TRUE) +
   geom_text(aes(label = scales::percent(..prop..), y = ..prop..), stat = &quot;count&quot;, vjust = -.5, size = 3) +
@@ -44,9 +44,9 @@ library(rpart.plot)</code></pre>
   ylab(&quot;relative frequencies&quot;) +
   ggtitle(&quot;Relative frequency of poverty levels, filtered training set&quot;) +
   theme_minimal() +
-  theme(axis.text.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank()) + 
-  scale_fill_viridis_d(name=&quot;Poverty level (Target)&quot;, 
-                      breaks=c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;), 
+  theme(axis.text.y = element_blank(), axis.title.y = element_blank(), axis.title.x = element_blank()) +
+  scale_fill_viridis_d(name=&quot;Poverty level (Target)&quot;,
+                      breaks=c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;),
                       labels=c(&quot;1 = extreme poverty&quot;, &quot;2 = moderate poverty&quot;, &quot;3 = vulnerable&quot;, &quot;4 = non-vulnerable&quot;))</code></pre>
 <p><img src="/posts/2019-10-31-predicting-household-poverty-in-latin-america-part-ii-evaluating-multi-class-classification-models-with-caret_files/p_target_train.png" /></p>
 <p>The first thing we notice is that we have an imbalanced set of classification targets. Those labeled as belonging to the extreme poverty group only show up 8.1% of the time, while those who are not vulnerable to falling into poverty are prevalent 62.8% of the time. We will keep this in mind later when choosing our model training and evaluation metrics.</p>
@@ -55,10 +55,10 @@ library(rpart.plot)</code></pre>
 <h3>Distribution of other numeric variables</h3>
 <p>When we imported our data into <code>R</code> all numeric variables were converted to the class <dbl>. Unfortunately, this doesn’t tell us which ones are binary dummy variables, and which ones take on other values greater than 1. First we take a subset all of the non-dummy variables and have a look to see if there is any interesting information here:</p>
 <pre class="r"><code># identify any columns that take on values more than 0:1
-no_dummy_index  &lt;- apply(train_filtered, 2, function(x) { !all(x %in% 0:1) }) 
+no_dummy_index  &lt;- apply(train_filtered, 2, function(x) { !all(x %in% 0:1) })
 
 # subset out the no dummy columns
-no_dummy &lt;- train_filtered[ , no_dummy_index] 
+no_dummy &lt;- train_filtered[ , no_dummy_index]
 
 # print names of no dummy columns
 names(no_dummy)</code></pre>
@@ -81,12 +81,12 @@ names(no_dummy)</code></pre>
 </ul>
 </blockquote>
 <p>We can have a look at how these variable are distributed according to the poverty-level of the indvidual in the plots below:</p>
-<pre class="r"><code>#define function to plot feature variable against target 
+<pre class="r"><code>#define function to plot feature variable against target
 plot_target_by_var &lt;- function(df, variable){
     var &lt;- enquo(variable)
-    df %&gt;% 
-  ggplot(aes(!!var, fill = as.factor(Target), color = as.factor(Target))) + 
-  geom_density(alpha = 0.1, size = 1, show.legend = FALSE) + 
+    df %&gt;%
+  ggplot(aes(!!var, fill = as.factor(Target), color = as.factor(Target))) +
+  geom_density(alpha = 0.1, size = 1, show.legend = FALSE) +
   scale_colour_viridis_d() +
   theme_minimal()
 }
@@ -132,7 +132,7 @@ test_filtered$Target &lt;- as.factor(test_filtered$Target)</code></pre>
 <p>For performance and speed improvements, we will use a 10 K-fold cross validation to fit our models, which we can implement using the <code>trControl</code> function in <code>caret</code>.</p>
 <p>We can fit all of our initial models on the training data with the following code:</p>
 <pre class="r"><code># define models to try
-models &lt;- c(&quot;multinom&quot;, &quot;lda&quot;, &quot;naive_bayes&quot;, &quot;svmLinear&quot;, &quot;knn&quot;, &quot;rpart&quot;, &quot;ranger&quot;)  
+models &lt;- c(&quot;multinom&quot;, &quot;lda&quot;, &quot;naive_bayes&quot;, &quot;svmLinear&quot;, &quot;knn&quot;, &quot;rpart&quot;, &quot;ranger&quot;)
 
 # set CV control for knn, k-folds
 control &lt;- trainControl(method = &quot;cv&quot;, number = 10, p = .9) # 10 fold, 10%
@@ -140,11 +140,11 @@ control &lt;- trainControl(method = &quot;cv&quot;, number = 10, p = .9) # 10 fo
 # fit models
 set.seed(1)
 
-train_models &lt;- lapply(models, function(model){ 
+train_models &lt;- lapply(models, function(model){
     print(model)
-    train(Target ~ ., method = model, data = train_filtered, trControl = control, metric = &quot;Kappa&quot;) 
-}) 
-    
+    train(Target ~ ., method = model, data = train_filtered, trControl = control, metric = &quot;Kappa&quot;)
+})
+
 names(train_models) &lt;- models</code></pre>
 </div>
 </div>
@@ -169,7 +169,7 @@ It can also be useful for us to look at a one number summary of this <span class
 \]</span></p>
 <p>The Macro-<span class="math inline">\(F_1\)</span> gives equal weights to all classes, so it should give extra emphasis to our under-represented classes, whereas the Weighted-<span class="math inline">\(F_1\)</span> gives emphasis proportional to the size of each class. We can extract the relevant evaluation metrics from our list of fitted models using <code>caret</code> and the following code:</p>
 <pre class="r"><code># extract elapsed training times
-elapsed &lt;- sapply(train_models, function(object) 
+elapsed &lt;- sapply(train_models, function(object)
     object$times$everything[&quot;elapsed&quot;])
 
 # extract accuracy from CM in one step without creating a separate predictions vector
@@ -292,7 +292,7 @@ rpart.plot::rpart.plot(train_models$rpart$finalModel)</code></pre>
 <pre class="r"><code>get_imp &lt;- function(modelname){
     imp &lt;- data.frame(varImp(modelname)$importance)
     imp$Variable &lt;- rownames(imp)
-    imp &lt;- imp[order(-imp$Overall)[1:5], ] %&gt;% select(Variable, Overall) 
+    imp &lt;- imp[order(-imp$Overall)[1:5], ] %&gt;% select(Variable, Overall)
     rownames(imp) &lt;- 1:5
     return(imp)
 }
@@ -303,7 +303,7 @@ imp_rpart &lt;- get_imp(train_models$rpart)
 get_imp &lt;- function(modelname){
     imp &lt;- data.frame(varImp(modelname)$importance)
     imp$Variable &lt;- rownames(imp)
-    imp &lt;- imp[order(-imp$Overall)[1:10], ] %&gt;% select(Variable, Overall) 
+    imp &lt;- imp[order(-imp$Overall)[1:10], ] %&gt;% select(Variable, Overall)
     rownames(imp) &lt;- 1:10
     return(imp)
 }

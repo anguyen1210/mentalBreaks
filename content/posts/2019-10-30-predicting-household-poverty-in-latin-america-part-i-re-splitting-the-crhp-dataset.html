@@ -22,7 +22,7 @@ highlight: no
 <div id="about-the-data" class="section level2">
 <h2>About the data</h2>
 <p>This dataset was released on Kaggle as part of a competition sponsored by the <a href="https://www.iadb.org/en">Inter-american Development Bank (IDB)</a>, with the hopes that the Kaggle community would be able to help them discover new and improved methods for identifying the segments of the population in most need of social assistance.</p>
-<p>Just glancing at the data on the Kaggle the page, we can see that there’s a fair amount of information available, with the bulk of the dataset already split into a train set (<span class="math inline">\(9,557 x 143\)</span>) and a test set (<span class="math inline">\(23,856 x 142\)</span>). Oddly, the test set contains 70% of the data, and has one less column, which in this case, happens to be the target column. For the remaining columns, there are two identifiers, plus 140 different columns describing individual and household attributes. I’m not going to go through all of these feature columns here, but the organizers have made a codebook available, and there is a nice <a href="https://www.kaggle.com/c/costa-rican-household-poverty-prediction/data">summary of all the feature variables</a> on the website.</p>
+<p>Just glancing at the data on the Kaggle the page, we can see that there’s a fair amount of information available, with the bulk of the dataset already split into a train set (<span class="math inline">\(9,557\)</span> x <span class="math inline">\(143\)</span>) and a test set (<span class="math inline">\(23,856\)</span> x <span class="math inline">\(142\)</span>). Oddly, the test set contains 70% of the data, and has one less column, which in this case, happens to be the target column. For the remaining columns, there are two identifiers, plus 140 different columns describing individual and household attributes. I’m not going to go through all of these feature columns here, but the organizers have made a codebook available, and there is a nice <a href="https://www.kaggle.com/c/costa-rican-household-poverty-prediction/data">summary of all the feature variables</a> on the website.</p>
 <div id="the-core-data-fields" class="section level3">
 <h3>The core data fields</h3>
 <p>The main ‘target’ variable in this dataset is a poverty-level classification with four values: “<em>extreme poverty</em>”, “<em>moderate poverty</em>”, “<em>vulnerable</em>”, and “<em>non-vulnerable</em>”.</p>
@@ -105,7 +105,7 @@ dim(train_filtered)</code></pre>
 </blockquote>
 <p>For this, we can use the <code>nearZeroVar</code> function in <code>caret</code> that makes this task fairly simple:</p>
 <pre class="r"><code>library(caret)
-# identify NZV predictors 
+# identify NZV predictors
 nzv &lt;- nearZeroVar(train_filtered)
 
 # show names of NZV predictors
@@ -143,7 +143,7 @@ dim(train_filtered)</code></pre>
 l &lt;- lapply(train_filtered, function(X) as.numeric(factor(X, levels=unique(X))))
 m &lt;- as.matrix(data.frame(l))
 
-# Identify pairs of perfectly correlated columns    
+# Identify pairs of perfectly correlated columns
 M &lt;- (cor(m,m) == 1)
 
 M[lower.tri(M, diag=TRUE)] &lt;- FALSE
