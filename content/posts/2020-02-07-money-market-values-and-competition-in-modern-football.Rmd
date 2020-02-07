@@ -49,7 +49,7 @@ First, to get a sense of the difference between the the top leagues in England, 
   
 For example, *League 1* in France has a total market value of over 3 billion euros, which is three times greater than the next biggest league outside the top 5. In fact, the Portuguese league is the only other one outside the top 5 that has a total market value of over 1 billion, and we can see that over half of the top 20 European leagues has a total market value of less than 500 million euros.
 
-![](/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_mvtot20.png)  
+![](/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_mvtot_2018.png) 
   
 ### Total Market Value, 2005-2018  
     
