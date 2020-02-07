@@ -28,34 +28,34 @@ highlight: no
 <h2>Data</h2>
 <p>The main impetus behind this post is the availability of a large database of consistent market valuations players in all of the top European football leagues available on the German website <a href="https://www.transfermarkt.com/">Transfermrkt</a>. For the top five leagues in England, Spain, Italy, Germany and France, Transfermarkt provides a continuous series of data with the market valuations of all teams from the 2005-2006 season to the present. While these valuations are estimates, they are widely considered to be some of the best estimates available and the site is regularly cited by media and used for academic studies<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>.</p>
 <p>A typical entry for a single season in each league contains the following information:</p>
-<p><img src="../../../transfermrkt/figs/laliga_mv_table_2018.png" width="500" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/laliga_mv_table_2018.png" width="500" /></p>
 </div>
 <div id="total-market-value" class="section level2">
 <h2>Total Market Value</h2>
 <p>The first thing we will look at is the evolution of the total market value of the top 20 most valuable leagues in Europe. The list was taken from <a href="https://www.transfermarkt.com/wettbewerbe/europa/wettbewerbe">Transfermarkt’s current ranking</a>, as of January 2020:</p>
-<p><img src="../../../transfermrkt/figs/top25_mv_table_jan2020.png" width="500" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/top25_mv_table_jan2020.png" width="500" /></p>
 <p>The site has market values listed for all of the clubs going back to the 2005-2006 season for the top 5 leagues (England, Spain, Germany, Italy, France), and full data for the rest of the teams going back to the 2006-2007 season. While I’m mostly interested in examining the top 5, I include the other countries in some of the plots below to provide some additional context.</p>
 <div id="total-market-value-2018-2019-season" class="section level3">
 <h3>Total Market Value, 2018-2019 Season</h3>
 <p>First, to get a sense of the difference between the the top leagues in England, Spain, Italy, Germany and France, we can plot the market value for the first division league in each of the top 20 European countries for the 2018-2019 season (the most recent one with complete data). In the bar plot below, we can immediately see that there is a substantial difference between the top 5 leagues and the rest.</p>
 <p>For example, <em>League 1</em> in France has a total market value of over 3 billion euros, which is three times greater than the next biggest league outside the top 5. In fact, the Portuguese league is the only other one outside the top 5 that has a total market value of over 1 billion, and we can see that over half of the top 20 European leagues has a total market value of less than 500 million euros.</p>
-<p><img src="../../../transfermrkt/figs/p_mvtot_2018.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_mvtot_2018.png" /></p>
 </div>
 <div id="total-market-value-2005-2018" class="section level3">
 <h3>Total Market Value, 2005-2018</h3>
 <p>The evolution of the market value of the top 5 leagues between the 20005-2006 season to the 2018-2019 season further highlights the disparity between the top 5 and the rest in Europe.</p>
 <p>The figure below plots the total market value of each league in millions of euros (€). While the gap between the total market value of the top European leagues and the rest of Europe was already present in 2005, over time, this gap has widened, and even seems to accelerate in more recent years.</p>
-<p><img src="../../../transfermrkt/figs/p_mvtot20.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_mvtot20.png" /></p>
 </div>
 <div id="total-market-value-growth-rates" class="section level3">
 <h3>Total Market Value Growth Rates</h3>
 <p>To get a sense of the growth rates of the top leagues over time, we plot, below, the log transformation of the total market value of each league. In this figure, the movement up or down of each line corresponds to a percentage increase/decrease in total market value for the league in question.</p>
 <p>What can be seen in this figure is that the growth rates for the top 5 European leagues seem to move mostly in parallel, and that the percentage growth is constant and positive over the entire time span. In contrast, looking at the movement of the rest of the top 20 European leagues (lines in grey), we see that the up and down movement of the lines is erratic, dramatic and often negative for long stretches over the same time period.</p>
-<p><img src="../../../transfermrkt/figs/p_logmvtot20.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_logmvtot20.png" /></p>
 <p>The difference between the constant positive growth rates of the top 5 leagues and the volatile rate of change in the rest of the European leagues can be seen even more clearly in the figure below, which plots the percentage change in total market value from season-to-season of all the leagues. As we inferred from the log-plot, above, the rate of change of the top 5 mostly moves in parallel, and is quite constant and positive throughout the time series. In fact, visualized this way, it even appears that, since 2016, the French and Italian leagues have seen a slightly sharper increase in the growth of their total market value compared to the others. Also, as before, the wide swings of the grey lines, i.e. the other European leagues, show that their total market values are not as stable from season-to-season, no doubt because their total market values are smaller and, thus, are more susceptible to the out-sized influence of big transfer deals in and out of the leagues.</p>
-<p><img src="../../../transfermrkt/figs/p_pct_mvtot20.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_pct_mvtot20.png" /></p>
 <p>Finally, we can calculate the average growth rate of the leagues over this time period. Because our percentage growth swings between positive and negative values for many of the country leagues, I calculate a simple average annual growth rate and plot it below. We can see that the average annual growth in market value for top 5 leagues is around, or just below, 10% each year. While there are a few countries with higher annual growth, looking back at our first figure, we see that these countries are among the smallest in Europe’s top 20, and are unlikely to approach the size of top leagues anytime soon.</p>
-<p><img src="../../../transfermrkt/figs/p_pct_bar.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_pct_bar.png" /></p>
 </div>
 </div>
 <div id="market-concentration" class="section level2">
@@ -84,18 +84,18 @@ where <span class="math inline">\(s_i\)</span> is the market share of each firm 
 ## 4     ITA   2018  862.1538
 ## 5     ENG   2018  804.8555</code></pre>
 <p>The figure below shows the HHI scores for the top 20 leagues by market value in Europe for the 2018-2019 season. While we can see there is some variation between countries, only a handful of leagues are considered moderately concentrated (Austria, Ukraine, Scotland, and Portugal), the majority are considered unconcentrated, competitive markets by our measure of market value concentration.</p>
-<p><img src="../../../transfermrkt/figs/p_hhi_2018.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_hhi_2018.png" /></p>
 <p>Looking over the entire time span covered by our dataset, the figure below plots the HHI scores for all leagues from 2005-2018, where the size of the point is given by the total market share of the league or country in question. In this figure, we can see that the English Premier League and the Italian Serie A have the lowest market concentration scores throughout the series, despite their growth in total market value over time. Conversely, we can see that the Spanish and French leagues appear to be increasing in market concentration over the years, with the French Ligue 1 really increasing its relative rate of market concentration noticeably beginning with the 2011-2012 season onward (as you would expect). The German Bundesliga seems to lie somewhere in the middle, though it’s overall trend over time is a slight increase in market concentration.</p>
 <p>With regards to the HHI scores for the rest of the European leagues, corresponding to their volatile growth rates, we also see a correspondingly wide range of values, though with few exceptions, larger markets tend to have lower HHI scores, and very concentrated markets are mostly found in the smaller leagues.</p>
-<p><img src="../../../transfermrkt/figs/p_hhi_mvtot20.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_hhi_mvtot20.png" /></p>
 </div>
 <div id="impact-of-market-share-on-points-won" class="section level2">
 <h2>Impact of market share on points won</h2>
 <p>Finally, we can try to estimate the impact of market share on the performance of each club in their respective leagues. While clearly there is a relationship between the amount spent on players and the total points won by club per season, we can try to put an exact number on this relationship with a simple linear regression. In this part of the analysis, I will restrict the sample data to only the top 5 leagues of primary interest.</p>
 <p>The figure below plots the relationship between the share of the total market value each club has in their respective league, per season, against the total points won that season. The data points in this plot are pooled from all clubs within each league over all seasons, and broken up by country. We can clearly see the strong, positive linear relationship between each club’s share of the total market and the points won. Similarly, we can see some evidence of the different levels of market concentration in the leagues we alluded to earlier–specifically, this is captured by the wider spread of points drifting to the right hand side of the plots for Spain, France and Germany, signalling those leagues contain more individual clubs with disproportionately larger shares of the total market than the rest. Conversely, the tighter bunching of the points for England and Germany is evidence of the relatively less concentrated markets in those leagues.</p>
-<p><img src="../../../transfermrkt/figs/p_pts_share.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_pts_share.png" /></p>
 <p>When we look at this same plot broken down by season, as the figure below, we can see how the market concentration levels have evolved over the years. Plotted this way, we can clearly see where, beginning in the 2009-2010 season, a few clubs in Spain and Germany really begin to pull away from the rest of the teams in their respective leagues. By the 2012-2013 season, the influence of the PSG takeover is also clearly evident in the French league. While there are clearly a few exceptions in every league in every season where the team that won the most points is <em>not</em> the one with the greatest share of the market, the exceptions are rare, and the relationship between the two variables is quite clear over all teams and leagues.</p>
-<p><img src="../../../transfermrkt/figs/p_pts_share_seasons.png" /></p>
+<p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_pts_share_seasons.png" /></p>
 <div id="regression-results" class="section level3">
 <h3>Regression results</h3>
 <p>As a final step, we can estimate a simple linear model in order to quantify the effect of club market share on performance in the form:
