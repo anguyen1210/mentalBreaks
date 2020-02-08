@@ -17,6 +17,9 @@ highlight: no
 ---
 ```{r include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.align="center")
+
+library(dplyr)
+library(huxtable)
 ```
 
 In this blog post, I use the market value estimations from the Transfermrkt website to evaluate the influence of money in the top-tier of European football. I trace the evolution of market value for the top 5 European leagues, compute a measure of the market concentration as a proxy for competitiveness within each league, and then estimate the relationship between market share and performance by way of points accumulated by each club per season. I find that the top 5 European football leagues have relatively low levels of market concentration compared to industrial benchmarks, though levels of market concentration do vary from across leagues and over time. Regression results indicate that an increase of a club's share of the total market by 1% is associated with an increase of 2.68 points earned per season.
@@ -97,7 +100,12 @@ The table below shows the HHI scores for the top 5 as of the 2018-2019 season. B
 ```{r echo=FALSE}
 hhi_top5_2018 <- readRDS("../../../transfermrkt/data/hhi_top5_2018.Rds")
 
-hhi_top5_2018
+hhi_top5_2018 <- as_hux(hhi_top5_2018)
+number_format(hhi_top5_2018)[ , 2] <- 0
+number_format(hhi_top5_2018)[ , 3] <- 3
+
+hhi_top5_2018 %>% set_caption("HHI 2018-2019 Season") %>% 
+  add_colnames()
 ```
     
 The figure below shows the HHI scores for the top 20 leagues by market value in Europe for the 2018-2019 season. While we can see there is some variation between countries, only a handful of leagues are considered moderately concentrated (Austria, Ukraine, Scotland, and Portugal), the majority are considered unconcentrated, competitive markets by our measure of market value concentration.  
@@ -139,16 +147,28 @@ summary(mod1)$coefficients
   
 ## Some final remarks
 
-Over the past decade we've seen enormous sums of money flowing into top flight European football, and the data presented here gives a clearer picture on how much the leagues have changed from the 2005-2006 season to 2018-2019. 
+Over the past decade we've seen enormous sums of money flowing into top flight European football, and the data presented here gives a clearer picture on how much the leagues have changed from the 2005-2006 season to 2018-2019.
 ```{r echo=FALSE}
 tot_growth_top5 <- readRDS("../../../transfermrkt/data/tot_growth_top5.Rds")
 
-tot_growth_top5
+tot_growth_top5 %>% rename(mv_pct.change = tot.pct.change_2005_2018) %>% 
+  huxtable() %>% 
+  set_caption("%Change in Total Market Value, 2005-2018") %>% 
+  add_colnames()
 ```
     
 The top divisions in England, Spain, France, and Germany have all seen increases in the total market value of players in excess of 200%, and the Italian league has also seen an increase of 175% over this time period. 
   
-On the other hand, while it may seem that all of this money is flowing into just a handful of top clubs, the data shows that, the concentration of wealth is more evenly distributed than it may seem--dependent on your league of reference. On my end, for example, as an avid watcher of La Liga, my impression that the money is being concentrated with the top 2, and increasingly 3 teams, is in fact, born out by the data. On the other hand, the biggest league by total market value and the one that has also grown the most--the English Premier League (EPL)--also has the most even distribution of market shares among the top five leagues. Furthermore, the EPL has remained remarkably consistent in its very low levels of market concentration over the entire time period covered in this analysis.
+On the other hand, while it may seem that all of this money is flowing into just a handful of top clubs, the data shows that, the concentration of wealth is more evenly distributed than it may seem--dependent on your league of reference. On my end, for example, as an avid watcher of La Liga, my impression that the money is being concentrated with the top 2, and increasingly 3 teams, is in fact, born out by the data. Since 2005, the Herfindahl Index for La Liga has increased by 25%. Similarly, the concentration of market value into the top clubs in Germany and France has become even worse.
+
+On the other hand, the biggest league by total market value and the one that has also grown the most--the English Premier League (EPL)--also has the most even distribution of market shares among the top five leagues. Furthermore, the EPL has remained remarkably consistent in its very low levels of market concentration over the entire time period covered in this analysis. 
+```{r echo=FALSE}
+herf_change <- readRDS("../../../transfermrkt/data/herf_change.Rds")
+
+herf_change %>% huxtable() %>% 
+  set_caption("Change in HHI, 2005-2018") %>% 
+  add_colnames()
+```
   
 There are many other questions we can ask with this data, and I was not able to show everything in a single post here, but as always, constructive comments, questions and suggestions are always most welcome!
 

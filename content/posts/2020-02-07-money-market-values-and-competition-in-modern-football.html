@@ -75,13 +75,40 @@ where <span class="math inline">\(s_i\)</span> is the market share of each firm 
 </ul>
 </blockquote>
 <p>Here we use the HHI to provide a way for us to quantify the concentration of market power in each of our football leagues. Or to put it differently, the HHI provides us with a way of measuring how equally the shares of the total market value for players is distributed among all of the competing clubs in each league.<br />
-The table below shows the HHI scores for the top 5 as of the 2018-2019 season. By the criteria set out by the U.S. FTC/DOJ all of these leagues would be considered unconcentrated, competitive markets. While it might seem like seem like only a handful of rich clubs in each country are truly competing for titles–and in fact, this might still be true, as we will later–in terms of oligopoly-like concentration of market power among the few, by industry standards, low HHI scores here indicates that the leagues would be considered competitive. When one considers that top-division football is a very regulated market to begin with, then this result seems less surprising.</p>
-<pre><code>##   country season       hhi
-## 1     ESP   2018 1267.9064
-## 2     FRA   2018 1207.4397
-## 3     GER   2018  995.6106
-## 4     ITA   2018  862.1538
-## 5     ENG   2018  804.8555</code></pre>
+The table below shows the HHI scores for the top 5 as of the 2018-2019 season. By the criteria set out by the U.S. FTC/DOJ all of these leagues would be considered unconcentrated, competitive markets. While it might seem like seem like only a handful of rich clubs in each country are truly competing for titles–and in fact, this might still be true, as we will later–in terms of oligopoly-like concentration of market power among the few, by industry standards, low HHI scores here indicates that the leagues would be considered competitive. When one considers that top-division football is a very regulated market to begin with, then this result seems less surprising.<br />
+<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto;  ">
+<caption style="caption-side: top; text-align: center;">HHI 2018-2019 Season</caption><col><col><col><tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">country</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">season</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">hhi</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ESP</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2018</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">1267.906</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">FRA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2018</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">1207.440</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">GER</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2018</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">995.611</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ITA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2018</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">862.154</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ENG</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2018</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">804.856</td>
+</tr>
+</table>
+</p>
 <p>The figure below shows the HHI scores for the top 20 leagues by market value in Europe for the 2018-2019 season. While we can see there is some variation between countries, only a handful of leagues are considered moderately concentrated (Austria, Ukraine, Scotland, and Portugal), the majority are considered unconcentrated, competitive markets by our measure of market value concentration.</p>
 <p><img src="/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/p_hhi_2018.png" /></p>
 <p>Looking over the entire time span covered by our dataset, the figure below plots the HHI scores for all leagues from 2005-2018, where the size of the point is given by the total market value of the league or country in question. In this figure, we can see that the English Premier League and the Italian Serie A have the lowest market concentration scores throughout the series, despite their growth in total market value over time. Conversely, we can see that the Spanish and French leagues appear to be increasing in market concentration over the years, with the French Ligue 1 really increasing its relative rate of market concentration noticeably beginning with the 2011-2012 season onward. The German Bundesliga seems to lie somewhere in the middle, though it’s overall trend over time is a slight increase in market concentration.</p>
@@ -110,15 +137,70 @@ where <span class="math inline">\(Y\)</span> is the number of points won by a te
 </div>
 <div id="some-final-remarks" class="section level2">
 <h2>Some final remarks</h2>
-<p>Over the past decade we’ve seen enormous sums of money flowing into top flight European football, and the data presented here gives a clearer picture on how much the leagues have changed from the 2005-2006 season to 2018-2019.</p>
-<pre><code>##   country tot.pct.change_2005_2018
-## 1     ENG                 251.9328
-## 2     ESP                 242.5062
-## 3     FRA                 208.7392
-## 4     GER                 239.2580
-## 5     ITA                 175.6897</code></pre>
+<p>Over the past decade we’ve seen enormous sums of money flowing into top flight European football, and the data presented here gives a clearer picture on how much the leagues have changed from the 2005-2006 season to 2018-2019.
+<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto;  ">
+<caption style="caption-side: top; text-align: center;">%Change in Total Market Value, 2005-2018</caption><col><col><tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">country</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">mv_pct.change</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ENG</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">252</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ESP</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">243</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">FRA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">209</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">GER</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">239</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ITA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">176</td>
+</tr>
+</table>
+</p>
 <p>The top divisions in England, Spain, France, and Germany have all seen increases in the total market value of players in excess of 200%, and the Italian league has also seen an increase of 175% over this time period.</p>
-<p>On the other hand, while it may seem that all of this money is flowing into just a handful of top clubs, the data shows that, the concentration of wealth is more evenly distributed than it may seem–dependent on your league of reference. On my end, for example, as an avid watcher of La Liga, my impression that the money is being concentrated with the top 2, and increasingly 3 teams, is in fact, born out by the data. On the other hand, the biggest league by total market value and the one that has also grown the most–the English Premier League (EPL)–also has the most even distribution of market shares among the top five leagues. Furthermore, the EPL has remained remarkably consistent in its very low levels of market concentration over the entire time period covered in this analysis.</p>
+<p>On the other hand, while it may seem that all of this money is flowing into just a handful of top clubs, the data shows that, the concentration of wealth is more evenly distributed than it may seem–dependent on your league of reference. On my end, for example, as an avid watcher of La Liga, my impression that the money is being concentrated with the top 2, and increasingly 3 teams, is in fact, born out by the data. Since 2005, the Herfindahl Index for La Liga has increased by 25%. Similarly, the concentration of market value into the top clubs in Germany and France has become even worse.</p>
+<p>On the other hand, the biggest league by total market value and the one that has also grown the most–the English Premier League (EPL)–also has the most even distribution of market shares among the top five leagues. Furthermore, the EPL has remained remarkably consistent in its very low levels of market concentration over the entire time period covered in this analysis.
+<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto;  ">
+<caption style="caption-side: top; text-align: center;">Change in HHI, 2005-2018</caption><col><col><col><tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">country</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">hhi_change</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">hhi_pct.change</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ENG</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">57.9</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">7.75</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ESP</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">257&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">25.4&nbsp;</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">FRA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">506&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">72.2&nbsp;</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">GER</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">234&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">30.8&nbsp;</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">ITA</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">-155&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">-15.2&nbsp;</td>
+</tr>
+</table>
+</p>
 <p>There are many other questions we can ask with this data, and I was not able to show everything in a single post here, but as always, constructive comments, questions and suggestions are always most welcome!</p>
 </div>
 <div id="references" class="section level2">
