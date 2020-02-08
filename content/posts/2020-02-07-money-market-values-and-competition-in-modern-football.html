@@ -128,11 +128,28 @@ The table below shows the HHI scores for the top 5 as of the 2018-2019 season. B
 <span class="math display">\[
 Y_{l,s} = \theta_l + \theta_s + \beta \, \text{ClubMarketShare}_{l,s} + \varepsilon_{l,s}
 \]</span>
-where <span class="math inline">\(Y\)</span> is the number of points won by a team in each league (<span class="math inline">\(l\)</span>) per season(<span class="math inline">\(s\)</span>). The two theta terms control for the fixed-effects of each league (<span class="math inline">\(\theta_l\)</span>) and season (<span class="math inline">\(\theta_s\)</span>), and <span class="math inline">\(\beta\)</span> captures the impact of each club’s market share on their point total. The regression results reported below, state that, a 1% increase in each club’s share of the league’s total market value is associated with a 2.68 increase in total points won. The effect of the club market share on points won is statistically significant.</p>
-<pre><code>##             Estimate Std. Error  t value      Pr(&gt;|t|) CI Lower CI Upper
-## share_mvtot 2.681609  0.0870068 30.82068 1.862351e-158 2.510926 2.852292
-##               DF
-## share_mvtot 1353</code></pre>
+where <span class="math inline">\(Y\)</span> is the number of points won by a team in each league (<span class="math inline">\(l\)</span>) per season(<span class="math inline">\(s\)</span>). The two theta terms control for the fixed-effects of each league (<span class="math inline">\(\theta_l\)</span>) and season (<span class="math inline">\(\theta_s\)</span>), and <span class="math inline">\(\beta\)</span> captures the impact of each club’s market share on their point total. The regression results reported below, state that, a 1% increase in each club’s share of the league’s total market value is associated with a 2.68 increase in total points won. The effect of the club market share on points won is statistically significant.<br />
+<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto;  ">
+<col><col><col><col><col><col><col><tr>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Estimate</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Std. Error</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">t value</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Pr(&gt;|t|)</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">CI Lower</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">CI Upper</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">DF</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2.68</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">0.087</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">30.8</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">1.86e-158</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2.51</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">2.85</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">1353</td>
+</tr>
+</table>
+</p>
 </div>
 </div>
 <div id="some-final-remarks" class="section level2">

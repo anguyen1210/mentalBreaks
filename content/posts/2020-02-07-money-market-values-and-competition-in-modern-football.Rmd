@@ -142,7 +142,11 @@ mvpoints <- readRDS("../../../transfermrkt/data/mvpoints.Rds")
 
 mod1 <- estimatr::lm_robust(points~share_mvtot, data=mvpoints, fixed_effects = ~ country + season, se_type = "HC1")
 
-summary(mod1)$coefficients
+mod_sum <- summary(mod1)$coefficients %>% as_hux() %>% add_colnames()
+
+number_format(mod_sum)[ , 7] <- 0
+
+mod_sum  
 ```
   
 ## Some final remarks
