@@ -1,0 +1,271 @@
+---
+title: Impulse-reponse plots with `vars` and `ggplot2`
+author: Anthony Nguyen
+date: '2020-02-21'
+slug: impulse-reponse-plots-with-vars-and-ggplot2
+categories: []
+tags:
+  - vars
+  - svar
+  - impulse-reponse
+  - macroeconomics
+  - refugees
+  - employment
+  - labor
+lastmod: '2020-02-20T09:54:49+01:00'
+layout: post
+type: post
+highlight: tango
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(fig.align="center", warning=FALSE, message=FALSE)
+```  
+
+```{r include=FALSE}
+library(dplyr)
+library(ggplot2)
+#library(tsbox)
+#library(vars)
+
+#library(patchwork)
+#library(huxtable)
+```
+
+While the `vars` package makes calculating and plotting impulse-response function as easy as can be, I find the plots generated from the pre-defined methods in the package leave much to be desired. In this post, I show a work-around that allows you to extract the relevant impulse-response vectors returned from the `irf()` function in `vars` in a nicely-boxed dataframe that is `ggplot`-friendly and allows for easier-to-customize plots. The example data set used in this post comes from some recent work I've done analyzing the impact of refugee migration on the Swiss economy from 1991 to 2019 using a Structural Vector Autoregression (SVAR) identification scheme that is commonly used to estimate the macroeconomic effects of structural shocks and policies.  
+  
+## Background   
+
+With regards to the empirical evidence on economic effects of immigration, while there is an ample body of literature using disaggregated micro-level data, presently, the literature investigating these same effects using macroeconomic models is still in its infancy. With that said, there is a small, but growing, branch of research driven by macroeconomists using Structural Vector Autoregression (SVAR) techniques to estimate the impact of migration on a variety of economic variables. 
+
+To give a few examples, d'Albis et al. ([who also teaches a class on this subject at the PSE Migration Summer School](https://mentalbreaks.rbind.io/posts/pse-summer-school-migration-economics-part-1/)) use a recursively identified SVAR to estimate the effect of immigration on GDP[^1], and panel SVAR methods to estimate the effect of immigration on the French housing market[^2] and refugee migration on European public finance[^3], respectively. Armstrong and McDonald[^4] also use a recursively identified SVAR to look at the effect of migration on the New Zealand housing market. Finally, Furlanetto and Robstad[^5] use a sign-restricted model to estimate the impact of immigration on unemployment on a range of economic indicators, including unemployment, public finance, housing prices, household credit and productivity.    
+
+For a recent project, I used an SVAR to examine the impact of the flows of asylum-seekers on the Swiss economy from 1991 to 2019, where I find that refugee migration has no significant impact on Swiss GDP, nor Swiss unemployment levels during this nearly three-decade period of observation.
+
+## Data and methodology
+
+```{r include=FALSE}
+#load data
+load(file = "../../../../documents/coursework/unine/macroeconomics/project/data/data_svar_refugees.Rdata")
+```
+
+For this analysis, I use a simple three dimensional VAR, specified as follows:
+$$
+Y_t = [ULV_t, GDP_t, ASY_t]'
+$$  
+where $ULV_t$ is the logarithm of the total number of unemployed, $GDP_t$ is the logarithm of the gross domestic product, and $ASY_t$ is the logarithm of the total number of asylum applications. For the three variables, I have an uninterrupted, quarterly time series from 1991 to 2019. The $GDP_t$ variable is differenced so that all series are stationary.
+
+For reference, I plot the evolution of the un-transformed variables used in this analysis from 1991 to 2019 below. 
+
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/p_gdp2_quaterly.png)
+
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/p_ulv2_quarterly.png)
+
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/p_asy2_quarterly.png)
+
+## Estimating the model
+   
+Once we've grouped our variables of interest into a dataframe, we can estimate the model with the `VAR()` function from the `vars` package as follows:
+```{r eval=FALSE, echo=TRUE}
+#this function retunrs an 'varest' object
+var <- VAR(dataset, type = c("const"), lag.max = 12, ic = c("SC"))
+```
+    
+The identification scheme used in this model is based on a lower-triangular Cholesky decomposition where series listed earlier in the VAR can impact all others contemporaneously, while those listed later, can only affect the others with a lag. We estimate the impact of asylum-seeker shocks with zero restrictions:  
+```{r}
+t(chol(summary(var)$covres))
+```
+    
+## Basic impulse response function plots
+
+After estimating our model, the `vars` package makes computing the impulse response function and plotting the results as easy as can be. We can get the impulse response by simply calling the `irf()` function on the 'varest' object returned from `VAR()` and specifying the correct arguments.  
+  
+`irf()` allows you to specify which variable is your impulse, as well as which is your response. If neither one is specified, the function computes the impulse-response for all available variables in the 'varest' object. After calling `irf()`, the resulting 'varirf' object  has a specifically defined method that allows a pretty nice plot to be generated with nothing other than a simple `plot()` call. Below, I show what this looks like when computing the individual impulse-response functions for each of our variables one-by-one in this example, as well as the call and resulting plot when calculating all variable at once.
+  
+### Default single plots
+    
+```{r eval=FALSE, echo=TRUE}
+irf_asy <- irf(var, impulse = "asy", response = "asy", n.ahead = 40, ortho = TRUE,
+               cumulative = FALSE, boot = TRUE, ci = 0.9, runs = 100)
+#png("figs/irf_asy_quarterly.png", width = 700, height = 500)
+plot(irf_asy)
+#dev.off()
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/irf_asy_quarterly.png)    
+```{r eval=FALSE, echo=TRUE}
+irf_gdp <- irf(var, impulse = "asy", response = "ts_diff.gdp.", n.ahead = 40, ortho = TRUE,
+               cumulative = TRUE, boot = TRUE, ci = 0.9, runs = 100)
+#png("figs/irf_gdp_quarterly.png", width = 700, height = 500)
+plot(irf_gdp)
+#dev.off()
+```    
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/irf_gdp_quarterly.png)   
+```{r eval=FALSE, echo=TRUE}
+irf_ulv <- irf(var, impulse = "asy", response = "ulv", n.ahead = 40, ortho = TRUE,
+                cumulative = FALSE, boot = TRUE, ci = 0.9, runs = 100)
+#png("figs/irf_ulv_quarterly.png", width = 700, height = 500)
+plot(irf_ulv)
+#dev.off()
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/irf_ulv_quarterly.png)  
+  
+### Default multiple plots
+```{r eval=FALSE, echo=TRUE, fig.width=6,fig.height=10}
+
+irf_all <- irf(var, impulse = "asy", n.ahead = 40, ortho = TRUE,
+                cumulative = FALSE, boot = TRUE, ci = 0.9, runs = 50)
+#png("figs/irf_all_quarterly.png", width = 600, height = 1000)
+plot(irf_all)
+#dev.off()
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/irf_all_quarterly.png)
+  
+### The default plotting function
+  
+Despite the absolute ease of generating these plots, there were a couple of things I found challenging working with just these basic plot calls. For one, when generating the multiple plots all at once, I could not find a way to set the `cumulative` argument individually for each impulse-response pair. In order to do this, I had to compute each pair individually, setting the `cumulative` argument differently when needed. While this was easy enough to do, when it came to stacking and saving the individual plots into a grid, the layouts of the base plots made it difficult to get results I wanted.
+    
+With regards to customizing the plots even further, when you dig into the plotting method, you find that this base plot takes a number of arguments that allow you to customize your plot:
+```{r eval=FALSE, echo=TRUE}
+function (x, plot.type = c("multiple", "single"), names = NULL,
+    main = NULL, sub = NULL, lty = NULL, lwd = NULL, col = NULL, ylim = NULL,
+    ylab = NULL, xlab = NULL, nc, mar.multi = c(0, 4, 0, 4),
+    oma.multi = c(6, 4, 6, 4), adj.mtext = NA, padj.mtext = NA, col.mtext = NA, ...)
+```
+  
+But again, I found myself wishing I could pass all of the 'varirf' data to ggplot which would be both easier to use and offer greater options for customization.
+  
+## Extract 'varirf' values for use with ggplot
+
+With all of that said, I wrote a simple function to extract the relevant data from single or multiple 'varirf' objects and place them in a a nice dataframe that is easy to use with ggplot. The [code is available on my github site](https://github.com/anguyen1210/var-tools/blob/master/extract_varirf.R), or you can source it directly with the following:
+```{r warning=FALSE, message=FALSE}
+library(devtools)
+source_url("https://raw.githubusercontent.com/anguyen1210/var-tools/master/extract_varirf.R")
+```
+
+### `extract_varirf`
+  
+We can use the function to extract a single 'varirf' object to give us a nice dataframe that is easy to use with ggplot.
+```{r}
+single_varirf <- extract_varirf(irf_ulv)
+
+head(single_varirf)
+```
+
+Similarly, the function takes multiple 'varirf' objects, provided they are estimated on the same 'varest' object and have the same dimensions, and will bind them into a single dataframe which we can use to plot.  
+```{r}
+single_varirf_grouped <- extract_varirf(irf_asy, irf_gdp, irf_ulv)
+
+head(single_varirf_grouped)
+```  
+  
+Likewise, the function works on an 'varirf' object that is called on multiple impulse and/or response objects, and extracts the relevant column vectors into a single easy to use data frame.
+```{r}
+multiple_varirf <- extract_varirf(irf_all)
+
+head(multiple_varirf)
+```
+    
+### Impulse-response plots with ggplot
+
+Now that we have all of our computed impulse response function in dataframe, we can more easily take advantage of all the great ggplot and tidyverse functionality to customize our plots however we would like. Below I show a few simple variations, but the possibilities are limitless:
+```{r eval=FALSE, echo=TRUE}
+
+asy_asy <- multiple_varirf %>% 
+  ggplot(aes(x=period, y=irf_asy_asy, ymin=lower_asy_asy, ymax=upper_asy_asy)) +
+  geom_hline(yintercept = 0, color="red") +
+  geom_ribbon(fill="grey", alpha=0.2) +
+  geom_line() +
+  theme_light() +
+  ggtitle("Orthogonal impulse response, asylum - asylum")+
+  ylab("log(total asylum flow)")+
+  xlab("") +
+  theme(plot.title = element_text(size = 11, hjust=0.5),
+        axis.title.y = element_text(size=11))
+
+#ggsave("figs/asy_asy.png", asy_asy, width=6, height=4)
+
+asy_asy
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_asy.png)
+  
+```{r eval=FALSE, echo=TRUE}
+
+asy_gdp <- multiple_varirf %>% 
+  ggplot(aes(x=period, y=irf_asy_ts_diff.gdp.)) +
+  geom_hline(yintercept = 0, color="red") +
+  geom_line() +
+  geom_line(data= multiple_varirf, aes(y=lower_asy_ts_diff.gdp.), linetype="dashed", color="grey50") +
+  geom_line(data= multiple_varirf, aes(y=upper_asy_ts_diff.gdp.), linetype="dashed", color="grey50") +
+  theme_light() +
+  ggtitle("Orthogonal impulse response, asylum - GDP (cumulative)")+
+  ylab("\u0394(log(GDP))")+
+  xlab("") +
+  theme(plot.title = element_text(size = 11, hjust=0.5),
+        axis.title.y = element_text(size=11))
+
+#ggsave("figs/asy_gdp.png", asy_asy, width=6, height=4)
+
+asy_gdp
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_gdp.png)
+  
+```{r eval=FALSE, echo=TRUE}
+
+asy_ulv <- multiple_varirf %>% 
+  ggplot(aes(x=period, y=irf_asy_ulv)) +
+  geom_hline(yintercept = 0, color="red") +
+  geom_ribbon(aes(ymin=lower_asy_ulv, ymax=upper_asy_ulv), fill="grey", alpha=.2) +
+  geom_line() +
+  geom_line(data= multiple_varirf, aes(y=lower_asy_ulv), linetype="dashed", color="grey50") +
+  geom_line(data= multiple_varirf, aes(y=upper_asy_ulv), linetype="dashed", color="grey50") +
+  theme_light() +
+  ggtitle("Orthogonal impulse response, asylum - unemployment level")+
+  ylab("log(total unemployment)")+
+  xlab("Quarter") +
+  theme(plot.title = element_text(size = 11, hjust=0.5),
+        axis.title.y = element_text(size=11))
+
+#ggsave("figs/asy_ulv.png", asy_ulv, width=6, height=4)
+
+asy_ulv
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_ulv.png)
+
+Finally, we can stack the individual plots into a grid pretty easily.  `gridExtra` and `cowplot` are well known packages for this task. Similarly, I recently discovered Thomas Lin Pederson's [`patchwork` package](https://cran.r-project.org/web/packages/patchwork/vignettes/patchwork.html) which has, perhaps, the simplest syntax for this that I've seen so far:
+```{r eval=FALSE, echo=TRUE, fig.width=5,fig.height=10}
+library(patchwork)
+
+p_irf <- asy_asy / asy_gdp / asy_ulv  
+
+#ggsave("figs/p_irf.png", p_irf, width=5, height=10)
+
+p_irf
+```
+![](/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/p_irf.png)
+  
+## References
+  
+[^1]: d’Albis H,Boubtane E,Coulibaly D (2016).“Immigration Policy and Macroeconomic Performance in France.” Annals of Economics and Statistics, (121/122), 279–308.  
+  
+[^2]: d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.  
+  
+[^3]: d’Albis H, Boubtane E, Coulibaly D (2018). “Macroeconomic Evidence Suggests That Asylum Seekers Are Not a “Burden” for Western European Countries.” Science Advances, 4(6), eaaq0883.  
+  
+[^4]: Armstrong J, McDonald C (2016).“Why the Drivers of Migration Matter for the Labour Market.” Technical Report AN2016/02, Reserve Bank of NewZealand.
+  
+[^5]: Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
