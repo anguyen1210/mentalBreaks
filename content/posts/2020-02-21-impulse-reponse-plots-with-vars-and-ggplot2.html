@@ -187,11 +187,10 @@ head(multiple_varirf)</code></pre>
 asy_asy</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_asy.png" /></p>
 <pre class="r"><code>asy_gdp &lt;- single_varirf_grouped %&gt;% 
-  ggplot(aes(x=period, y=irf_asy_ts_diff.gdp.)) +
+  ggplot(aes(x=period, y=irf_asy_ts_diff.gdp., ymin=lower_asy_ts_diff.gdp., ymax=upper_asy_ts_diff.gdp.)) +
   geom_hline(yintercept = 0, color=&quot;red&quot;) +
+  geom_ribbon(fill=NA, color=&quot;grey50&quot;, linetype=&quot;dashed&quot;) +
   geom_line() +
-  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
-  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
   theme_light() +
   ggtitle(&quot;Orthogonal impulse response, asylum - GDP (cumulative)&quot;)+
   ylab(&quot;\u0394(log(GDP))&quot;)+
@@ -199,17 +198,15 @@ asy_asy</code></pre>
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#ggsave(&quot;figs/asy_gdp.png&quot;, asy_asy, width=6, height=4)
+#ggsave(&quot;figs/asy_gdp.png&quot;, asy_gdp, width=6, height=4)
 
 asy_gdp</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_gdp.png" /></p>
-<pre class="r"><code>asy_ulv &lt;- single_varirf_grouped %&gt;% 
-  ggplot(aes(x=period, y=irf_asy_ulv)) +
+<pre class="r"><code>asy_ulv &lt;- multiple_varirf %&gt;% 
+  ggplot(aes(x=period, y=irf_asy_ulv, ymin=lower_asy_ulv, ymax=upper_asy_ulv)) +
   geom_hline(yintercept = 0, color=&quot;red&quot;) +
-  geom_ribbon(aes(ymin=lower_asy_ulv, ymax=upper_asy_ulv), fill=&quot;grey&quot;, alpha=.2) +
+  geom_ribbon(fill=&quot;grey&quot;, alpha=.2, color=&quot;grey50&quot;, linetype=&quot;dashed&quot;) +
   geom_line() +
-  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
-  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
   theme_light() +
   ggtitle(&quot;Orthogonal impulse response, asylum - unemployment level&quot;)+
   ylab(&quot;log(total unemployment)&quot;)+
@@ -217,7 +214,7 @@ asy_gdp</code></pre>
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#ggsave(&quot;figs/asy_ulv.png&quot;, asy_ulv, width=6, height=4)
+#☻ggsave(&quot;figs/asy_ulv.png&quot;, asy_ulv, width=6, height=4)
 
 asy_ulv</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_ulv.png" /></p>
