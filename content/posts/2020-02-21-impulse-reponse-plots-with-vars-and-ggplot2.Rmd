@@ -186,11 +186,10 @@ asy_asy
 ```{r eval=FALSE, echo=TRUE}
 
 asy_gdp <- single_varirf_grouped %>% 
-  ggplot(aes(x=period, y=irf_asy_ts_diff.gdp.)) +
+  ggplot(aes(x=period, y=irf_asy_ts_diff.gdp., ymin=lower_asy_ts_diff.gdp., ymax=upper_asy_ts_diff.gdp.)) +
   geom_hline(yintercept = 0, color="red") +
+  geom_ribbon(fill=NA, color="grey50", linetype="dashed") +
   geom_line() +
-  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ts_diff.gdp.), linetype="dashed", color="grey50") +
-  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ts_diff.gdp.), linetype="dashed", color="grey50") +
   theme_light() +
   ggtitle("Orthogonal impulse response, asylum - GDP (cumulative)")+
   ylab("\u0394(log(GDP))")+
@@ -198,7 +197,7 @@ asy_gdp <- single_varirf_grouped %>%
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#ggsave("figs/asy_gdp.png", asy_asy, width=6, height=4)
+#ggsave("figs/asy_gdp.png", asy_gdp, width=6, height=4)
 
 asy_gdp
 ```
@@ -206,13 +205,11 @@ asy_gdp
   
 ```{r eval=FALSE, echo=TRUE}
 
-asy_ulv <- single_varirf_grouped %>% 
-  ggplot(aes(x=period, y=irf_asy_ulv)) +
+asy_ulv <- multiple_varirf %>% 
+  ggplot(aes(x=period, y=irf_asy_ulv, ymin=lower_asy_ulv, ymax=upper_asy_ulv)) +
   geom_hline(yintercept = 0, color="red") +
-  geom_ribbon(aes(ymin=lower_asy_ulv, ymax=upper_asy_ulv), fill="grey", alpha=.2) +
+  geom_ribbon(fill="grey", alpha=.2, color="grey50", linetype="dashed") +
   geom_line() +
-  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ulv), linetype="dashed", color="grey50") +
-  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ulv), linetype="dashed", color="grey50") +
   theme_light() +
   ggtitle("Orthogonal impulse response, asylum - unemployment level")+
   ylab("log(total unemployment)")+
@@ -220,7 +217,7 @@ asy_ulv <- single_varirf_grouped %>%
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#ggsave("figs/asy_ulv.png", asy_ulv, width=6, height=4)
+#☻ggsave("figs/asy_ulv.png", asy_ulv, width=6, height=4)
 
 asy_ulv
 ```
