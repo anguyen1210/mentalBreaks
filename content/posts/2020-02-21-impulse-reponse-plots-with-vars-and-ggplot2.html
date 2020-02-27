@@ -20,16 +20,15 @@ highlight: tango
 
 
 
-<p>While the <code>vars</code> package makes calculating and plotting impulse-response function as easy as can be, I find the plots generated from the pre-defined methods in the package leave much to be desired. In this post, I show a work-around that allows you to extract the relevant impulse-response vectors returned from the <code>irf()</code> function in <code>vars</code> in a nicely-boxed dataframe that is <code>ggplot</code>-friendly and allows for easier-to-customize plots. The example data set used in this post comes from some recent work I’ve done analyzing the impact of refugee migration on the Swiss economy from 1991 to 2019 using a Structural Vector Autoregression (SVAR) identification scheme that is commonly used to estimate the macroeconomic effects of structural shocks and policies.</p>
+<p>While the <code>vars</code> package makes calculating and plotting impulse-response function as easy as can be, I find the plots generated from the pre-defined methods in the package leave much to be desired. In this post, I show a work-around that allows you to extract the relevant impulse-response vectors returned from the <code>irf()</code> function in <code>vars</code> into a nicely-boxed dataframe that is <code>ggplot</code>-friendly and allows for easier-to-customize plots. The example data set used in this post comes from some recent work I’ve done analyzing the impact of refugee migration on the Swiss economy from 1991 to 2019 using a Structural Vector Autoregression (SVAR) identification scheme that is commonly used to estimate the macroeconomic effects of structural shocks and policies.</p>
 <div id="background" class="section level2">
 <h2>Background</h2>
-<p>With regards to the empirical evidence on economic effects of immigration, while there is an ample body of literature using disaggregated micro-level data, presently, the literature investigating these same effects using macroeconomic models is still in its infancy. With that said, there is a small, but growing, branch of research driven by macroeconomists using Structural Vector Autoregression (SVAR) techniques to estimate the impact of migration on a variety of economic variables.</p>
-<p>To give a few examples, d’Albis et al. (<a href="https://mentalbreaks.rbind.io/posts/pse-summer-school-migration-economics-part-1/">who also teaches a class on this subject at the PSE Migration Summer School</a>) use a recursively identified SVAR to estimate the effect of immigration on GDP<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, and panel SVAR methods to estimate the effect of immigration on the French housing market<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> and refugee migration on European public finance<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>, respectively. Armstrong and McDonald<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> also use a recursively identified SVAR to look at the effect of migration on the New Zealand housing market. Finally, Furlanetto and Robstad<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> use a sign-restricted model to estimate the impact of immigration on unemployment on a range of economic indicators, including unemployment, public finance, housing prices, household credit and productivity.</p>
-<p>For a recent project, I used an SVAR to examine the impact of the flows of asylum-seekers on the Swiss economy from 1991 to 2019, where I find that refugee migration has no significant impact on Swiss GDP, nor Swiss unemployment levels during this nearly three-decade period of observation.</p>
+<p>After attending a <a href="https://mentalbreaks.rbind.io/posts/pse-summer-school-migration-economics-part-1/">migration economics course last summer</a>) where Hippolyte d’Albis presented some of his recent work<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> using SVARs in the context of migration and asylum seekers, I’d been eager to learn more about the technique and work with it a little myself. While there is an ample body of literature using disaggregated micro-level data to investigate the impact of migration on different economic outcomes, the literature investigating these same effects using macroeconomic models is still in its infancy. As noted by Furlanetto and Robsted<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>, this likely due to the lack of reliable and ample time series data for many countries at present time. Certainly on my end, I’ve been surprised at how difficult it has been to locate the right data to conduct such an analysis here in Switzerland.</p>
+<p>With that said, for a recent project, I managed to put together enough data to examine the impact of the flows of asylum-seekers on the Swiss economy from 1991 to 2019 using an SVAR. In doing so, I spent a good amount of time working with Bernhard Pfaff’s <code>vars</code> package and demonstrate, here, my solution for making the output of the <code>irf</code> function in this package compatible with <code>ggplot</code>.</p>
 </div>
 <div id="data-and-methodology" class="section level2">
 <h2>Data and methodology</h2>
-<p>For this analysis, I use a simple three dimensional VAR, specified as follows:
+<p>In this example, I use a simple three dimensional VAR, specified as follows:
 <span class="math display">\[
 Y_t = [ULV_t, GDP_t, ASY_t]&#39;
 \]</span><br />
@@ -87,13 +86,13 @@ plot(irf_all)
 </div>
 <div id="the-default-plotting-function" class="section level3">
 <h3>The default plotting function</h3>
-<p>Despite the absolute ease of generating these plots, there were a couple of things I found challenging working with just these basic plot calls. For one, when generating the multiple plots all at once, I could not find a way to set the <code>cumulative</code> argument individually for each impulse-response pair. In order to do this, I had to compute each pair individually, setting the <code>cumulative</code> argument differently when needed. While this was easy enough to do, when it came to stacking and saving the individual plots into a grid, the layouts of the base plots made it difficult to get results I wanted.</p>
-<p>With regards to customizing the plots even further, when you dig into the plotting method, you find that this base plot takes a number of arguments that allow you to customize your plot:</p>
+<p>Despite the absolute ease of generating these plots, there were a couple of things I found challenging working with just these basic plot calls. For one, when generating the multiple plots all at once, I could not find a way to set the “cumulative” argument individually for each impulse-response pair. In order to do this, I had to compute each pair individually, setting the “cumulative” argument differently when needed. While this was easy enough to do, when it came to stacking and saving the individual plots into a grid, the layouts of the base plots made it difficult to get results I wanted.</p>
+<p>With regards to customizing the plots even further, when you dig into the <a href="https://github.com/bpfaff/vars/blob/master/R/plot.varirf.R">plotting method</a>, you find that this base plot takes a number of arguments that allow you to customize your plot:</p>
 <pre class="r"><code>function (x, plot.type = c(&quot;multiple&quot;, &quot;single&quot;), names = NULL,
     main = NULL, sub = NULL, lty = NULL, lwd = NULL, col = NULL, ylim = NULL,
     ylab = NULL, xlab = NULL, nc, mar.multi = c(0, 4, 0, 4),
     oma.multi = c(6, 4, 6, 4), adj.mtext = NA, padj.mtext = NA, col.mtext = NA, ...)</code></pre>
-<p>But again, I found myself wishing I could pass all of the ‘varirf’ data to ggplot which would be both easier to use and offer greater options for customization.</p>
+<p>But again, I found myself wishing I could pass all of the ‘varirf’ data to <code>ggplot</code> which would be both easier to use and offer greater options for customization.</p>
 </div>
 </div>
 <div id="extract-varirf-values-for-use-with-ggplot" class="section level2">
@@ -139,8 +138,11 @@ head(single_varirf_grouped)</code></pre>
 ## 4     1.9483443
 ## 5     2.0213136
 ## 6     1.9597160</code></pre>
-<p>Likewise, the function works on an ‘varirf’ object that is called on multiple impulse and/or response objects, and extracts the relevant column vectors into a single easy to use data frame.</p>
-<pre class="r"><code>multiple_varirf &lt;- extract_varirf(irf_all)
+<p>Likewise, the function works on a ‘varirf’ object that is called on multiple impulse and/or response objects, and extracts the relevant column vectors into a single easy to use data frame.</p>
+<pre class="r"><code># irf_all &lt;- irf(var, impulse = &quot;asy&quot;, n.ahead = 40, ortho = TRUE,
+#                 cumulative = FALSE, boot = TRUE, ci = 0.9, runs = 50)
+
+multiple_varirf &lt;- extract_varirf(irf_all)
 
 head(multiple_varirf)</code></pre>
 <pre><code>##   period irf_asy_asy irf_asy_ts_diff.gdp. irf_asy_ulv lower_asy_asy
@@ -168,7 +170,7 @@ head(multiple_varirf)</code></pre>
 <div id="impulse-response-plots-with-ggplot" class="section level3">
 <h3>Impulse-response plots with ggplot</h3>
 <p>Now that we have all of our computed impulse response function in dataframe, we can more easily take advantage of all the great ggplot and tidyverse functionality to customize our plots however we would like. Below I show a few simple variations, but the possibilities are limitless:</p>
-<pre class="r"><code>asy_asy &lt;- multiple_varirf %&gt;% 
+<pre class="r"><code>asy_asy &lt;- single_varirf_grouped %&gt;% 
   ggplot(aes(x=period, y=irf_asy_asy, ymin=lower_asy_asy, ymax=upper_asy_asy)) +
   geom_hline(yintercept = 0, color=&quot;red&quot;) +
   geom_ribbon(fill=&quot;grey&quot;, alpha=0.2) +
@@ -184,12 +186,12 @@ head(multiple_varirf)</code></pre>
 
 asy_asy</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_asy.png" /></p>
-<pre class="r"><code>asy_gdp &lt;- multiple_varirf %&gt;% 
+<pre class="r"><code>asy_gdp &lt;- single_varirf_grouped %&gt;% 
   ggplot(aes(x=period, y=irf_asy_ts_diff.gdp.)) +
   geom_hline(yintercept = 0, color=&quot;red&quot;) +
   geom_line() +
-  geom_line(data= multiple_varirf, aes(y=lower_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
-  geom_line(data= multiple_varirf, aes(y=upper_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
+  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
+  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ts_diff.gdp.), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
   theme_light() +
   ggtitle(&quot;Orthogonal impulse response, asylum - GDP (cumulative)&quot;)+
   ylab(&quot;\u0394(log(GDP))&quot;)+
@@ -201,13 +203,13 @@ asy_asy</code></pre>
 
 asy_gdp</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_gdp.png" /></p>
-<pre class="r"><code>asy_ulv &lt;- multiple_varirf %&gt;% 
+<pre class="r"><code>asy_ulv &lt;- single_varirf_grouped %&gt;% 
   ggplot(aes(x=period, y=irf_asy_ulv)) +
   geom_hline(yintercept = 0, color=&quot;red&quot;) +
   geom_ribbon(aes(ymin=lower_asy_ulv, ymax=upper_asy_ulv), fill=&quot;grey&quot;, alpha=.2) +
   geom_line() +
-  geom_line(data= multiple_varirf, aes(y=lower_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
-  geom_line(data= multiple_varirf, aes(y=upper_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
+  geom_line(data= single_varirf_grouped, aes(y=lower_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
+  geom_line(data= single_varirf_grouped, aes(y=upper_asy_ulv), linetype=&quot;dashed&quot;, color=&quot;grey50&quot;) +
   theme_light() +
   ggtitle(&quot;Orthogonal impulse response, asylum - unemployment level&quot;)+
   ylab(&quot;log(total unemployment)&quot;)+
@@ -236,10 +238,7 @@ p_irf</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>d’Albis H,Boubtane E,Coulibaly D (2016).“Immigration Policy and Macroeconomic Performance in France.” Annals of Economics and Statistics, (121/122), 279–308.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.<a href="#fnref2" class="footnote-back">↩</a></p></li>
-<li id="fn3"><p>d’Albis H, Boubtane E, Coulibaly D (2018). “Macroeconomic Evidence Suggests That Asylum Seekers Are Not a “Burden” for Western European Countries.” Science Advances, 4(6), eaaq0883.<a href="#fnref3" class="footnote-back">↩</a></p></li>
-<li id="fn4"><p>Armstrong J, McDonald C (2016).“Why the Drivers of Migration Matter for the Labour Market.” Technical Report AN2016/02, Reserve Bank of NewZealand.<a href="#fnref4" class="footnote-back">↩</a></p></li>
-<li id="fn5"><p>Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.<a href="#fnref5" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.<a href="#fnref2" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
