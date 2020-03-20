@@ -3,7 +3,7 @@ title: "COVID-19 Tracker"
 description: "Shiny app for easy country comparisons"
 date: '2020-03-19'
 link: 'https://mentalbreaks.shinyapps.io/covid19/'
-screenshot: 'screencap_logconfirmed_20200319.png'
+screenshot: 'log_confirmed_20200319.png'
 layout: 'portfolio'
 featured: 'false'
 ---

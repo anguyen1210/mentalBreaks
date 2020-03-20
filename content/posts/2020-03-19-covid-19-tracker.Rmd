@@ -28,6 +28,5 @@ There are a few countries that include more detailed regional breakdowns of the 
 
 Data used in the app will be updated daily. Additional features and edits will be added on an ongoing basis. Feedback or comments are welcome.
 
-![[COVID-19 Tracker Shiny app](https://mentalbreaks.shinyapps.io/covid19/)](/posts/2020-03-19-covid-19-tracker_files/screencap_logconfirmed_20200319.png)
-
+![[COVID-19 Tracker Shiny app](https://mentalbreaks.shinyapps.io/covid19/)](/posts/2020-03-19-covid-19-tracker_files/log_confirmed_20200319.png)
 
