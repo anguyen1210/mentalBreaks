@@ -3,8 +3,7 @@ title: Money, market value and competition in modern football
 author: Anthony Nguyen
 date: '2020-02-07'
 slug: money-market-values-and-competition-in-modern-football
-categories:
-  - r-bloggers
+categories: []
 tags:
   - football
   - sport
