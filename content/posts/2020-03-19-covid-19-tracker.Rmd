@@ -1,5 +1,5 @@
 ---
-title: 'COVID-19 Tracker '
+title: 'COVID-19 Tracker: Days since N'
 author: Anthony Nguyen
 date: '2020-03-19'
 slug: covid-19-tracker
@@ -17,17 +17,19 @@ highlight: no
 ---
 There's no shortage of dashboards and data-visualizations covering some aspect of the ongoing coronavirus pandemic, but not having come across a tool that allowed me to easily compare countries myself, I developed this [COVID-19 Tracker shiny app](https://mentalbreaks.shinyapps.io/covid19/) both for my own personal use, as well as to get some more experience working with Shiny.
 
-This app was inspired by [a vizualization produced by John Burn-Murdoch for the Financial Times](https://twitter.com/jburnmurdoch/status/1237737352879112194) that I thought did a very nice job at allowing cross-country comparisons of the trajectories of the total confirmed cases by standardizing countries using the "Number of days since the 100th case" on the x-axis.
+This app was inspired by [a vizualization produced by John Burn-Murdoch for the Financial Times (FT)](https://twitter.com/jburnmurdoch/status/1237737352879112194) that I thought did a very nice job at allowing cross-country comparisons of the trajectories of the total confirmed cases by standardizing countries using the "Number of days since the 100th case" on the x-axis.
 
-At the time of writing, the widely referenced [JHU-CSSE dashboard](https://coronavirus.jhu.edu/map.html) does not allow for an easy way to select countries for direct comparison, though given that they've made their data available on Github, it was simple enough to design a Shiny app that allows the user to select different countries of interest and standardize them to *days since the N-th* case for comparison.
+The Johns Hopkins University Center for Systems Science and Engineering [(JHU CSSE) maintains a dashboard](https://coronavirus.jhu.edu/map.html) whose [data source](https://github.com/CSSEGISandData/COVID-19) serves as the underlying data for the FT vizualization, as well as many others floating around on the internet at the moment. 
+
+At the time of writing, the JHU GSSE dasboard does not allow for an easy way to select countries for direct comparison. The Shiny app presented here allows the user to select any of the country/region units available in the entire dataset, standardize them on the x-axis using "Days since *N*", and automatically generate fairly clean level- and log- plots with dynamically rendered titles and axis labels. The data in the app is timestamped and updated automatically along with the JSU CSSE repo, and there are download buttons for the plots and filtered long-format data tables use for those plots in PNG and CSV formats, respectively. 
 
 Currently, a maximum of six countries can be compared at a time. The limit was set simply to allow for better readability of the resulting plots. Users can select between *total confirmed cases*, *deaths*, and *total recovered* as the different y-axis outcome variables. 
 
 The default *N* number for the total confirmed cases outcome is set to 100, in keeping with the most widely used convention at the moment. For *deaths*, *N*=10 can be used.  
  
-There are a few countries that include more detailed regional breakdowns of the data. Where this is the case, the totals for those countries are given by the country name + "*(all territories)*".
+There are a few countries that include more detailed regional breakdowns of the data. Where this is the case, the totals for those countries are given by the *country name* + "*(all territories)*".
 
-Data used in the app will be updated daily. Additional features and edits will be added on an ongoing basis. Feedback or comments are welcome.
+Additional features and edits will be added on an ongoing basis. Feedback or comments are welcome.
 
 ![[COVID-19 Tracker Shiny app](https://mentalbreaks.shinyapps.io/covid19/)](/posts/2020-03-19-covid-19-tracker_files/log_confirmed_20200319.png)
 

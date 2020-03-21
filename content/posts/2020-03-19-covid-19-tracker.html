@@ -1,5 +1,5 @@
 ---
-title: 'COVID-19 Tracker '
+title: 'COVID-19 Tracker: Days since N'
 author: Anthony Nguyen
 date: '2020-03-19'
 slug: covid-19-tracker
@@ -19,12 +19,13 @@ highlight: no
 
 
 <p>There’s no shortage of dashboards and data-visualizations covering some aspect of the ongoing coronavirus pandemic, but not having come across a tool that allowed me to easily compare countries myself, I developed this <a href="https://mentalbreaks.shinyapps.io/covid19/">COVID-19 Tracker shiny app</a> both for my own personal use, as well as to get some more experience working with Shiny.</p>
-<p>This app was inspired by <a href="https://twitter.com/jburnmurdoch/status/1237737352879112194">a vizualization produced by John Burn-Murdoch for the Financial Times</a> that I thought did a very nice job at allowing cross-country comparisons of the trajectories of the total confirmed cases by standardizing countries using the “Number of days since the 100th case” on the x-axis.</p>
-<p>At the time of writing, the widely referenced <a href="https://coronavirus.jhu.edu/map.html">JHU-CSSE dashboard</a> does not allow for an easy way to select countries for direct comparison, though given that they’ve made their data available on Github, it was simple enough to design a Shiny app that allows the user to select different countries of interest and standardize them to <em>days since the N-th</em> case for comparison.</p>
+<p>This app was inspired by <a href="https://twitter.com/jburnmurdoch/status/1237737352879112194">a vizualization produced by John Burn-Murdoch for the Financial Times (FT)</a> that I thought did a very nice job at allowing cross-country comparisons of the trajectories of the total confirmed cases by standardizing countries using the “Number of days since the 100th case” on the x-axis.</p>
+<p>The Johns Hopkins University Center for Systems Science and Engineering <a href="https://coronavirus.jhu.edu/map.html">(JHU CSSE) maintains a dashboard</a> whose <a href="https://github.com/CSSEGISandData/COVID-19">data source</a> serves as the underlying data for the FT vizualization, as well as many others floating around on the internet at the moment.</p>
+<p>At the time of writing, the JHU GSSE dasboard does not allow for an easy way to select countries for direct comparison. The Shiny app presented here allows the user to select any of the country/region units available in the entire dataset, standardize them on the x-axis using “Days since <em>N</em>”, and automatically generate fairly clean level- and log- plots with dynamically rendered titles and axis labels. The data in the app is timestamped and updated automatically along with the JSU CSSE repo, and there are download buttons for the plots and filtered long-format data tables use for those plots in PNG and CSV formats, respectively.</p>
 <p>Currently, a maximum of six countries can be compared at a time. The limit was set simply to allow for better readability of the resulting plots. Users can select between <em>total confirmed cases</em>, <em>deaths</em>, and <em>total recovered</em> as the different y-axis outcome variables.</p>
 <p>The default <em>N</em> number for the total confirmed cases outcome is set to 100, in keeping with the most widely used convention at the moment. For <em>deaths</em>, <em>N</em>=10 can be used.</p>
-<p>There are a few countries that include more detailed regional breakdowns of the data. Where this is the case, the totals for those countries are given by the country name + “<em>(all territories)</em>”.</p>
-<p>Data used in the app will be updated daily. Additional features and edits will be added on an ongoing basis. Feedback or comments are welcome.</p>
+<p>There are a few countries that include more detailed regional breakdowns of the data. Where this is the case, the totals for those countries are given by the <em>country name</em> + “<em>(all territories)</em>”.</p>
+<p>Additional features and edits will be added on an ongoing basis. Feedback or comments are welcome.</p>
 <div class="figure">
 <img src="/posts/2020-03-19-covid-19-tracker_files/log_confirmed_20200319.png" alt="COVID-19 Tracker Shiny app" />
 <p class="caption"><a href="https://mentalbreaks.shinyapps.io/covid19/">COVID-19 Tracker Shiny app</a></p>
