@@ -29,7 +29,10 @@ The default *N* number for the total confirmed cases outcome is set to 100, in k
  
 There are a few countries that include more detailed regional breakdowns of the data. Where this is the case, the totals for those countries are given by the *country name* + "*(all territories)*".
 
-Additional features and edits will be added on an ongoing basis. Full code to be posted on Github shortly. Otherwise, feedback or comments are welcome.
+Additional features and edits will be added on an ongoing basis.   
+  
+[Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker$). 
 
-![[COVID-19 Tracker Shiny app](https://mentalbreaks.shinyapps.io/covid19/)](/posts/2020-03-19-covid-19-tracker_files/log_confirmed_20200319.png)
+Otherwise, all feedback, comments and pull requests are welcome.
 
+![[COVID-19 Tracker Shiny app](https://mentalbreaks.shinyapps.io/covid19/)](/posts/2020-03-19-covid-19-tracker_files/p_log10.png)
