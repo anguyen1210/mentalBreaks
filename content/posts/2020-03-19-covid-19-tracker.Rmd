@@ -31,7 +31,7 @@ There are a few countries that include more detailed regional breakdowns of the 
 
 Additional features and edits will be added on an ongoing basis.   
   
-[Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker$). 
+[Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker). 
 
 Otherwise, all feedback, comments and pull requests are welcome.
 
