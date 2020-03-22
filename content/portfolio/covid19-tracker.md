@@ -16,6 +16,6 @@ Currently, a maximum of six countries can be compared at a time to allow for bet
   
 Additional features and edits will be added on an ongoing basis.     
   
-[Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker$). 
+[Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker). 
   
 Feedback, comments and pull requests are welcome. Feel free to send me an email or leave your comments directly on the [COVID-19 tracker post](https://mentalbreaks.rbind.io/posts/covid-19-tracker/).
