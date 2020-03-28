@@ -15,7 +15,9 @@ layout: post
 type: post
 highlight: no
 ---
-> *UPDATE (Mar.24)*: I'm in the process of updating the app to account for the [upcoming changes to the data reporting announced by JHU CSSE](https://github.com/CSSEGISandData/COVID-19/issues/1250). The *recovered cases* time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu. Additional *testing* outcome variable forthcoming.  
+> *UPDATES --  
+(MAR.28): Option for population adjusted figures added, based on World Bank data. Country input list cleaned up.   
+(MAR.24): I'm in the process of updating the app to account for the [upcoming changes to the data reporting announced by JHU CSSE](https://github.com/CSSEGISandData/COVID-19/issues/1250). The "recovered cases" time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu.   
   
 There's no shortage of dashboards and data-visualizations covering some aspect of the ongoing coronavirus pandemic, but not having come across a tool that allowed me to easily compare countries myself, I developed this [COVID-19 Tracker shiny app](https://mentalbreaks.shinyapps.io/covid19/) both for my own personal use, as well as to finally get my hands dirty working with Shiny.
 
