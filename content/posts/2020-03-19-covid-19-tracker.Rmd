@@ -16,6 +16,7 @@ type: post
 highlight: no
 ---
 > *UPDATES --  
+(Apr.19): Daily totals tab added.      
 (Apr.8): Reference line options added, source info updated.    
 (APR.1): Spanish and Swiss national data added.      
 (MAR.30): National/State filtering options added for JHU countries with provice level data. US data added from NYT github repo.  
