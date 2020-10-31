@@ -10,6 +10,7 @@ tags:
   - shiny
   - health
   - coronavirus
+  - COVID19
 lastmod: '2020-03-19T21:55:52+01:00'
 layout: post
 type: post
@@ -20,12 +21,13 @@ highlight: no
 
 <blockquote>
 <p>*UPDATES –<br />
+(Oct.20): Spanish national data removed
 (Apr.19): Daily totals tab added.<br />
 (Apr.8): Reference line options added, source info updated.<br />
-(APR.1): Spanish and Swiss national data added.<br />
-(MAR.30): National/State filtering options added for JHU countries with provice level data. US data added from NYT github repo.<br />
-(MAR.28): Option for population adjusted figures added, based on World Bank data. Country input list cleaned up.<br />
-(MAR.24): I’m in the process of updating the app to account for the <a href="https://github.com/CSSEGISandData/COVID-19/issues/1250">upcoming changes to the data reporting announced by JHU CSSE</a>. The “recovered cases” time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu.</p>
+(Apr.1): Spanish and Swiss national data added.<br />
+(Mar.30): National/State filtering options added for JHU countries with provice level data. US data added from NYT github repo.<br />
+(Mar.28): Option for population adjusted figures added, based on World Bank data. Country input list cleaned up.<br />
+(Mar.24): I’m in the process of updating the app to account for the <a href="https://github.com/CSSEGISandData/COVID-19/issues/1250">upcoming changes to the data reporting announced by JHU CSSE</a>. The “recovered cases” time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu.</p>
 </blockquote>
 <p>There’s no shortage of dashboards and data-visualizations covering some aspect of the ongoing coronavirus pandemic, but not having come across a tool that allowed me to easily compare countries myself, I developed this <a href="https://mentalbreaks.shinyapps.io/covid19/">COVID-19 Tracker shiny app</a> both for my own personal use, as well as to finally get my hands dirty working with Shiny.</p>
 <p>This app was inspired by <a href="https://twitter.com/jburnmurdoch/status/1237737352879112194">a vizualization produced by John Burn-Murdoch for the Financial Times (FT)</a> that I thought did a very nice job at allowing cross-country comparisons of the trajectories of the total confirmed cases by standardizing countries using the “Number of days since the 100th case” on the x-axis.</p>
@@ -38,6 +40,6 @@ highlight: no
 <p><a href="https://github.com/anguyen1210/covid19-tracker">Code for the app available on Github</a>.</p>
 <p>Otherwise, all feedback, comments and pull requests are welcome.</p>
 <div class="figure">
-<img src="/posts/2020-03-19-covid-19-tracker_files/p_log10.png" alt="COVID-19 Tracker Shiny app" />
+<img src="/posts/2020-03-19-covid-19-tracker_files/p_log10.png" alt="" />
 <p class="caption"><a href="https://mentalbreaks.shinyapps.io/covid19/">COVID-19 Tracker Shiny app</a></p>
 </div>

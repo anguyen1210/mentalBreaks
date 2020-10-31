@@ -9,6 +9,9 @@ tags:
   - sport
   - competition
   - herfindahl
+  - webscraping
+  - python
+  - selenium
 lastmod: '2020-02-07T09:58:39+01:00'
 layout: post
 type: post
@@ -55,7 +58,7 @@ The first thing we will look at is the evolution of the total market value of th
 
 ![](/posts/2020-02-07-money-market-values-and-competition-in-modern-football_files/top25_mv_table_jan2020.png){width=500px}  
 
-The site has complete market value data going back to the 2005-2006 season for the top five leagues (England, Spain, Italy, Germany, and France), and full data for most of the other teams in the top 20 going back to the 2006-2007 season. While I am primarily interested in examining the top five, I include the other countries in some of the plots below to provide some additional context.  
+The site has complete market value data going back to the 2005-2006 season for the top five leagues (England, Spain, Italy, Germany, and France), and full data for most of the other teams in the top 20 going back to the 2006-2007 season. While I am primarily interested in examining the top five, I include the other countries in some of the plots below to provide some additional context. The data was scraped using Python and Selenium. The analysis and this presentation were written in R.  
 
 ### Total Market Value, 2018-2019 Season
 

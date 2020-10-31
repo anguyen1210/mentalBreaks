@@ -10,18 +10,20 @@ tags:
   - shiny
   - health
   - coronavirus
+  - COVID19
 lastmod: '2020-03-19T21:55:52+01:00'
 layout: post
 type: post
 highlight: no
 ---
 > *UPDATES --  
+(Oct.20): Spanish national data removed
 (Apr.19): Daily totals tab added.      
 (Apr.8): Reference line options added, source info updated.    
-(APR.1): Spanish and Swiss national data added.      
-(MAR.30): National/State filtering options added for JHU countries with provice level data. US data added from NYT github repo.  
-(MAR.28): Option for population adjusted figures added, based on World Bank data. Country input list cleaned up.   
-(MAR.24): I'm in the process of updating the app to account for the [upcoming changes to the data reporting announced by JHU CSSE](https://github.com/CSSEGISandData/COVID-19/issues/1250). The "recovered cases" time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu.   
+(Apr.1): Spanish and Swiss national data added.      
+(Mar.30): National/State filtering options added for JHU countries with provice level data. US data added from NYT github repo.  
+(Mar.28): Option for population adjusted figures added, based on World Bank data. Country input list cleaned up.   
+(Mar.24): I'm in the process of updating the app to account for the [upcoming changes to the data reporting announced by JHU CSSE](https://github.com/CSSEGISandData/COVID-19/issues/1250). The "recovered cases" time series has been removed as it will no longer be updated. U.S. state- and county-level data has been removed from the global time series information presented here and will appear in its own menu.   
   
 There's no shortage of dashboards and data-visualizations covering some aspect of the ongoing coronavirus pandemic, but not having come across a tool that allowed me to easily compare countries myself, I developed this [COVID-19 Tracker shiny app](https://mentalbreaks.shinyapps.io/covid19/) both for my own personal use, as well as to finally get my hands dirty working with Shiny.
 
