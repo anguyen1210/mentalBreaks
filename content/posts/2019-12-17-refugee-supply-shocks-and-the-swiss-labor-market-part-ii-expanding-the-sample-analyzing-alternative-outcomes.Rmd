@@ -7,11 +7,12 @@ slug: refugee-supply-shocks-and-the-swiss-labor-market-part-ii-expanding-the-sam
 categories: []
 tags:
   - migration
-  - refugees
+  - refugee
   - labor
   - employment
   - geospatial
   - switzerland
+  - sf
 lastmod: '2020-01-03T12:58:22+01:00'
 layout: post
 type: post

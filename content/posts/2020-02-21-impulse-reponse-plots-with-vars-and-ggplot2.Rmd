@@ -9,7 +9,7 @@ tags:
   - svar
   - impulse-reponse
   - macroeconomics
-  - refugees
+  - refugee
   - employment
   - labor
 lastmod: '2020-02-20T09:54:49+01:00'

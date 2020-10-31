@@ -7,7 +7,7 @@ categories: []
 tags:
   - switzerland
   - commune
-  - municipalities
+  - municipality
   - geospatial
 lastmod: '2020-09-27T17:39:02+02:00'
 layout: post
