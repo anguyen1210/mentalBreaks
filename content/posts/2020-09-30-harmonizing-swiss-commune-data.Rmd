@@ -14,18 +14,18 @@ layout: post
 type: post
 highlight: no
 ---
+```{r include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+Swiss communes are the smallest administrative spatial unit in the country and their borders change over time as units merge, split or exchange territories. In order to create balanced panels that are consistent over time for longitudinal analysis, municipal-level data should be harmonized to the territorial boundary definitions for a given year. For a recent project, I mapped all Swiss communes from 1994 onwards to their present borders as of January 2020. Relevant files are posted on my [Github repo](https://github.com/anguyen1210/ch-crosswalk-commune).
+
 <style>
 p.caption {
   font-size: 0.6em;
 }
 </style>
 
-```{r include=FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-```
-
-Swiss communes (or municipalities) are the smallest administrative spatial unit in the country and their borders change over time as units merge, split or exchange territories. In order to create balanced panels that are consistent over time for longitudinal analysis, municipal-level data should be harmonized to the territorial boundary definitions for a given year. For a recent project, I mapped all Swiss communes from 1994 onwards to their present borders as of January 2020. Relevant files are posted on my [github repo](https://github.com/anguyen1210/ch-crosswalk-commune).
-  
 ## Background  
   
 The blog has been quiet the past couple of months. Like a lot of people, my planning for the year was completely upended by COVID, and after the Spring lockdown, I spent all summer furiously working to finish up the remaining requirements for my Master's, which, while completed later than expected, is finally done. So to get the blog running again, I've decided to, first, share a few simple things from my thesis work that might be of interest to others.  
@@ -49,7 +49,7 @@ gde <- as.data.frame(cbind(year, number_gde))
 
 ```{r fig.align="center", echo=FALSE}
 gde %>% ggplot(aes(x=year, y=number_gde)) +
-  geom_line(color="red4") +
+  geom_line(color="red3") +
   theme_light() + 
   ggtitle("Notable decline in the number of Swiss communes since 1994") +
   ylab("Total") +
@@ -60,27 +60,27 @@ The figure above shows that, until the mid-1990s, the number of communes was fai
   
 ## Current borders and other official documentation  
   
-The official list of Swiss commune names and identifiers can be found at on the website of the [Swiss Federal Statistics Office](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse.html). The actual file of interest, the [*Réperatoire official des communes Suisses*](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse.assetdetail.14709198.html) is available as an Excel file, as well as in the form of a searchable app. Also included on this page is a [historical list](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse/liste-historisee-communes.html) of commune names.
+The official list of Swiss commune names and identifiers can be found at on the website of the [Swiss Federal Statistics Office (OFS)](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse.html). The actual file of interest, the [*Réperatoire official des communes Suisses*](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse.assetdetail.14709198.html) is available as an Excel file, as well as in the form of a searchable app. Also included on this page is a [historical list](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse/liste-historisee-communes.html) of commune names.
       
-Despite my best efforts to find a better solution, I was not able to find an easy way to map historical communal borders to a given year's borders, so I ended up doing most of this work manually. The result of this somewhat mind-numbing exercise is [a simple crosswalk file](https://github.com/anguyen1210/ch-crosswalk-commune/blob/master/cw_commune2020.csv) that maps all examples old/retired commune numbers to their 2020 equivalents based on the various official datasets that I worked with so far. For reference, this current file should catch all historical listings from the following:  
+Despite my best efforts to find a better solution, I was not able to figure out an easy way to map historical communal borders to a given year's borders, so I ended up doing most of this work manually. The result of this exercise is a simple crosswalk file that maps all examples old/retired commune numbers to their 2020 equivalents based on the various official datasets that I worked with so far. For reference, this current file should catch all historical listings from the following:  
   
 * [Swiss Labor Force survey](https://www.bfs.admin.ch/bfs/fr/home/statistiques/travail-remuneration/enquetes/espa.html) from 1994-2019 (not including the 2019 special module on platform workers)  
 * [Swiss land use](https://www.bfs.admin.ch/bfs/fr/home/services/geostat/geodonnees-statistique-federale/sol-utilisation-couverture/statistique-suisse-superficie.html) statistics data files for the two most recent survey periods (2004/09 and 2013/18)
-* Swiss Secretariat for Migration (SEM) [data on refugees and asylum seekers](https://www.sem.admin.ch/sem/fr/home/publiservice/statistik/asylstatistik.html) by nationality and permit from 1994 onwards (*commune-level data available by request only)  
+* Swiss Secretariat for Migration [(SEM) data on refugees and asylum seekers](https://www.sem.admin.ch/sem/fr/home/publiservice/statistik/asylstatistik.html) by nationality and permit from 1994 onwards (*commune-level data available by request only)  
 * All voting data for national parliamentary elections and popular initiatives, as well as any commune-level descriptive data I could find on the excellent [STAT-TAB online data portal](https://www.bfs.admin.ch/bfs/en/home/services/recherche/stat-tab-online-data-search.html) hosted by the OFS. (*STAT-TAB data is already harmonized to the current year)  
   
 ## Using the crosswalk file
   
 I'm certain there has to be an easier way to do this. I never figured it out, nor did my conversations with the OFS lead to better ideas than this. As this crosswalk file was created to handle only the different official data that I worked with, anyone trying to use this file with datasets outside of the ones I described above will inevitably encounter old commune numbers that I did not catch here. In this section, I detail the process I used to create this file so that any new cases can be easily identified and mapped to current borders as needed. 
   
-Before getting started, two files are needed:  
+Before getting started, two files are needed, both available in the [Github repo](https://github.com/anguyen1210/ch-crosswalk-commune):  
 
 ##### [cw_commune2020.csv](https://github.com/anguyen1210/ch-crosswalk-commune/blob/master/cw_commune2020.csv)    
-This is a crosswalk file that can be used to map old, disappeared Swiss communes to their 2020 territorial equivalents. In this file the column `commune_ID` is the original OFS commune ID number associated with the old, disappeared communes, while `commune2020_ID` represents the actual commune number of where the old commune has been merged or changed to. The old commune names `commune` is provided for reference only and should not be used as a unique key to map old to new communes.  
+This is a crosswalk file that can be used to map old, disappeared Swiss communes to their 2020 territorial equivalents. In this file the column `commune_ID` is the original OFS commune ID number associated with the old, disappeared communes, while `commune2020_ID` represents the actual commune number that the old unit has been merged or changed to. The commune names columns provided for reference only and should not be used as a unique key to map old to new communes.  
 
 ##### [**crosswalk_commune.xlsx**](https://github.com/anguyen1210/ch-crosswalk-commune/blob/master/crosswalk_commune.xlsx)   
   
-This is a slightly modified version of the *Réperatoire official des communes Suisse*, where I have renamed the columns and sheets into English and removed white spaces from column and sheet names. Up- to-date as of 13 January 2020.
+This is a slightly modified version of the *Réperatoire official des communes Suisse*, where I have renamed the columns and sheets into English and removed white spaces from column and sheet names. Up-to-date as of 13 January 2020.
   
 ### Steps:
 
@@ -88,11 +88,12 @@ To harmonize any given commune-level dataset to their 2020 names and ID numbers 
 
 1. In the un-harmonized dataset, rename the column with the official commune ID number (often listed as *GDENR, Gemeindenummer, GMDNR, GEM_CD, No de la commune*, etc.) to `commune_ID`.  
      
-2. Merge the crosswalk file to this un-harmonized dataset (e.g. left join) by `commune_ID`.  
+2. Merge the crosswalk file to this un-harmonized dataset (e.g. left-join) by `commune_ID`.  
   
 3. Looking at the new merged dataset, check to see if any of the original commune numbers do not have a modern match by looking for missing values in the `commune2020_ID` column. If all old communes are correctly matched to 2020 communes, there should be no missing values in `commune2020_ID`.  
   
 4. If there are missing values, find the original commune names that do not have a match ("commune") and find their current name and ID number using the `communes_disappeared` and the `communes2020` tables in the "crosswalk_commune.xlsx" file. Update the mapping file accordingly, and repeat steps 1-3.  
+  
 <center>  
 ![Look up old name, find current commune name](/posts/2020-09-30-harmonizing-swiss-commune-data_files/Picture2.1.png){width=500px}  
 </center>  
@@ -101,7 +102,7 @@ To harmonize any given commune-level dataset to their 2020 names and ID numbers 
 </center>      
 5. When all old communes in the dataset have a corresponding match, aggregate (or "collapse") the variables of interest in the dataset on the `commune2020_ID` number to get the final harmonized dataset.    
   
-Please note that the old commune names (`commune`) in the crosswalk file is listed purely as a reference and should not be used as a unique key to match old to new communes as there can be discrepancies in how commune names are spelled or listed at different years in the past, and whether or not the short- or long-name convention is used. Only the old and new commune **ID numbers** should be used to map (`commune_ID` --> `commune2020_ID`).  
+Please note that the old commune names (`commune` and `commune2020`) in the crosswalk file are listed purely as a reference and should not be used as a unique key to match old to new communes as there can be discrepancies in how commune names are spelled or listed at different years in the past, and whether or not the short- or long-name convention is used. Only the old and new commune **ID numbers** should be used to map (i.e. `commune_ID` --> `commune2020_ID`).  
   
 Also note that these steps are written according to how the crosswalk file is currently constructed, using my own naming conventions. If you prefer to use the original column names from the Swiss Federal Statistics office, please rename the columns in the crosswalk file so that they match accordingly.
    
