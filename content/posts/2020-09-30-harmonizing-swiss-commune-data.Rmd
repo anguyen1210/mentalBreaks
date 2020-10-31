@@ -106,7 +106,8 @@ Please note that the old commune names (`commune` and `commune2020`) in the cros
   
 Also note that these steps are written according to how the crosswalk file is currently constructed, using my own naming conventions. If you prefer to use the original column names from the Swiss Federal Statistics office, please rename the columns in the crosswalk file so that they match accordingly.
    
-In exceptional cases, there are sometimes communes with no matches where you only have the old commune number, but you do not have the old commune name. When this is the case, the old commune name can be found by using the "[liste historisée des communes](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse/liste-historisee-communes.html)" (.txt or .xml file, or the corresponding online app).  
+In exceptional cases, there are sometimes communes with no matches where you only have the old commune number, but you do not have the old commune name. When this is the case, the old commune name can be found by using the "[liste historisée des communes](https://www.bfs.admin.ch/bfs/fr/home/bases-statistiques/repertoire-officiel-communes-suisse/liste-historisee-communes.html)" (.txt or .xml file, or the corresponding online app).    
+    
 <center> 
 ![](/posts/2020-09-30-harmonizing-swiss-commune-data_files/Picture3.png)
 </center>  
