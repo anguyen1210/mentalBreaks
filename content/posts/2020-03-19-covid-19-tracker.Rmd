@@ -35,7 +35,7 @@ Additional features and edits will be added on an ongoing basis.
 [Code for the app available on Github](https://github.com/anguyen1210/covid19-tracker). 
 
 > *UPDATES --  
-(Oct.20): Spanish national data removed
+(Oct.20): Spanish national data removed.  
 (Apr.19): Daily totals tab added.      
 (Apr.8): Reference line options added, source info updated.    
 (Apr.1): Spanish and Swiss national data added.      

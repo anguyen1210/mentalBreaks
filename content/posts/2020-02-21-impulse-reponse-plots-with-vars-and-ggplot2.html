@@ -9,9 +9,10 @@ tags:
   - svar
   - impulse-reponse
   - macroeconomics
-  - refugees
+  - refugee
   - employment
   - labor
+  - tools
 lastmod: '2020-02-20T09:54:49+01:00'
 layout: post
 type: post
@@ -43,12 +44,6 @@ where <span class="math inline">\(ULV_t\)</span> is the logarithm of the total n
 <p>Once we’ve grouped our variables of interest into a dataframe, we can estimate the model with the <code>VAR()</code> function from the <code>vars</code> package as follows:</p>
 <pre class="r"><code>#this function retunrs an &#39;varest&#39; object
 var &lt;- VAR(dataset, type = c(&quot;const&quot;), lag.max = 12, ic = c(&quot;SC&quot;))</code></pre>
-<p>The identification scheme used in this model is based on a lower-triangular Cholesky decomposition where series listed earlier in the VAR can impact all others contemporaneously, while those listed later, can only affect the others with a lag. We estimate the impact of asylum-seeker shocks with zero restrictions:</p>
-<pre class="r"><code>t(chol(summary(var)$covres))</code></pre>
-<pre><code>##                      asy ts_diff.gdp.      ulv
-## asy          20.40457287    0.0000000 0.000000
-## ts_diff.gdp. -0.04529432    0.5382135 0.000000
-## ulv          -0.15273652   -0.8267213 1.804533</code></pre>
 </div>
 <div id="basic-impulse-response-function-plots" class="section level2">
 <h2>Basic impulse response function plots</h2>
@@ -99,7 +94,7 @@ plot(irf_all)
 <h2>Extract ‘varirf’ values for use with ggplot</h2>
 <p>With all of that said, I wrote a simple function to extract the relevant data from single or multiple ‘varirf’ objects and place them in a a nice dataframe that is easy to use with ggplot. The <a href="https://github.com/anguyen1210/var-tools/blob/master/extract_varirf.R">code is available on my github site</a>, or you can source it directly with the following:</p>
 <pre class="r"><code>library(devtools)
-source_url(&quot;https://raw.githubusercontent.com/anguyen1210/var-tools/master/extract_varirf.R&quot;)</code></pre>
+source_url(&quot;https://raw.githubusercontent.com/anguyen1210/var-tools/master/R/extract_varirf.R&quot;)</code></pre>
 <div id="extract_varirf" class="section level3">
 <h3><code>extract_varirf</code></h3>
 <p>We can use the function to extract a single ‘varirf’ object to give us a nice dataframe that is easy to use with ggplot.</p>
@@ -152,20 +147,20 @@ head(multiple_varirf)</code></pre>
 ## 4      3    1.858352         -0.003141799  0.35804888     1.0578572
 ## 5      4    1.499547          0.007234539  0.28800815     0.6665857
 ## 6      5    1.195058          0.005367770  0.10055672     0.3828477
-##   lower_asy_ts_diff.gdp. lower_asy_ulv upper_asy_asy
-## 1            -0.14100533    -0.4718257      2.952573
-## 2            -0.17880385    -0.7224752      3.071094
-## 3            -0.09811671    -1.2414712      2.682102
-## 4            -0.04072393    -1.7986714      2.128750
-## 5            -0.03156608    -2.2152406      1.700868
-## 6            -0.02751705    -2.8050166      1.534546
-##   upper_asy_ts_diff.gdp. upper_asy_ulv
-## 1             0.04650589     0.1341017
-## 2             0.01479263     0.7701823
-## 3             0.03817769     1.3993089
-## 4             0.08999836     1.8545872
-## 5             0.06866572     2.1182943
-## 6             0.04923448     2.1401225</code></pre>
+##   lower_asy_ts_diff.gdp. lower_asy_ulv upper_asy_asy upper_asy_ts_diff.gdp.
+## 1            -0.14100533    -0.4718257      2.952573             0.04650589
+## 2            -0.17880385    -0.7224752      3.071094             0.01479263
+## 3            -0.09811671    -1.2414712      2.682102             0.03817769
+## 4            -0.04072393    -1.7986714      2.128750             0.08999836
+## 5            -0.03156608    -2.2152406      1.700868             0.06866572
+## 6            -0.02751705    -2.8050166      1.534546             0.04923448
+##   upper_asy_ulv
+## 1     0.1341017
+## 2     0.7701823
+## 3     1.3993089
+## 4     1.8545872
+## 5     2.1182943
+## 6     2.1401225</code></pre>
 </div>
 <div id="impulse-response-plots-with-ggplot" class="section level3">
 <h3>Impulse-response plots with ggplot</h3>
@@ -214,7 +209,7 @@ asy_gdp</code></pre>
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#☻ggsave(&quot;figs/asy_ulv.png&quot;, asy_ulv, width=6, height=4)
+#ggsave(&quot;figs/asy_ulv.png&quot;, asy_ulv, width=6, height=4)
 
 asy_ulv</code></pre>
 <p><img src="/posts/2020-02-21-impulse-reponse-plots-with-vars-and-ggplot2_files/asy_ulv.png" /></p>
@@ -235,7 +230,7 @@ p_irf</code></pre>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.<a href="#fnref1" class="footnote-back">↩</a></p></li>
-<li id="fn2"><p>Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.<a href="#fnref2" class="footnote-back">↩</a></p></li>
+<li id="fn1"><p>d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>

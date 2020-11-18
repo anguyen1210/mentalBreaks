@@ -28,13 +28,13 @@ p.caption {
 
 ## Background  
   
-The blog has been quiet the past couple of months. Like a lot of people, my planning for the year was completely upended by COVID, and after the Spring lockdown, I spent all summer furiously working to finish up the remaining requirements for my Master's, which, while completed later than expected, is finally done. So to get the blog running again, I've decided to, first, share a few simple things from my thesis work that might be of interest to others.  
+The blog has been quiet the past couple of months. Like a lot of people, my planning for the year was completely derailed by COVID, and after the spring lockdown, I spent all summer furiously working to finish up the remaining requirements for my Master's, which, while completed later than expected, is finally done. So to get the blog running again, I've decided to, first, share a few simple things from my thesis work that might be of interest to others.  
     
 My Master's thesis looked at the relationship between migration, refugees, and voting outcomes for different social policies in Switzerland. For this analysis, I examined the voting patterns of Swiss communes (i.e. municipalities) over a certain time period. 
   
 ### Municipal-level analysis  
   
-On the one hand, the great number of Swiss communes provides a lot of variation that can be exploited for econometric analysis, but on the other, longitudinal analysis must account for the dynamic nature of these small spatial units, as borders continually change from year to year.  
+On the one hand, the great number of Swiss communes (2000+) provides a lot of variation that can be exploited for econometric analysis, but on the other, longitudinal analysis must account for the dynamic nature of these small spatial units, as borders continually change from year to year.  
 ```{r echo=FALSE}
 #figures taken from table on Wiki(fr): https://fr.wikipedia.org/wiki/Commune_(Suisse)
 

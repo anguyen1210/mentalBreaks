@@ -12,6 +12,7 @@ tags:
   - refugee
   - employment
   - labor
+  - tools
 lastmod: '2020-02-20T09:54:49+01:00'
 layout: post
 type: post
@@ -61,11 +62,6 @@ Once we've grouped our variables of interest into a dataframe, we can estimate t
 ```{r eval=FALSE, echo=TRUE}
 #this function retunrs an 'varest' object
 var <- VAR(dataset, type = c("const"), lag.max = 12, ic = c("SC"))
-```
-    
-The identification scheme used in this model is based on a lower-triangular Cholesky decomposition where series listed earlier in the VAR can impact all others contemporaneously, while those listed later, can only affect the others with a lag. We estimate the impact of asylum-seeker shocks with zero restrictions:  
-```{r}
-t(chol(summary(var)$covres))
 ```
     
 ## Basic impulse response function plots
@@ -131,7 +127,7 @@ But again, I found myself wishing I could pass all of the 'varirf' data to `ggpl
 With all of that said, I wrote a simple function to extract the relevant data from single or multiple 'varirf' objects and place them in a a nice dataframe that is easy to use with ggplot. The [code is available on my github site](https://github.com/anguyen1210/var-tools/blob/master/extract_varirf.R), or you can source it directly with the following:
 ```{r warning=FALSE, message=FALSE}
 library(devtools)
-source_url("https://raw.githubusercontent.com/anguyen1210/var-tools/master/extract_varirf.R")
+source_url("https://raw.githubusercontent.com/anguyen1210/var-tools/master/R/extract_varirf.R")
 ```
 
 ### `extract_varirf`
@@ -217,7 +213,7 @@ asy_ulv <- multiple_varirf %>%
   theme(plot.title = element_text(size = 11, hjust=0.5),
         axis.title.y = element_text(size=11))
 
-#☻ggsave("figs/asy_ulv.png", asy_ulv, width=6, height=4)
+#ggsave("figs/asy_ulv.png", asy_ulv, width=6, height=4)
 
 asy_ulv
 ```
@@ -240,19 +236,3 @@ p_irf
 [^1]: d’Albis H, Boubtane E, Coulibaly D (2019). “International Migration and Regional Housing Markets: Evidence from France.” International Regional Science Review, 42(2), 147–180.  
 
 [^2]: Furlanetto F, Robstad Ø (2019).“Immigration and the Macroeconomy: Some New Empirical Evidence.” Review of Economic Dynamics, 34, 1–19.
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
