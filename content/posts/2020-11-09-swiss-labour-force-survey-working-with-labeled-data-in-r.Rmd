@@ -30,13 +30,15 @@ knitr::opts_chunk$set(fig.align="center", warning=FALSE, message=FALSE)
 
 The Swiss Labor Force Survey (SLFS) data is available to researchers by request, where each year's data is provided as a large CSV file along with two additional sets of variable and value label files that have been exported from SAS and SPSS into TXT format. For those wishing to work with these label files in R, I introduce a few custom functions that transform the supplied label files into named objects that play nicely with the tidyverse [haven](https://haven.tidyverse.org/) and [labelled](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html) packages.
   
-## Background  
+## Briefly on the SLFS  
   
 The Swiss Federal Statistics office (OFS) has conducted the [Swiss Labor Force Survey (SLFS)](https://www.bfs.admin.ch/bfs/en/home/statistics/work-income/surveys/slfs.html) since 1991 to gather representative data on the socio-economic structure of the country's permanent resident population and their participation in the labor force. It's based on a representative sample of the population, from which  approximately 120,000 interviews are conducted annually. Prior to 2010 the phone based interviews (CATI) that make up the survey were all conducted in the second quarter of each year, but since that time, the interviews have been spread out to take place over the course of the entire year. The survey is fully compliant with international standards, covers the entire spectrum of standard labor market indicators, and includes a rotating set of thematic modules to investigate special topics of interest each year. For more details, just consult the French or German versions of [the website](https://www.bfs.admin.ch/bfs/fr/home/statistiques/travail-remuneration/enquetes/espa.html), as the documentation is quite comprehensive.  
   
-With regards to the survey data files themselves, the organization and naming conventions used for the main CSV files are consistent over the years, with the one major change happening in 2010, where in addition to the annual data files, quarterly file subsets were included to reflect the change in the data collection process. 
+## Overview of the data
 
-The variable names and values in the TXT label files, however, show a bit more variation over time, so care should be taken to ensure that variable names and value label categories are consistent when putting together longitudinal panels using this data. Firstly, not all years have the same number of variables. For example, the files for the 1996 SLFS only capture a low of 507 different variables, while in 2006 there were up to 816 different variables measured (median across all years is 654).   
+With regards to the survey data files themselves, prior to 2002, annual datasets typically include between 16,000 to 18,000 observations, but since that time, this number is more consistently in the 40,000 to 60,000 range. The organization and naming conventions used for the main CSV files are consistent over the years, with the one major change happening in 2010, where in addition to the annual data files, quarterly file subsets were included to reflect the change in the data collection process. 
+
+The variable names and values in the TXT label files show a bit more variation over time, so care should be taken to ensure that variable names and value label categories are consistent when putting together longitudinal panels using this data. Firstly, not all years have the same number of variables. For example, the files for the 1996 SLFS only capture a low of 507 different variables, while in 2006 there were up to 816 different variables measured (median across all years is 654).   
     
 Secondly, while most of the main variable names remain unchanged throughout the years, a few variable names are edited slightly to reflect updated methodologies or coding schemes. Just to name a few examples, the variable that records the commune of the respondent changes from `B019` to `B019P` in 1999, or the variable that captures the different age groups off the respondents changes from `AGE` to `AGE64` in 2001. 
 
@@ -44,7 +46,7 @@ There are also cases where the variable names do not change at all, but the valu
 
 ## Importing the data with `read_slfs`  
   
-To work with the Swiss Labor Force Survey in R, I introduce three custom functions designed to read in the SLFS data (`read_slfs`), the variable label files (`read_slfs_var`) and the value label files (`read_slfs_val`) that are [available on GitHub](https://github.com/anguyen1210/slfs-tools). All three depend on a number of other functions from the readr, stringr, tidyr, magrittr, tibble and labelled packages. Those packages can be called up individually, or more conveniently, by just loading the `tidyverse` package along with the `labelled` package. 
+To work with the Swiss Labor Force Survey in R, I introduce three custom functions designed to read in the SLFS data (`read_slfs`), the variable label files (`read_slfs_var`) and the value label files (`read_slfs_val`) that are [available on GitHub](https://github.com/anguyen1210/slfs-tools). All three depend on a number of other functions from the readr, stringr, tidyr, magrittr, tibble and the  labelled packages. Those packages can be called up individually, or more conveniently, by just loading the `tidyverse` package along with the `labelled` package. 
 ```{r}
 library(tidyverse)
 library(labelled)
@@ -56,7 +58,9 @@ The `read_slfs` functions, themselves, can be downloaded directly from R by ente
 
 devtools::source_url("https://raw.githubusercontent.com/anguyen1210/slfs-tools/main/R/read_slfs.R")
 ```
-  
+    
+The main benefit of using these different `read_slfs` functions is to easily import the supplied SLFS variable and value label files into a format that is compatible with the different tools provided in the `labelled` package.   
+    
 ## Working with single year files  
   
 ### The main data CSV file
@@ -74,7 +78,7 @@ Before we see what happens when we try to read in everything at once, let's firs
     
 ### The variable label files
   
-The label files that are included with the SLFS data is where the bulk of the work needs to be done in order to use them in R. For each year of the SLFS, there are four sets of two label files provided--each set contains a variable label file and a value label file; with different sets for French and German labels, and different sets that are exported from SAS or from SPSS. These label files are available as simple TXT files, which is where the challenge lies.  
+The label files that are included with the SLFS data is where the bulk of the work needs to be done in order for everything to work in R. For each year of the SLFS, there are four sets of two label files provided--each set contains a variable label file and a value label file; with different sets for French and German labels, and different sets that are exported from SAS or from SPSS. These label files are available as simple TXT files, which is where the challenge lies.  
     
 While the haven package provides easy tools for reading in and working with SAS and SPSS files saved in their native formats (`.sas7bdat` and `.sav` files, respectively), the TXT exports of the respective label files have irregular formats that do not work with haven, nor with standard base R or readr functions. 
   
@@ -130,14 +134,10 @@ As before, the output of `read_slfs_val` is identical regardless of whether the 
   
 <center>  
 ![](/posts/2020-11-09-swiss-labour-force-survey-working-with-labeled-data-in-r_files/valuelab_list.png){width=400px}  
-</center>   
-
-### Working with the label files in R
-   
-The main benefit of using `read_slfs_var` and `read_slfs_val` is to easily import the supplied SLFS variable and value label files into a format that is compatible with the different tools provided in the `labelled` package. With the main data file read in, along with its corresponding label files, the `labelled` package allows you to apply the labels to the data, sort the various labels and values, quickly reference label values, convert the labels to factors for use in plots, and any other number of useful functions. Please refer to the [`labelled` documentation](https://cran.r-project.org/web/packages/labelled/index.html) and [vignettes](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html) for more details of the different ways to work with these label files in R.  
+</center>     
   
-While it is possible to read in all of the label files in at the same time as the data file with the `read_slfs` function (as detailed below), I found it useful to have these label files imported as separate objects when I needed to quickly relabel subsetted data that had lost the initial labeling, or when I was in the process of doing a thorough analysis on the variables I had selected for analysis to see if and how they had changed over time.
-    
+While it is possible to read in all of the label files in at the same time as the data file with the `read_slfs` function (as detailed below), I found it useful to have these label files imported as separate objects when I needed to quickly re-label subsetted data that had lost the initial labeling, or when I was in the process of doing a thorough analysis on the variables I had selected for analysis to see if and how they had changed over time. 
+
 ### Putting it all together  
 
 As I've already alluded to, it is possible to import the main data file and label all the variables and values at one time by supplying all three files (data, variable label and value label--in that order) to `read_slfs` at the same time. 
@@ -161,7 +161,15 @@ slfs2019 <- read_slfs("data/SAKE1991.csv",
 slfs2019 %>% select(1:10) %>% glimpse()
 ```
 Above, I show the first 10 columns of our imported data, where we can see that our data has fully labeled variables, as evidenced by the `<dbl + lbl>` class. Here, our data is ready to be used with the different helper functions provided in the `labelled` package.   
+
+### Working with labeled files in R
+
+The first thing that has to be said is that R does not handle labels in the same was as SAS, SPPS or Stata, so expectations should be tempered. When describing the use of labels and the "labelled" class, the authors of the `haven` point out that:  
   
+> The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels
+  
+With our main data file read in, along with its corresponding label files, the `labelled` package allows you to apply the labels to the data, sort the various labels and values, quickly reference label values, convert the labels to factors for use in plots, and any other number of operations. 
+    
 For example, we can quickly check a variable label by entering the following:
 ```{r}
 var_label(slfs2019$B0000)
@@ -175,12 +183,12 @@ Or perhaps, we just want to quickly see the labels for all of the values of this
 ```{r}
 val_labels(slfs2019$B0000)
 ```
-  
+    
 As previously mentioned, there's a lot you can do with the `labelled` package. Have a look at the ["Introduction to labelled" vignette](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html) to get quickly up to speed.
   
 ## Importing multiple years  
   
-In this section, I demonstrate a quick solution to reading in multiple years of SLFS data and labeling everything at once, taking advantage of both `read_slfs` and `purr`.
+In this final section, I demonstrate a quick solution to reading in multiple years of SLFS data and labeling everything at once, taking advantage of both `read_slfs` and `purr`.
   
 Let's say we want to load the last 10 years of SLFS data, and we uncompress all of the data we receive from the OFS so that the CSV files and their corresponding metadata subfolders all sit in the same folder ("/data") as shown here:  
   
