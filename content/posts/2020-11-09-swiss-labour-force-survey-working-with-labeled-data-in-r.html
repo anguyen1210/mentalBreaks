@@ -149,18 +149,15 @@ valuelab019_spss &lt;- read_slfs_val(&quot;data/S2019-VALUE-LABEL-F-SPSS.TXT&quo
 <img src="/posts/2020-11-09-swiss-labour-force-survey-working-with-labeled-data-in-r_files/file_folder.png" width="600" />
 </center>
 <p>As we noted from before, the basic organization and naming conventions of the files are consistent over the years, and here we can see that the the file names are all identical apart from the year of the survey. With that said, we can quickly create a list for the different files that we want to read in, and then iterate over those lists to import all 10 years of the survey at once.</p>
-<pre class="r"><code># create lists of filenames
-years &lt;- seq(2010, 2019) 
+<pre class="r"><code>#specify the folder where your data is saved
+fpath &lt;- getwd() 
 
-list_data &lt;- sapply(seq_along(years), 
-                    function(x) paste0(&quot;D:/sake/SAKE&quot;, years[x], &quot;.CSV&quot;))
+# create lists of filenames
+list_data &lt;- list.files(fpath, pattern = &quot;*.CSV&quot;, full.names=TRUE)
 
-list_varlabs &lt;- sapply(seq_along(years), 
-                       function(x) paste0(&quot;D:/sake/SAKE&quot;, years[x], &quot;_Metadata/S&quot;, years[x], &quot;-VAR-LABEL-F-SAS.txt&quot;))
+list_varlabs &lt;- list.files(fpath, pattern = &quot;*VAR-LABEL-F-SAS&quot;, full.names = TRUE, recursive = TRUE)
 
-
-list_valuelabs &lt;- sapply(seq_along(years), 
-                           function(x) paste0(&quot;D:/sake/SAKE&quot;, years[x], &quot;_Metadata/S&quot;, years[x], &quot;-FORMAT-F-SAS.txt&quot;))</code></pre>
+list_valuelabs &lt;- list.files(fpath, pattern = &quot;*FORMAT-F-SAS&quot;, full.names = TRUE, recursive = TRUE)</code></pre>
 <pre class="r"><code># read in data and label all variables and values at once, name the different
 # data sets in the list
 slfs2010_2019 &lt;- pmap(list(list_data, list_varlabs, list_valuelabs), read_slfs)

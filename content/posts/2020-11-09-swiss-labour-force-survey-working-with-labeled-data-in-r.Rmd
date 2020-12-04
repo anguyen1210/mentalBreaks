@@ -213,18 +213,15 @@ list_valuelabs <- sapply(seq_along(years),
 ```
 
 ```{r eval=FALSE, echo=TRUE}
+#specify the folder where your data is saved
+fpath <- getwd() 
+
 # create lists of filenames
-years <- seq(2010, 2019) 
+list_data <- list.files(fpath, pattern = "*.CSV", full.names=TRUE)
 
-list_data <- sapply(seq_along(years), 
-                    function(x) paste0("D:/sake/SAKE", years[x], ".CSV"))
+list_varlabs <- list.files(fpath, pattern = "*VAR-LABEL-F-SAS", full.names = TRUE, recursive = TRUE)
 
-list_varlabs <- sapply(seq_along(years), 
-                       function(x) paste0("D:/sake/SAKE", years[x], "_Metadata/S", years[x], "-VAR-LABEL-F-SAS.txt"))
-
-
-list_valuelabs <- sapply(seq_along(years), 
-                           function(x) paste0("D:/sake/SAKE", years[x], "_Metadata/S", years[x], "-FORMAT-F-SAS.txt"))
+list_valuelabs <- list.files(fpath, pattern = "*FORMAT-F-SAS", full.names = TRUE, recursive = TRUE)
 ```
 
 ```{r eval=FALSE, echo=TRUE}
