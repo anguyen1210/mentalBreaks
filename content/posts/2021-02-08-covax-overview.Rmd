@@ -4,7 +4,7 @@ author: Anthony Nguyen
 date: '2021-02-08'
 slug: covax-overview
 categories:
-  #- r-bloggers
+  - r-bloggers
 tags:
   - COVID19
   - coronavirus
@@ -39,7 +39,7 @@ Problems associated with the distribution of limited supplies of COVID-19 vaccin
 
 In response to the threat of vaccine nationalism, a coalition of international partners set up [the COVAX Facility](https://www.gavi.org/vaccineswork/covax-explained) in April/May of last year to ensure that all countries--not just the rich ones--would have equal access to vaccines once they become available. Lead by the [WHO](https://www.who.int/), [GAVI](https://www.gavi.org/) and [CEPI](https://cepi.net/) among others, COVAX serves as a global purchasing pool that mixes more wealthy "self-financing participant" countries with lower-income publicly funded countries and promises all participants will have access to any the 18 different vaccine candidates being developed in by the pool of pharmaceutical companies in which COVAX has brokered [Advanced Market Commitments (AMC)](https://www.gavi.org/gavi-covax-amc). Given that viable vaccines are already on the market as of late-2020, and that more will emerge in the coming months, the big challenge for the COVAX facility is to ensure equitable access and fair allocation across countries. 
 
-In this Part I. blog post, I provide an overview of how the current allocation mechanism works and examine the data from the recently released COVAX distribution plan for the beginning of 2021 (Phase 1). In a follow-up blog post, I examine some commonly mentioned risk factors and country characteristics associated with COVID-19 and some of their implications when used as weighting adjustments for Phase 2 of the COVAX allocation mechanism.   
+In this *Part I.* blog post, I provide an overview of how the current allocation mechanism works and examine the data from the recently released COVAX distribution plan for the beginning of 2021 (Phase 1). In a follow-up blog post, I examine some commonly mentioned risk factors and country characteristics associated with COVID-19 and some of their implications when used as weighting adjustments for Phase 2 of the COVAX allocation mechanism.   
   
 ### Data
   
@@ -238,7 +238,8 @@ map_status <- ggplot(data=world_map) +
 map_status
 ```
       
-Perhaps and easier way to think about COVAX participation is by referencing the list of countries who are *not* participating, which is a small group indeed:
+Perhaps and easier way to think about COVAX participation is by referencing the list of countries who are *not* participating, which is a small group indeed:  
+  
 ```{r echo=FALSE}
 countries <- latest %>% filter(!is.na(continent)) %>% select(iso_code, location)
 countries[countries$location == "Kosovo", "iso_code"] <- "XKX"
@@ -390,7 +391,7 @@ layout(
 
 In the plot above, I sum the populations of the current COVAX participant countries based on the UN's [2019 Revision of World Population Prospects](https://population.un.org/wpp/), and show the coverage needs for the different thresholds, up to 20%. Assuming vaccine needs are estimated as single doses to match population numbers one-to-one, this very simple calculation for 20% coverage for all participants comes to 1.45 billion doses, and 784 million doses for just the 92 AMC countries--both far under GAVI's estimates of 2 billion and 1.3 billion, respectively. It should be emphasized that my calculations do not include the "8 economies (who are not United Nations Member States)", nor the emergency buffer, though given the size of the difference in these calculations, it seems unlikely that this would be the only reason for the discrepancies.   
   
-Given that there will unlikely be enough supply to cover all participants, I also estimate the total dosage needs for different participation scenarios  (e.g. only committed-countries receiving vaccines, only AMC-countries, countries with no other bilateral agreements, etc.). These alternate scenarios are meant to serve as a reference, as participants receiving allocations (especially early on), will likely be a mix of these different groups of countries and/or be included/not-included for reasons not mentioned here.
+Given that there will unlikely be enough supply to cover all participants, I also estimate the total dosage needs for different participation scenarios  (e.g. only committed-countries receiving vaccines, only AMC-countries, countries with no other bilateral agreements, etc.). These alternate scenarios are meant to serve as a reference, as participants receiving allocations--especially early on--will likely be a mix of these different groups of countries and/or be included/not-included for reasons not mentioned here.
 
 ## Interim distribution plan
 ```{r include=FALSE}
