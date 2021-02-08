@@ -29,7 +29,7 @@ In this post I briefly discuss the current WHO [proposal for the global allocati
 
 ## Background
 
-Problems associated with the distribution of limited supplies of COVID-19 vaccines to and within countries are well predicted by a economic theory on competitive markets and public goods. Left un-managed, it is likely that the rich will buy up all the supplies of this precious commodity to the detriment of all others. In global health, this phenomenon even has a name--[vaccine nationalism](https://online.ucpress.edu/currenthistory/article/120/822/9/114551/Is-There-a-Cure-for-Vaccine-Nationalism)--and has happened in the past and is likely to happen again now that the COVID-19 vaccines have hit the market. While many lower-income countries will struggle to secure supplies of the vaccine over the coming year, a recent Economist Intelligence Unit [(EIU) report](https://www.eiu.com/n/85-poor-countries-will-not-have-access-to-coronavirus-vaccines/) shows that other, high-income countries have already secured enough doses to vaccinate their populations several times over.  
+Problems associated with the distribution of limited supplies of COVID-19 vaccines to and within countries are well predicted by theories on competitive markets and welfare economics. Left un-managed, it is likely that the rich will buy up all the supplies of this precious commodity to the detriment of all others. In global health, this phenomenon even has a name--[vaccine nationalism](https://online.ucpress.edu/currenthistory/article/120/822/9/114551/Is-There-a-Cure-for-Vaccine-Nationalism)--and has happened in the past and is likely to happen again now that the COVID-19 vaccines have hit the market. While many lower-income countries will struggle to secure supplies of the vaccine over the coming year, a recent Economist Intelligence Unit [(EIU) report](https://www.eiu.com/n/85-poor-countries-will-not-have-access-to-coronavirus-vaccines/) shows that other, high-income countries have already secured enough doses to vaccinate their populations several times over.  
     
 <center>  
 ![](/posts/2021-02-08-covax-overview_files/eiu_surplus_deficit.png){width=400px}
@@ -353,27 +353,32 @@ plot_ly(
   
 add_trace(                 #adds a second scatter trend to the graph
           x = phase1$Pct.Pop,           #data for x variable
-          y = phase1$`All (no bilats)`,          #data for y variable
+          y = phase1$`All (no bilats)`,
+          type = "scatter", #data for y variable
           name = "All (no bilats)") %>%   #names trace
     
 add_trace(                 #adds a second scatter trend to the graph
           x = phase1$Pct.Pop,           #data for x variable
-          y = phase1$`Committed only`,          #data for y variable
+          y = phase1$`Committed only`,
+          type = "scatter", #data for y variable
           name = "Committed only") %>%   #names trace    
 
 add_trace(                 #adds a second scatter trend to the graph
           x = phase1$Pct.Pop,           #data for x variable
-          y = phase1$`Committed (no bilats)`,          #data for y variable
+          y = phase1$`Committed (no bilats)`,  
+          type = "scatter", #data for y variable
           name = "Committed (no bilats)") %>%   #names trace        
 
 add_trace(                 #adds a second scatter trend to the graph
           x = phase1$Pct.Pop,           #data for x variable
-          y = phase1$`AMC eligible only`,          #data for y variable
+          y = phase1$`AMC eligible only`,
+          type = "scatter", #data for y variable
           name = "AMC eligible only") %>%   #names trace        
 
 add_trace(                 #adds a second scatter trend to the graph
           x = phase1$Pct.Pop,           #data for x variable
-          y = phase1$`AMC eligible (no bilats)`,          #data for y variable
+          y = phase1$`AMC eligible (no bilats)`, 
+          type = "scatter", #data for y variable
           name = "AMC eligible only (no bilats") %>%   #na    
   
 layout(
