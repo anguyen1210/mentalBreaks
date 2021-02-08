@@ -273,7 +273,7 @@ Given that supplies will be more limited early on, the allocation mechanism envi
  
 While the first phase of the distribution plan is proportional and countries are meant to receive doses at the same rate (to the extent possible), in Phase 2, additional vaccines will be distributed taking into consideration risk factors and needs specific to the countries. All of this, or course, is subject to supply, capacity, and various other constraints that are not detailed in these preliminary plans.  
   
-### Phase 1 thresholds
+### Phase 1 thresholds {#thresholds-link}
 ```{r include=FALSE}
 pcts <- seq(.01,.2, by=.01)
 
@@ -551,4 +551,4 @@ In addition, 36 of the 60 countries (60%) who have already begun COVID vaccinati
 
 Among the other countries who already have bilateral with vaccine manufacturers, it is interesting to see that New Zealand, Chile and Canada have chosen not to withdraw their names from this initial round of distribution despite having already secured enough doses outside of the COVAX platform to vaccinate their populations 2 to 5 times over (see EIU report figure above).
 
-While COVAX was able to meet its 3% coverage target with this initial allocation plan, this was also done with 26% of COVAX participants not receiving their allocations in this round. Referencing the COVAX Phase 1 allocation needs calculations from above, current supplies put the Facility on the orange dotted line ("All (no bilats)"), far under the total dosages needed to cover all participating countries. It remains to be seen whether enough vaccines will be secured over the remainder of the year to move back to the blue line, where enough supply is on hand to distribute to all participants.
+While COVAX was able to meet its 3% coverage target with this initial allocation plan, this was also done with 26% of COVAX participants not receiving their allocations in this round. Referencing the [COVAX Phase 1 allocation needs](#thresholds-link) calculations from above, current supplies put the Facility on the orange dotted line ("All (no bilats)"), far under the total dosages needed to cover all participating countries. It remains to be seen whether enough vaccines will be secured over the remainder of the year to move back to the blue line, where enough supply is on hand to distribute to all participants.
