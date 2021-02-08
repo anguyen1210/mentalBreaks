@@ -1,0 +1,553 @@
+---
+title: "COVAX Part 1: Overview of the fair allocation mechanism"
+author: Anthony Nguyen
+date: '2021-02-08'
+slug: covax-overview
+categories:
+  #- r-bloggers
+tags:
+  - COVID19
+  - coronavirus
+  - plotly
+  - health
+  - vaccines
+lastmod: '2021-02-08T10:30:37+01:00'
+layout: post
+type: post
+highlight: yes
+---
+```{r setup, include=FALSE, warning=FALSE, message=FALSE, fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(countrycode)
+library(WDI)
+library(plotly)
+library(sf)
+library(kableExtra)
+```
+In this post I briefly discuss the current WHO [proposal for the global allocation of the COVID-19 vaccines through the COVAX Facility](https://www.who.int/publications/m/item/fair-allocation-mechanism-for-covid-19-vaccines-through-the-covax-facility), as well as the [February 3 interim distribution forecast](https://www.gavi.org/news/media-room/covax-publishes-first-interim-distribution-forecast) for the initial allocation of vaccines to COVAX participating countries. Based on the latest available public information, my calculations for the total dosage needs for the COVAX Facility for the end of 2021 are somewhat less than the official figures (with caveats). On the other hand the national population coverage offered by the initial allocation proposed in the interim forecast does meet the 3% targets stated for the initial distribution during Phase 1 of the allocation plan, but this target could only be met in light of 26% of participating countries not receiving an allocation in this first round. 
+
+## Background
+
+Problems associated with the distribution of limited supplies of COVID-19 vaccines to and within countries are well predicted by a economic theory on competitive markets and public goods. Left un-managed, it is likely that the rich will buy up all the supplies of this precious commodity to the detriment of all others. In global health, this phenomenon even has a name--[vaccine nationalism](https://online.ucpress.edu/currenthistory/article/120/822/9/114551/Is-There-a-Cure-for-Vaccine-Nationalism)--and has happened in the past and is likely to happen again now that the COVID-19 vaccines have hit the market. While many lower-income countries will struggle to secure supplies of the vaccine over the coming year, a recent Economist Intelligence Unit [(EIU) report](https://www.eiu.com/n/85-poor-countries-will-not-have-access-to-coronavirus-vaccines/) shows that other, high-income countries have already secured enough doses to vaccinate their populations several times over.  
+    
+<center>  
+![](/posts/2021-02-08-covax-overview_files/eiu_surplus_deficit.png){width=400px}
+</center>    
+  
+### COVAX Facility
+
+In response to the threat of vaccine nationalism, a coalition of international partners set up [the COVAX Facility](https://www.gavi.org/vaccineswork/covax-explained) in April/May of last year to ensure that all countries--not just the rich ones--would have equal access to vaccines once they become available. Lead by the [WHO](https://www.who.int/), [GAVI](https://www.gavi.org/) and [CEPI](https://cepi.net/) among others, COVAX serves as a global purchasing pool that mixes more wealthy "self-financing participant" countries with lower-income publicly funded countries and promises all participants will have access to any the 18 different vaccine candidates being developed in by the pool of pharmaceutical companies in which COVAX has brokered [Advanced Market Commitments (AMC)](https://www.gavi.org/gavi-covax-amc). Given that viable vaccines are already on the market as of late-2020, and that more will emerge in the coming months, the big challenge for the COVAX facility is to ensure equitable access and fair allocation across countries. 
+
+In this Part I. blog post, I provide an overview of how the current allocation mechanism works and examine the data from the recently released COVAX distribution plan for the beginning of 2021 (Phase 1). In a follow-up blog post, I examine some commonly mentioned risk factors and country characteristics associated with COVID-19 and some of their implications when used as weighting adjustments for Phase 2 of the COVAX allocation mechanism.   
+  
+### Data
+  
+The data from this analysis comes primarily from two sources: the public documentation on GAVI's [COVAX Facility website](https://www.gavi.org/covax-facility) and the latest consolidated  country-level COVID data from [Our World in Data (OWID)](https://github.com/owid/covid-19-data/tree/master/public/data). The original documents used for this analysis, along with the extracted data, are saved on my [Github repo](https://github.com/anguyen1210/covax) for ease of use. Additionally, I group countries for analysis using their most recent [World Bank Country and Lending groups](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups) classifications rather than their WHO regional office groupings.
+
+```{r load data, include=FALSE}
+covax_participants_20201215 <- read_csv("https://raw.githubusercontent.com/anguyen1210/covax/main/covax_participants_20201215.csv")
+
+# owid_codebook <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-codebook.csv")
+  
+distribution <- read_csv("https://raw.githubusercontent.com/anguyen1210/covax/main/interim_distribution_forecast_20210203.csv")
+
+pop2019 <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/scripts/input/un/population_2020.csv")
+
+pop2019 <- pop2019 %>% 
+    transmute(
+        "iso_code" = iso_code,
+        "population2019" = population
+        )
+
+latest <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/latest/owid-covid-latest.csv")
+
+# owid <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+# 
+# #locations
+# locations <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/locations.csv")
+# 
+# #vaccinations
+# vaccinations <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv")
+```
+
+```{r include=FALSE}
+#drop eight un-named economies
+dat <- covax_participants_20201215 %>% filter(!(is.na(WB_region)))
+
+#add iso_codes to covax participant dataset
+dat <- dat %>% 
+    mutate(iso_code = countrycode(participant, origin = "country.name", destination = "iso3c"))
+
+# fill in iso_code for Kosovo (XKX)
+dat[dat$participant == "Kosovo", "iso_code"] <- "XKX"
+
+# merge with latest population figures and other country variables
+dat <- left_join(dat, pop2019, by="iso_code") 
+dat <- left_join(dat, latest, by="iso_code")
+
+# fill in population2019 for Kosovo (XKX)
+dat[dat$participant == "Kosovo", "population2019"] <- 1810366
+```
+
+```{r include=FALSE}
+#gen Case Fatality Rate, Case Mortality Rate, prevalence rate
+dat <- dat %>% 
+    mutate(
+        CFR = round(total_deaths / total_cases * 100, 1),
+        CMR = round(total_deaths / population2019 *100, 1),
+        prevalence = round(total_cases/population2019 * 100, 1)
+    )
+
+dat <- dat %>% select(-last_update, last_updated_date, -source) %>% 
+  select(iso_code, everything())
+```
+
+```{r include=FALSE}
+dist_names <- c("WHO_region", "participant", "SFP_AMC", "doses_AZ_SII", "doses_AZ_SKBio", "doses_Pfizer_BioNTech", "last_update", "source")
+
+names(distribution) <- dist_names
+
+dist <- distribution %>%  select(-last_update, -source) 
+dist <- fastDummies::dummy_cols(dist, "SFP_AMC")  
+dist <- dist %>% 
+  rename(SFP = SFP_AMC_SFP) %>% 
+  rename(AMC = SFP_AMC_AMC)
+
+dist <- dist %>% 
+    mutate(iso_code = countrycode(participant, origin = "country.name", destination = "iso3c"))
+
+# fill in iso_code for Kosovo (XKX)
+dist[dist$participant == "Kosovo", "iso_code"] <- "XKX"
+dist[dist$participant == "Non-UN Member States", "iso_code"] <- "Non-UN"
+```
+
+```{r include=FALSE}
+# UPDATE SFP list
+# the interim distribution data has more countries listed as Self-Financing
+# Partners (SFP) than the other participant data sheet on the GAVI website
+# (dated Dec.2015).  Here we update the SFP list using the most current data.
+
+SFP_update <- dist %>% select(iso_code, SFP_dist = SFP) %>% filter(!is.na(iso_code))
+
+dat <- left_join(dat, SFP_update, by="iso_code")
+dat <- dat %>% mutate(SFP = if_else(SFP_dist==1, 1, SFP))
+#sum(dat$SFP, na.rm=T)
+dat <- dat %>% select(-SFP_dist)
+```
+
+## COVAX Participation
+```{r include=FALSE}
+#create df for maps
+dat_map <- dat %>% 
+    transmute(
+        participant,
+        iso_code,
+        intent_submitted,
+        committed,
+        AMC,
+        SFP,
+        WB_region,
+        WB_income_group,
+        total_vaccinations,
+        bilat_agreements = !(is.na(total_vaccinations)),
+        status = case_when(
+            AMC==1 ~ "AMC eligible",
+            SFP==1 ~ "Self-financing participant",
+            is.na(SFP) & committed==1 ~ "Committed",
+            is.na(SFP) & committed==0 & intent_submitted ==1 ~ "Intent submitted"
+        )
+    )
+```
+
+```{r include=FALSE}
+# download.file("http://thematicmapping.org/downloads/TM_WORLD_BORDERS_SIMPL-0.3.zip" , destfile="data/world_shape_file.zip")
+world_map <- read_sf("../../../covax/data/world_shape_file/TM_WORLD_BORDERS_SIMPL-0.3.shp")
+world_map <- rename(world_map, "iso_code" = ISO3)
+```
+
+```{r include=FALSE}
+dat_map <- left_join(dat_map, world_map, by="iso_code")
+```
+
+```{r include=FALSE}
+dat_map_bilat <- dat_map %>% mutate(iso_code = if_else(bilat_agreements==TRUE, iso_code, ""))
+```
+
+```{r include=FALSE}
+# -------------------------------------------------
+# Map theme
+# -------------------------------------------------
+
+theme_custom <- function(...){
+    theme_minimal() +
+        theme(
+            text = element_text(family = "sans", color = "#22211d"), 
+            plot.caption = element_text(color = "#22211d", size=7),
+            legend.position = "bottom",
+            legend.key.size = unit(.5,"line"),
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.line.x = element_line(color = "#22211d", 
+                                       size = .25, linetype = "solid"),
+            axis.ticks = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank(),
+            #plot.background = element_rect(fill = "#f5f5f2", color = NA) 
+            panel.background = element_rect(fill = "#f5f5f2", color = NA)
+        ) 
+}
+```
+
+At the time of writing, the most recent [list of COVAX participants](https://www.gavi.org/sites/default/files/covid/pr/COVAX_CA_COIP_List_COVAX_PR_15-12.pdf) includes 90 committed countries (Self-financing participants + other committed), 6 countries who have submitted a letter of intent but have yet to formally commit, and 92 lower-income countries who are AMC eligible by virtue of their World Bank lending group status, for a total of 188 participating countries. COVAX documentation also cited 8 other non-state participating economies who are not named, thus, they are omitted for the purpose of this analysis.
+```{r echo=FALSE}
+table(dat_map$status)
+```
+  
+In the map below, I plot the COVAX participating countries according to these respective categories, and we can see that with very few exceptions (in grey), nearly all countries around the world are committed or have submitted their intent to participate. 
+```{r echo=FALSE, fig.height=7, fig.width=9, warning=FALSE, message=FALSE}
+map_status <- ggplot(data=world_map) +
+  geom_sf(fill="grey75") + 
+  geom_sf(
+    data=dat_map,
+    aes(geometry=geometry, fill=status),
+    show.legend = "polygon"
+    ) +
+  geom_sf_text(
+        data = dat_map_bilat,
+        aes(geometry = geometry,
+            label = iso_code),
+            color = "white", size = 1
+        ) +
+  labs(
+    title = "Covax Facility participation",
+    subtitle = "Participants list current as of 15 Dec. 2020",
+    caption = "Note: Countries administering COVID-19 vaccines in advance of\nCOVAX distribution indicated by their ISO3 abbreviation. \n
+    Source: @anguyen1210" 
+    ) +
+  ylab("") +
+  xlab("") +
+  theme_custom() + 
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank()
+    ) 
+
+#ggsave("figs/map_status.png", width=12, height=8)
+
+map_status
+```
+      
+Perhaps and easier way to think about COVAX participation is by referencing the list of countries who are *not* participating, which is a small group indeed:
+```{r echo=FALSE}
+countries <- latest %>% filter(!is.na(continent)) %>% select(iso_code, location)
+countries[countries$location == "Kosovo", "iso_code"] <- "XKX"
+
+dat_countries <- dat %>% select(iso_code, participant)
+
+non_participants <- anti_join(countries, dat_countries, by="iso_code")
+
+non_participants %>% kable(caption="Countries not participating in COVAX as of 15 Dec. 2020") %>% kable_styling(bootstrap_options = c("striped", "condensed"))
+```
+  
+### Countries with bilateral agreements for vaccines    
+    
+According to the preliminary technical design for the COVAX allocation mechanism, the Facility will request that countries that have successfully concluded bilateral deals with manufacturers to cover a sizable share of their population (e.g. 20%) delay their receipt of COVAX distributed vaccines until other countries receive enough to cover their highest priority populations. While I do not have data on hand for all bilateral deals from all countries, the OWID data includes the total number of vaccinations already administered for each country in advance of COVAX distribution. These countries are indicated in the map above by their ISO abbreviation code. At present, `r sum(dat_map$bilat_agreements)` COVAX participant countries have already received vaccines from channels outside of the Facility. The number of total vaccinations already administered for these countries varies widely, as can be seen in the summary statistics below:
+
+```{r echo=TRUE}
+summary(dat_map$total_vaccinations)
+```
+    
+## The COVAX allocation mechanism
+  
+The stated objective of the COVAX Facility is to ensure that enough vaccines are secured so that all participating countries can vaccinate their highest priority populations by the end of 2021, which they estimate to be 2 billion doses in total, of which 1.3 billion doses would go to the 92 lower-income AMC eligible countries.
+  
+The most recent [draft of the allocation mechanism (Sep.2020)](https://www.who.int/publications/m/item/fair-allocation-mechanism-for-covid-19-vaccines-through-the-covax-facility) presents the timing and considerations that will be used to distribute pooled vaccines to participating countries, which are nicely summarized in the figure below:  
+  
+<center>  
+![](/posts/2021-02-08-covax-overview_files/two_phase_allocation.png){width=600px}  
+</center>    
+  
+Given that supplies will be more limited early on, the allocation mechanism envisions a two phase rollout. In Phase 1, countries will receive vaccines proportional to their population, with doses meant to cover their most vulnerable people, globally estimated to be 20% of the population. Because there will not be enough vaccines early in the year to reach this threshold, the initial round of COVAX vaccine distribution will target 3% coverage of country populations, which is the estimate of the upper-bound share of frontline health-care workers. Additionally, COVAX will keep a percentage of vaccines in reserve as an emergency buffer, which currently is listed to be 10% of the stock.    
+ 
+While the first phase of the distribution plan is proportional and countries are meant to receive doses at the same rate (to the extent possible), in Phase 2, additional vaccines will be distributed taking into consideration risk factors and needs specific to the countries. All of this, or course, is subject to supply, capacity, and various other constraints that are not detailed in these preliminary plans.  
+  
+### Phase 1 thresholds
+```{r include=FALSE}
+pcts <- seq(.01,.2, by=.01)
+
+all <- tibble("All" = rep(0,20))
+all_nobilat <- tibble("All (no bilats)" = rep(0,20))
+committed <- tibble("Committed only" = rep(0,20))
+committed_nobilat <- tibble("Committed (no bilats)" = rep(0,20))
+amc <- tibble("AMC eligible only" = rep(0,20))
+amc_nobilat <- tibble("AMC eligible (no bilats)" = rep(0,20))
+
+makephase1tbl <- function(data, thresholds, emptyframe){
+    for (i in seq_along(thresholds)){
+        emptyframe[i, 1] <- thresholds[i]*sum(data$population2019)
+    }
+    emptyframe
+}
+```
+
+```{r include=FALSE}
+
+all <- makephase1tbl(dat, pcts, all)
+
+all_nobilat <- dat %>% 
+    filter(!is.na(total_vaccinations)) %>% 
+    makephase1tbl(., pcts, all_nobilat)
+
+committed <- dat %>% 
+    filter(committed==1) %>% 
+    makephase1tbl(., pcts, committed) 
+    
+committed_nobilat <- dat %>% 
+    filter(committed==1) %>% 
+    filter(!is.na(total_vaccinations)) %>% 
+    makephase1tbl(., pcts, committed_nobilat)
+
+amc <- dat %>% 
+    filter(AMC==1) %>% 
+    makephase1tbl(., pcts, amc)
+
+amc_nobilat <- dat %>% 
+    filter(AMC==1) %>% 
+    filter(!is.na(total_vaccinations)) %>% 
+    makephase1tbl(., pcts, amc_nobilat)
+```
+
+```{r include=FALSE}
+pct_pop <- tibble("Pct.Pop" = 1:20)
+
+phase1 <- tibble(cbind(pct_pop, all, all_nobilat, committed, committed_nobilat, amc, amc_nobilat))
+```
+  
+<center>  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#specifying axis preferences
+x_axis <- list(
+  showgrid = FALSE,           #says to not include gridlines on x-axis
+  zeroline = FALSE,           #says not to include a line at zero
+  nticks = 20,            #indicates number of tick marks for the axis
+  showline = TRUE,           #says to include a border on the sides of graph
+  title = "% Population", #names axis
+  mirror = "all")   
+
+y_axis <- list(
+  showgrid = TRUE,           #says to include gridlines along the tick marks on y-axis
+  zeroline = FALSE,           #says not to include a line at zero
+  nticks = 20,            #indicates number of tick marks for the axis
+  showline = TRUE,           #says to include a border on the sides of graph
+  title = "Total doses needed", #names axis
+  mirror = "all")   
+
+#Creating a scatterplot with axes and legends
+plot_ly(
+  x = phase1$Pct.Pop,              #data for x variable (note: specify df when needed)
+  y = phase1$All,             #data for y variable (note: specify df when needed)
+  type = "scatter",   #specifies it is a scatterplot
+  name = "All") %>%   #names trace
+  
+add_trace(                 #adds a second scatter trend to the graph
+          x = phase1$Pct.Pop,           #data for x variable
+          y = phase1$`All (no bilats)`,          #data for y variable
+          name = "All (no bilats)") %>%   #names trace
+    
+add_trace(                 #adds a second scatter trend to the graph
+          x = phase1$Pct.Pop,           #data for x variable
+          y = phase1$`Committed only`,          #data for y variable
+          name = "Committed only") %>%   #names trace    
+
+add_trace(                 #adds a second scatter trend to the graph
+          x = phase1$Pct.Pop,           #data for x variable
+          y = phase1$`Committed (no bilats)`,          #data for y variable
+          name = "Committed (no bilats)") %>%   #names trace        
+
+add_trace(                 #adds a second scatter trend to the graph
+          x = phase1$Pct.Pop,           #data for x variable
+          y = phase1$`AMC eligible only`,          #data for y variable
+          name = "AMC eligible only") %>%   #names trace        
+
+add_trace(                 #adds a second scatter trend to the graph
+          x = phase1$Pct.Pop,           #data for x variable
+          y = phase1$`AMC eligible (no bilats)`,          #data for y variable
+          name = "AMC eligible only (no bilats") %>%   #na    
+  
+layout(
+  title = "COVAX Phase 1 allocation needs, by % Population",   #names title
+  xaxis = x_axis,         #indicates what object to use for x-axis title
+  yaxis = y_axis         #indicates what object to use for y-axis title
+  # legend = list(          #adds a legend
+  #           x = 0.5,      #specifies position of legend horizontally
+  #           y = 1,        #specifies position of legend vertically
+  #           ) #specifies the colors for two trends
+  ) 
+```
+  
+</center>   
+
+In the plot above, I sum the populations of the current COVAX participant countries based on the UN's [2019 Revision of World Population Prospects](https://population.un.org/wpp/), and show the coverage needs for the different thresholds, up to 20%. Assuming vaccine needs are estimated as single doses to match population numbers one-to-one, this very simple calculation for 20% coverage for all participants comes to 1.45 billion doses, and 784 million doses for just the 92 AMC countries--both far under GAVI's estimates of 2 billion and 1.3 billion, respectively. It should be emphasized that my calculations do not include the "8 economies (who are not United Nations Member States)", nor the emergency buffer, though given the size of the difference in these calculations, it seems unlikely that this would be the only reason for the discrepancies.   
+  
+Given that there will unlikely be enough supply to cover all participants, I also estimate the total dosage needs for different participation scenarios  (e.g. only committed-countries receiving vaccines, only AMC-countries, countries with no other bilateral agreements, etc.). These alternate scenarios are meant to serve as a reference, as participants receiving allocations (especially early on), will likely be a mix of these different groups of countries and/or be included/not-included for reasons not mentioned here.
+
+## Interim distribution plan
+```{r include=FALSE}
+dist2 <- dist %>% select(iso_code, WHO_region, doses_AZ_SII, doses_AZ_SKBio, doses_Pfizer_BioNTech) 
+
+dist2 <- dist2 %>% mutate(doses_interim = (doses_AZ_SII + doses_AZ_SKBio + doses_Pfizer_BioNTech))
+
+dat <- left_join(dat, dist2, by="iso_code")
+
+dat_dist <- dat %>% filter(!is.na(doses_interim))
+```
+  
+Last Wednesday, the first [interim distribution plan](https://www.gavi.org/news/media-room/covax-publishes-first-interim-distribution-forecast) was released, where we can see the initial allocations that are planned for COVAX countries for the first half of this year. As stated in this forecast:  
+   
+>Total doses cover, on average, 3.3% of the total population of the 145 participants receiving doses from at least one manufacturer in the list detailed below. This is in line with the Facility target to reach at least 3% population coverage in all countries in the first half of the year, enough to protect the most vulnerable groups such as health care workers.  
+
+```{r echo=FALSE}
+dist %>% summarize(
+  "AZ/SII" = sum(doses_AZ_SII)/1000000,
+  "AZ/SKBio" = sum(doses_AZ_SKBio)/1000000,
+  "Pfizer BioNTech" = sum(doses_Pfizer_BioNTech)/1000000,
+  "Total doses to be allocated" = sum(`AZ/SII`, `AZ/SKBio`, `Pfizer BioNTech`)
+  ) %>% 
+  kable(caption="Feb.3 COVAX interim distribution forecast: Total doses (in millions)") %>% 
+  kable_styling()
+```
+```{r}
+total_interim_doses <- 320064400
+
+#From the total interim doses, I subtract the allocation for Non-UN Member states, and then divide by two to account for double dose regimen
+((total_interim_doses - 1303200)/2) / sum(dat_dist$population2019) *100
+```
+  
+I've extracted the [data from the interim forecast](https://github.com/anguyen1210/covax/blob/main/interim_distribution_forecast_20210203.csv) and done my own count, which shows 140 countries listed, along with one entry for "Non-UN Member States". Summing over the proposed country distributions, there are 320 million total doses scheduled in this forecast. When halving that total to account for double-dose requirements, we find that the population coverage comes to exactly 3.3% of the 140 countries listed in the data, more or less matching exactly the GAVI estimate.    
+```{r}
+dat_dist <- dat_dist %>% mutate(
+  doses_pct = (doses_interim/2)/population2019 * 100
+  )
+
+summary(dat_dist$doses_pct)
+```
+With regards to average coverage across all countries for this interim distribution, the numbers show considerable variance in the coverage rate, as can be seen in the summary statistics above. Interestingly enough, we can see that while the minimum coverage provided by the allocated doses for any country is 2.2%, on average, the number is closer 5.9%, with some countries receiving doses up to 33.2% of their population. 
+  
+The exact coverage figures are presented in the table below, and in the following section, I plot these results to have a more visual look at the distributions.
+```{r echo=FALSE}
+dat_dist %>%   
+  select(iso_code, participant, AMC, population2019, doses_interim, doses_pct) %>% 
+  kable(caption = "Feb.3 COVAX interim distribution forecast: dose coverage as % of population") %>% 
+  scroll_box(height = "300px")  
+  #kable_styling(full_width = T, bootstrap_options = c("striped", "hover"))
+```
+### Interim allocation population coverage 
+  
+We can see from the data that the coverage rate provided by the interim allocation forecast is not constant across all countries. In this section, I plot these coverage rates, grouped by region, to have a better understanding of the differences.  
+  
+```{r echo=FALSE, fig.width=9, fig.height=9, warning=FALSE, message=FALSE}
+interim_coverage <- dat_dist %>% 
+  #filter(iso_code!="CAN") %>% 
+  ggplot(aes(x=doses_pct, y=total_deaths_per_million, color=WB_region, label=iso_code, size=population2019)) +
+  geom_point(shape=17, alpha=0.7) +
+  geom_text(size=2, alpha=.7, hjust= -.5) +
+  facet_wrap(~WB_region, ncol=2) +
+  theme_minimal() + 
+  theme(
+    plot.caption = element_text(color = "#22211d", size=7),
+    #legend.box.background = element_rect(colour = "grey90"),
+    legend.position = c(.85, .02),
+    legend.direction = "vertical",
+    #legend.title = "GDP per capita",
+    legend.justification = c(1, 0)
+    ) +
+  guides(color = FALSE) +
+  labs(
+    title = "Population coverage of proposed COVAX vaccine allocations",
+    subtitle = "Based on Feb.3 interim allocation forecast",
+    caption = "Note: Countries with no COVID mortality data are not shown.\n
+    Source: @anguyen1210", 
+    size = "Population"
+    ) +
+  ylab("Total deaths per million") +
+  xlab("Share of population (%) covered by interim allocation") 
+
+#ggsave("figs/interim_coverage.png", width=9, height=9)
+  
+interim_coverage  
+```
+  
+In the figure above, I plot the total deaths per million vs the share of the population covered by the interim allocation, broken up by region. The size of the points are scaled by the country's population.  
+  
+It's clear from looking at the plot that the majority of countries have allocations that cover 2-5% of their populations, and there does not seem to be any relationship between the severity of the mortality rates in-country with the size of the allocation they received. In terms of the countries receiving significantly larger relative shares of the vaccine, by filtering the data for all countries with coverage above 5%, we learn that all of these cases pertain to small countries with populations of less than one million.
+
+```{r echo=FALSE, fig.width=9, fig.height=6, warning=FALSE, message=FALSE}
+interim_high_coverage <- dat_dist %>% 
+  filter(population < 1000000) %>% 
+  ggplot(aes(x=doses_pct, y=population2019, color=WB_region, label=iso_code)) +
+  geom_point(size=3, alpha=0.7) +
+  geom_text(size=2, alpha=.7, hjust= -.5) +
+  #facet_wrap(~WB_region, ncol=2) +
+  theme_minimal() + 
+  theme(
+    plot.caption = element_text(color = "#22211d", size=7),
+    legend.position = "bottom",
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 6)
+    # legend.position = c(.85, .02),
+    # legend.direction = "vertical",
+    # #legend.title = "GDP per capita",
+    # legend.justification = c(1, 0)
+    ) +
+  guides(size = FALSE) +
+  labs(
+    title = "Population coverage of proposed COVAX vaccine allocations:\nSmall countries (< 1M)",
+    subtitle = "Based on Feb.3 interim allocation forecast",
+    caption = "Note: Countries with no COVID mortality data are not shown.\n
+    Source: @anguyen1210", 
+    #size = "Population",
+    color = "Region"
+    ) +
+  ylab("Population") +
+  xlab("Share of population (%) covered by interim allocation") 
+  # theme(
+  #   legend.position = "bottom"
+  #   #legend.title = element_blank()
+  #   ) 
+
+#ggsave("figs/interim_high_coverage.png", width=9, height=6)
+
+interim_high_coverage  
+```  
+  
+After we drop all countries with populations of over one million people, we can see a very clear negative linear relationship between population size and vaccine coverage from the COVAX allocations, as illustrated in the plot above. As we can also see, this relationship holds across all regions. Most likely, there are practicalities related to shipping or other logistics that makes it impractical to send small countries vaccines 2-3% proportional to their size.  
+    
+In fact, when we look at just the countries in the interim allocation forecast with populations of over one million, we find that the mean coverage for all countries is 3.2%.
+```{r }
+summary(dat_dist[dat_dist$population > 1000000, ]$doses_pct)
+```
+  
+### Countries with no interim allocations
+```{r include=FALSE}
+dat_nodose <- dat %>% filter(is.na(doses_interim))
+```
+
+From the 188 countries we have on our current COVAX participants list, 48 countries (26%) were not allocated any vaccines in this initial allocation plan. According to the forecast document, these countries "either exercised their rights to opt-out, have not submitted vaccine requests, or have not yet been allocated doses." The list of participating countries with no initial allocations can be viewed in the table below.
+```{r echo=FALSE}
+dat_nodose %>% 
+  select(iso_code, participant, WB_region, WB_income_group, AMC, population2019, doses_interim) %>% 
+  arrange(desc(WB_region)) %>% 
+  kable(caption = "Feb.3 COVAX interim distribution forecast: countries with no initial allocation") %>% 
+  scroll_box(height="300px")  
+  # kable(caption = "Feb.3 COVAX interim distribution forecast: opt-out, no request, pending allocation") %>%  
+  # kable_styling(bootstrap_options = c("striped", "hover"), fixed_thead = T)
+```
+    
+The "Team Europe" EU27+ group is on this list, along with most other high-income and upper-middle income countries. There are only 4 low-income/AMC-eligible countries in this list--Burundi, Eritrea, Madagascar and Tanzania--and one would imagine their allocations are pending. 
+
+In addition, 36 of the 60 countries (60%) who have already begun COVID vaccinations in advance of COVAX distribution are included in this list of those who have opted out or are otherwise not receiving initial COVAX allocations. 
+
+Among the other countries who already have bilateral with vaccine manufacturers, it is interesting to see that New Zealand, Chile and Canada have chosen not to withdraw their names from this initial round of distribution despite having already secured enough doses outside of the COVAX platform to vaccinate their populations 2 to 5 times over (see EIU report figure above).
+
+While COVAX was able to meet its 3% coverage target with this initial allocation plan, this was also done with 26% of COVAX participants not receiving their allocations in this round. Referencing the COVAX Phase 1 allocation needs calculations from above, current supplies put the Facility on the orange dotted line ("All (no bilats)"), far under the total dosages needed to cover all participating countries. It remains to be seen whether enough vaccines will be secured over the remainder of the year to move back to the blue line, where enough supply is on hand to distribute to all participants.

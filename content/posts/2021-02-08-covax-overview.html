@@ -1,0 +1,4224 @@
+---
+title: "COVAX Part 1: Overview of the fair allocation mechanism"
+author: Anthony Nguyen
+date: '2021-02-08'
+slug: covax-overview
+categories:
+  #- r-bloggers
+tags:
+  - COVID19
+  - coronavirus
+  - plotly
+  - health
+  - vaccines
+lastmod: '2021-02-08T10:30:37+01:00'
+layout: post
+type: post
+highlight: yes
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="/rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="/rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="/rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
+
+
+<p>In this post I briefly discuss the current WHO <a href="https://www.who.int/publications/m/item/fair-allocation-mechanism-for-covid-19-vaccines-through-the-covax-facility">proposal for the global allocation of the COVID-19 vaccines through the COVAX Facility</a>, as well as the <a href="https://www.gavi.org/news/media-room/covax-publishes-first-interim-distribution-forecast">February 3 interim distribution forecast</a> for the initial allocation of vaccines to COVAX participating countries. Based on the latest available public information, my calculations for the total dosage needs for the COVAX Facility for the end of 2021 are somewhat less than the official figures (with caveats). On the other hand the national population coverage offered by the initial allocation proposed in the interim forecast does meet the 3% targets stated for the initial distribution during Phase 1 of the allocation plan, but this target could only be met in light of 26% of participating countries not receiving an allocation in this first round.</p>
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p>Problems associated with the distribution of limited supplies of COVID-19 vaccines to and within countries are well predicted by a economic theory on competitive markets and public goods. Left un-managed, it is likely that the rich will buy up all the supplies of this precious commodity to the detriment of all others. In global health, this phenomenon even has a name–<a href="https://online.ucpress.edu/currenthistory/article/120/822/9/114551/Is-There-a-Cure-for-Vaccine-Nationalism">vaccine nationalism</a>–and has happened in the past and is likely to happen again now that the COVID-19 vaccines have hit the market. While many lower-income countries will struggle to secure supplies of the vaccine over the coming year, a recent Economist Intelligence Unit <a href="https://www.eiu.com/n/85-poor-countries-will-not-have-access-to-coronavirus-vaccines/">(EIU) report</a> shows that other, high-income countries have already secured enough doses to vaccinate their populations several times over.</p>
+<center>
+<img src="/posts/2021-02-08-covax-overview_files/eiu_surplus_deficit.png" width="400" />
+</center>
+<div id="covax-facility" class="section level3">
+<h3>COVAX Facility</h3>
+<p>In response to the threat of vaccine nationalism, a coalition of international partners set up <a href="https://www.gavi.org/vaccineswork/covax-explained">the COVAX Facility</a> in April/May of last year to ensure that all countries–not just the rich ones–would have equal access to vaccines once they become available. Lead by the <a href="https://www.who.int/">WHO</a>, <a href="https://www.gavi.org/">GAVI</a> and <a href="https://cepi.net/">CEPI</a> among others, COVAX serves as a global purchasing pool that mixes more wealthy “self-financing participant” countries with lower-income publicly funded countries and promises all participants will have access to any the 18 different vaccine candidates being developed in by the pool of pharmaceutical companies in which COVAX has brokered <a href="https://www.gavi.org/gavi-covax-amc">Advanced Market Commitments (AMC)</a>. Given that viable vaccines are already on the market as of late-2020, and that more will emerge in the coming months, the big challenge for the COVAX facility is to ensure equitable access and fair allocation across countries.</p>
+<p>In this Part I. blog post, I provide an overview of how the current allocation mechanism works and examine the data from the recently released COVAX distribution plan for the beginning of 2021 (Phase 1). In a follow-up blog post, I examine some commonly mentioned risk factors and country characteristics associated with COVID-19 and some of their implications when used as weighting adjustments for Phase 2 of the COVAX allocation mechanism.</p>
+</div>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>The data from this analysis comes primarily from two sources: the public documentation on GAVI’s <a href="https://www.gavi.org/covax-facility">COVAX Facility website</a> and the latest consolidated country-level COVID data from <a href="https://github.com/owid/covid-19-data/tree/master/public/data">Our World in Data (OWID)</a>. The original documents used for this analysis, along with the extracted data, are saved on my <a href="https://github.com/anguyen1210/covax">Github repo</a> for ease of use. Additionally, I group countries for analysis using their most recent <a href="https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups">World Bank Country and Lending groups</a> classifications rather than their WHO regional office groupings.</p>
+</div>
+</div>
+<div id="covax-participation" class="section level2">
+<h2>COVAX Participation</h2>
+<p>At the time of writing, the most recent <a href="https://www.gavi.org/sites/default/files/covid/pr/COVAX_CA_COIP_List_COVAX_PR_15-12.pdf">list of COVAX participants</a> includes 90 committed countries (Self-financing participants + other committed), 6 countries who have submitted a letter of intent but have yet to formally commit, and 92 lower-income countries who are AMC eligible by virtue of their World Bank lending group status, for a total of 188 participating countries. COVAX documentation also cited 8 other non-state participating economies who are not named, thus, they are omitted for the purpose of this analysis.</p>
+<pre><code>## 
+##               AMC eligible                  Committed 
+##                         92                         38 
+##           Intent submitted Self-financing participant 
+##                          6                         52</code></pre>
+<p>In the map below, I plot the COVAX participating countries according to these respective categories, and we can see that with very few exceptions (in grey), nearly all countries around the world are committed or have submitted their intent to participate.
+<img src="/posts/2021-02-08-covax-overview_files/figure-html/unnamed-chunk-11-1.png" width="864" /></p>
+Perhaps and easier way to think about COVAX participation is by referencing the list of countries who are <em>not</em> participating, which is a small group indeed:
+<table class="table table-striped table-condensed" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-12">Table 1: </span>Countries not participating in COVAX as of 15 Dec. 2020
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+iso_code
+</th>
+<th style="text-align:left;">
+location
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+BLR
+</td>
+<td style="text-align:left;">
+Belarus
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KAZ
+</td>
+<td style="text-align:left;">
+Kazakhstan
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LIE
+</td>
+<td style="text-align:left;">
+Liechtenstein
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RUS
+</td>
+<td style="text-align:left;">
+Russia
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SMR
+</td>
+<td style="text-align:left;">
+San Marino
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SYC
+</td>
+<td style="text-align:left;">
+Seychelles
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TWN
+</td>
+<td style="text-align:left;">
+Taiwan
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+USA
+</td>
+<td style="text-align:left;">
+United States
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VAT
+</td>
+<td style="text-align:left;">
+Vatican
+</td>
+</tr>
+</tbody>
+</table>
+<div id="countries-with-bilateral-agreements-for-vaccines" class="section level3">
+<h3>Countries with bilateral agreements for vaccines</h3>
+<p>According to the preliminary technical design for the COVAX allocation mechanism, the Facility will request that countries that have successfully concluded bilateral deals with manufacturers to cover a sizable share of their population (e.g. 20%) delay their receipt of COVAX distributed vaccines until other countries receive enough to cover their highest priority populations. While I do not have data on hand for all bilateral deals from all countries, the OWID data includes the total number of vaccinations already administered for each country in advance of COVAX distribution. These countries are indicated in the map above by their ISO abbreviation code. At present, 60 COVAX participant countries have already received vaccines from channels outside of the Facility. The number of total vaccinations already administered for these countries varies widely, as can be seen in the summary statistics below:</p>
+<pre class="r"><code>summary(dat_map$total_vaccinations)</code></pre>
+<pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA&#39;s 
+##       30    48912   298188  1463747   742852 31200000      128</code></pre>
+</div>
+</div>
+<div id="the-covax-allocation-mechanism" class="section level2">
+<h2>The COVAX allocation mechanism</h2>
+<p>The stated objective of the COVAX Facility is to ensure that enough vaccines are secured so that all participating countries can vaccinate their highest priority populations by the end of 2021, which they estimate to be 2 billion doses in total, of which 1.3 billion doses would go to the 92 lower-income AMC eligible countries.</p>
+<p>The most recent <a href="https://www.who.int/publications/m/item/fair-allocation-mechanism-for-covid-19-vaccines-through-the-covax-facility">draft of the allocation mechanism (Sep.2020)</a> presents the timing and considerations that will be used to distribute pooled vaccines to participating countries, which are nicely summarized in the figure below:</p>
+<center>
+<img src="/posts/2021-02-08-covax-overview_files/two_phase_allocation.png" width="600" />
+</center>
+<p>Given that supplies will be more limited early on, the allocation mechanism envisions a two phase rollout. In Phase 1, countries will receive vaccines proportional to their population, with doses meant to cover their most vulnerable people, globally estimated to be 20% of the population. Because there will not be enough vaccines early in the year to reach this threshold, the initial round of COVAX vaccine distribution will target 3% coverage of country populations, which is the estimate of the upper-bound share of frontline health-care workers. Additionally, COVAX will keep a percentage of vaccines in reserve as an emergency buffer, which currently is listed to be 10% of the stock.</p>
+<p>While the first phase of the distribution plan is proportional and countries are meant to receive doses at the same rate (to the extent possible), in Phase 2, additional vaccines will be distributed taking into consideration risk factors and needs specific to the countries. All of this, or course, is subject to supply, capacity, and various other constraints that are not detailed in these preliminary plans.</p>
+<div id="phase-1-thresholds" class="section level3">
+<h3>Phase 1 thresholds</h3>
+<center>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"55d8647377c":["function () ","plotlyVisDat"]},"cur_data":"55d8647377c","attrs":{"55d8647377c":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[72493438.67,144986877.34,217480316.01,289973754.68,362467193.35,434960632.02,507454070.69,579947509.36,652440948.03,724934386.7,797427825.37,869921264.04,942414702.71,1014908141.38,1087401580.05,1159895018.72,1232388457.39,1304881896.06,1377375334.73,1449868773.4],"name":"All","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"55d8647377c.1":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[47128260.9,94256521.8,141384782.7,188513043.6,235641304.5,282769565.4,329897826.3,377026087.2,424154348.1,471282609,518410869.9,565539130.8,612667391.7,659795652.6,706923913.5,754052174.4,801180435.3,848308696.2,895436957.1,942565218],"name":"All (no bilats)","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true},"55d8647377c.2":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[31555224.52,63110449.04,94665673.56,126220898.08,157776122.6,189331347.12,220886571.64,252441796.16,283997020.68,315552245.2,347107469.72,378662694.24,410217918.76,441773143.28,473328367.8,504883592.32,536438816.84,567994041.36,599549265.88,631104490.4],"name":"Committed only","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true},"55d8647377c.3":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[25100002.07,50200004.14,75300006.21,100400008.28,125500010.35,150600012.42,175700014.49,200800016.56,225900018.63,251000020.7,276100022.77,301200024.84,326300026.91,351400028.98,376500031.05,401600033.12,426700035.19,451800037.26,476900039.33,502000041.4],"name":"Committed (no bilats)","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true},"55d8647377c.4":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[39186958.54,78373917.08,117560875.62,156747834.16,195934792.7,235121751.24,274308709.78,313495668.32,352682626.86,391869585.4,431056543.94,470243502.48,509430461.02,548617419.56,587804378.1,626991336.64,666178295.18,705365253.72,744552212.26,783739170.8],"name":"AMC eligible only","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true},"55d8647377c.5":{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[21184868.16,42369736.32,63554604.48,84739472.64,105924340.8,127109208.96,148294077.12,169478945.28,190663813.44,211848681.6,233033549.76,254218417.92,275403286.08,296588154.24,317773022.4,338957890.56,360142758.72,381327626.88,402512495.04,423697363.2],"name":"AMC eligible only (no bilats","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"COVAX Phase 1 allocation needs, by % Population","xaxis":{"domain":[0,1],"automargin":true,"showgrid":false,"zeroline":false,"nticks":20,"showline":true,"title":"% Population","mirror":"all"},"yaxis":{"domain":[0,1],"automargin":true,"showgrid":true,"zeroline":false,"nticks":20,"showline":true,"title":"Total doses needed","mirror":"all"},"hovermode":"closest","showlegend":true},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[72493438.67,144986877.34,217480316.01,289973754.68,362467193.35,434960632.02,507454070.69,579947509.36,652440948.03,724934386.7,797427825.37,869921264.04,942414702.71,1014908141.38,1087401580.05,1159895018.72,1232388457.39,1304881896.06,1377375334.73,1449868773.4],"name":"All","type":"scatter","mode":"markers","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[47128260.9,94256521.8,141384782.7,188513043.6,235641304.5,282769565.4,329897826.3,377026087.2,424154348.1,471282609,518410869.9,565539130.8,612667391.7,659795652.6,706923913.5,754052174.4,801180435.3,848308696.2,895436957.1,942565218],"name":"All (no bilats)","type":"scatter","mode":"markers","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[31555224.52,63110449.04,94665673.56,126220898.08,157776122.6,189331347.12,220886571.64,252441796.16,283997020.68,315552245.2,347107469.72,378662694.24,410217918.76,441773143.28,473328367.8,504883592.32,536438816.84,567994041.36,599549265.88,631104490.4],"name":"Committed only","type":"scatter","mode":"markers","marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[25100002.07,50200004.14,75300006.21,100400008.28,125500010.35,150600012.42,175700014.49,200800016.56,225900018.63,251000020.7,276100022.77,301200024.84,326300026.91,351400028.98,376500031.05,401600033.12,426700035.19,451800037.26,476900039.33,502000041.4],"name":"Committed (no bilats)","type":"scatter","mode":"markers","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[39186958.54,78373917.08,117560875.62,156747834.16,195934792.7,235121751.24,274308709.78,313495668.32,352682626.86,391869585.4,431056543.94,470243502.48,509430461.02,548617419.56,587804378.1,626991336.64,666178295.18,705365253.72,744552212.26,783739170.8],"name":"AMC eligible only","type":"scatter","mode":"markers","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"line":{"color":"rgba(148,103,189,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[21184868.16,42369736.32,63554604.48,84739472.64,105924340.8,127109208.96,148294077.12,169478945.28,190663813.44,211848681.6,233033549.76,254218417.92,275403286.08,296588154.24,317773022.4,338957890.56,360142758.72,381327626.88,402512495.04,423697363.2],"name":"AMC eligible only (no bilats","type":"scatter","mode":"markers","marker":{"color":"rgba(140,86,75,1)","line":{"color":"rgba(140,86,75,1)"}},"error_y":{"color":"rgba(140,86,75,1)"},"error_x":{"color":"rgba(140,86,75,1)"},"line":{"color":"rgba(140,86,75,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</center>
+<p>In the plot above, I sum the populations of the current COVAX participant countries based on the UN’s <a href="https://population.un.org/wpp/">2019 Revision of World Population Prospects</a>, and show the coverage needs for the different thresholds, up to 20%. Assuming vaccine needs are estimated as single doses to match population numbers one-to-one, this very simple calculation for 20% coverage for all participants comes to 1.45 billion doses, and 784 million doses for just the 92 AMC countries–both far under GAVI’s estimates of 2 billion and 1.3 billion, respectively. It should be emphasized that my calculations do not include the “8 economies (who are not United Nations Member States)”, nor the emergency buffer, though given the size of the difference in these calculations, it seems unlikely that this would be the only reason for the discrepancies.</p>
+<p>Given that there will unlikely be enough supply to cover all participants, I also estimate the total dosage needs for different participation scenarios (e.g. only committed-countries receiving vaccines, only AMC-countries, countries with no other bilateral agreements, etc.). These alternate scenarios are meant to serve as a reference, as participants receiving allocations (especially early on), will likely be a mix of these different groups of countries and/or be included/not-included for reasons not mentioned here.</p>
+</div>
+</div>
+<div id="interim-distribution-plan" class="section level2">
+<h2>Interim distribution plan</h2>
+<p>Last Wednesday, the first <a href="https://www.gavi.org/news/media-room/covax-publishes-first-interim-distribution-forecast">interim distribution plan</a> was released, where we can see the initial allocations that are planned for COVAX countries for the first half of this year. As stated in this forecast:</p>
+<blockquote>
+<p>Total doses cover, on average, 3.3% of the total population of the 145 participants receiving doses from at least one manufacturer in the list detailed below. This is in line with the Facility target to reach at least 3% population coverage in all countries in the first half of the year, enough to protect the most vulnerable groups such as health care workers.</p>
+</blockquote>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-19">Table 2: </span>Feb.3 COVAX interim distribution forecast: Total doses (in millions)
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+AZ/SII
+</th>
+<th style="text-align:right;">
+AZ/SKBio
+</th>
+<th style="text-align:right;">
+Pfizer BioNTech
+</th>
+<th style="text-align:right;">
+Total doses to be allocated
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+227.664
+</td>
+<td style="text-align:right;">
+91.2
+</td>
+<td style="text-align:right;">
+1.20042
+</td>
+<td style="text-align:right;">
+320.0644
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>total_interim_doses &lt;- 320064400
+
+#From the total interim doses, I subtract the allocation for Non-UN Member states, and then divide by two to account for double dose regimen
+((total_interim_doses - 1303200)/2) / sum(dat_dist$population2019) *100</code></pre>
+<pre><code>## [1] 3.299806</code></pre>
+<p>I’ve extracted the <a href="https://github.com/anguyen1210/covax/blob/main/interim_distribution_forecast_20210203.csv">data from the interim forecast</a> and done my own count, which shows 140 countries listed, along with one entry for “Non-UN Member States”. Summing over the proposed country distributions, there are 320 million total doses scheduled in this forecast. When halving that total to account for double-dose requirements, we find that the population coverage comes to exactly 3.3% of the 140 countries listed in the data, more or less matching exactly the GAVI estimate.</p>
+<pre class="r"><code>dat_dist &lt;- dat_dist %&gt;% mutate(
+  doses_pct = (doses_interim/2)/population2019 * 100
+  )
+
+summary(dat_dist$doses_pct)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   2.238   2.520   3.854   5.867   3.954  33.229</code></pre>
+<p>With regards to average coverage across all countries for this interim distribution, the numbers show considerable variance in the coverage rate, as can be seen in the summary statistics above. Interestingly enough, we can see that while the minimum coverage provided by the allocated doses for any country is 2.2%, on average, the number is closer 5.9%, with some countries receiving doses up to 33.2% of their population.</p>
+The exact coverage figures are presented in the table below, and in the following section, I plot these results to have a more visual look at the distributions.
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:300px; ">
+<table>
+<caption>
+<span id="tab:unnamed-chunk-22">Table 3: </span>Feb.3 COVAX interim distribution forecast: dose coverage as % of population
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+iso_code
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+participant
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+AMC
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+population2019
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+doses_interim
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+doses_pct
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ALB
+</td>
+<td style="text-align:left;">
+Albania
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2877800
+</td>
+<td style="text-align:right;">
+141600
+</td>
+<td style="text-align:right;">
+2.460213
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AND
+</td>
+<td style="text-align:left;">
+Andorra
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+77265
+</td>
+<td style="text-align:right;">
+26400
+</td>
+<td style="text-align:right;">
+17.084061
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ATG
+</td>
+<td style="text-align:left;">
+Antigua and Barbuda
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+97928
+</td>
+<td style="text-align:right;">
+40800
+</td>
+<td style="text-align:right;">
+20.831631
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARG
+</td>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+45195777
+</td>
+<td style="text-align:right;">
+2275200
+</td>
+<td style="text-align:right;">
+2.517049
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARM
+</td>
+<td style="text-align:left;">
+Armenia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2963234
+</td>
+<td style="text-align:right;">
+146400
+</td>
+<td style="text-align:right;">
+2.470274
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AZE
+</td>
+<td style="text-align:left;">
+Azerbaijan
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10139175
+</td>
+<td style="text-align:right;">
+506400
+</td>
+<td style="text-align:right;">
+2.497245
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BHS
+</td>
+<td style="text-align:left;">
+Bahamas
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+393248
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+12.816340
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BHR
+</td>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1701583
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+2.961948
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BRB
+</td>
+<td style="text-align:left;">
+Barbados
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+287371
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+17.538304
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BLZ
+</td>
+<td style="text-align:left;">
+Belize
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+397621
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+12.675387
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BIH
+</td>
+<td style="text-align:left;">
+Bosnia and Herzegovina
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3280815
+</td>
+<td style="text-align:right;">
+177000
+</td>
+<td style="text-align:right;">
+2.697500
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BWA
+</td>
+<td style="text-align:left;">
+Botswana
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2351625
+</td>
+<td style="text-align:right;">
+117600
+</td>
+<td style="text-align:right;">
+2.500399
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BRA
+</td>
+<td style="text-align:left;">
+Brazil
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+212559409
+</td>
+<td style="text-align:right;">
+10672800
+</td>
+<td style="text-align:right;">
+2.510545
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BRN
+</td>
+<td style="text-align:left;">
+Brunei Darussalam
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+437483
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+11.520448
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CAN
+</td>
+<td style="text-align:left;">
+Canada
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+37742157
+</td>
+<td style="text-align:right;">
+1903200
+</td>
+<td style="text-align:right;">
+2.521319
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHL
+</td>
+<td style="text-align:left;">
+Chile
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19116209
+</td>
+<td style="text-align:right;">
+957600
+</td>
+<td style="text-align:right;">
+2.504681
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+COL
+</td>
+<td style="text-align:left;">
+Colombia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+50882884
+</td>
+<td style="text-align:right;">
+2670600
+</td>
+<td style="text-align:right;">
+2.624262
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CRI
+</td>
+<td style="text-align:left;">
+Costa Rica
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5094114
+</td>
+<td style="text-align:right;">
+254400
+</td>
+<td style="text-align:right;">
+2.496999
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DOM
+</td>
+<td style="text-align:left;">
+Dominican Republic
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10847904
+</td>
+<td style="text-align:right;">
+542400
+</td>
+<td style="text-align:right;">
+2.500022
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ECU
+</td>
+<td style="text-align:left;">
+Ecuador
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17643060
+</td>
+<td style="text-align:right;">
+885600
+</td>
+<td style="text-align:right;">
+2.509769
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GEO
+</td>
+<td style="text-align:left;">
+Georgia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3989175
+</td>
+<td style="text-align:right;">
+214050
+</td>
+<td style="text-align:right;">
+2.682886
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GTM
+</td>
+<td style="text-align:left;">
+Guatemala
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17915567
+</td>
+<td style="text-align:right;">
+847200
+</td>
+<td style="text-align:right;">
+2.364424
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IRN
+</td>
+<td style="text-align:left;">
+Iran, Islamic Rep. 
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+83992953
+</td>
+<td style="text-align:right;">
+4216800
+</td>
+<td style="text-align:right;">
+2.510211
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IRQ
+</td>
+<td style="text-align:left;">
+Iraq
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+40222503
+</td>
+<td style="text-align:right;">
+2018400
+</td>
+<td style="text-align:right;">
+2.509043
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+JAM
+</td>
+<td style="text-align:left;">
+Jamaica
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2961161
+</td>
+<td style="text-align:right;">
+146400
+</td>
+<td style="text-align:right;">
+2.472003
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+JOR
+</td>
+<td style="text-align:left;">
+Jordan
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10203140
+</td>
+<td style="text-align:right;">
+511200
+</td>
+<td style="text-align:right;">
+2.505111
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KOR
+</td>
+<td style="text-align:left;">
+Korea, Rep. 
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+51269183
+</td>
+<td style="text-align:right;">
+2713800
+</td>
+<td style="text-align:right;">
+2.646619
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBN
+</td>
+<td style="text-align:left;">
+Lebanon
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6825442
+</td>
+<td style="text-align:right;">
+340800
+</td>
+<td style="text-align:right;">
+2.496542
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBY
+</td>
+<td style="text-align:left;">
+Libya
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6871287
+</td>
+<td style="text-align:right;">
+343200
+</td>
+<td style="text-align:right;">
+2.497349
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MYS
+</td>
+<td style="text-align:left;">
+Malaysia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+32365998
+</td>
+<td style="text-align:right;">
+1624800
+</td>
+<td style="text-align:right;">
+2.510042
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MUS
+</td>
+<td style="text-align:left;">
+Mauritius
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1271767
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+3.962990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MEX
+</td>
+<td style="text-align:left;">
+Mexico
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+128932753
+</td>
+<td style="text-align:right;">
+6472800
+</td>
+<td style="text-align:right;">
+2.510146
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MCO
+</td>
+<td style="text-align:left;">
+Monaco
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+39244
+</td>
+<td style="text-align:right;">
+7200
+</td>
+<td style="text-align:right;">
+9.173377
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MNE
+</td>
+<td style="text-align:left;">
+Montenegro
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+628062
+</td>
+<td style="text-align:right;">
+84000
+</td>
+<td style="text-align:right;">
+6.687238
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NAM
+</td>
+<td style="text-align:left;">
+Namibia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2540916
+</td>
+<td style="text-align:right;">
+127200
+</td>
+<td style="text-align:right;">
+2.503034
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NRU
+</td>
+<td style="text-align:left;">
+Nauru
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10834
+</td>
+<td style="text-align:right;">
+7200
+</td>
+<td style="text-align:right;">
+33.228724
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NZL
+</td>
+<td style="text-align:left;">
+New Zealand
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4822233
+</td>
+<td style="text-align:right;">
+249600
+</td>
+<td style="text-align:right;">
+2.588013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MKD
+</td>
+<td style="text-align:left;">
+North Macedonia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2083380
+</td>
+<td style="text-align:right;">
+103200
+</td>
+<td style="text-align:right;">
+2.476745
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+OMN
+</td>
+<td style="text-align:left;">
+Oman
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5106622
+</td>
+<td style="text-align:right;">
+254400
+</td>
+<td style="text-align:right;">
+2.490883
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PAN
+</td>
+<td style="text-align:left;">
+Panama
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4314768
+</td>
+<td style="text-align:right;">
+216000
+</td>
+<td style="text-align:right;">
+2.503031
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PRY
+</td>
+<td style="text-align:left;">
+Paraguay
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7132530
+</td>
+<td style="text-align:right;">
+357600
+</td>
+<td style="text-align:right;">
+2.506824
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PER
+</td>
+<td style="text-align:left;">
+Peru
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+32971846
+</td>
+<td style="text-align:right;">
+1770600
+</td>
+<td style="text-align:right;">
+2.685018
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+QAT
+</td>
+<td style="text-align:left;">
+Qatar
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2881060
+</td>
+<td style="text-align:right;">
+144000
+</td>
+<td style="text-align:right;">
+2.499080
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SAU
+</td>
+<td style="text-align:left;">
+Saudi Arabia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+34813867
+</td>
+<td style="text-align:right;">
+1747200
+</td>
+<td style="text-align:right;">
+2.509345
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SRB
+</td>
+<td style="text-align:left;">
+Serbia
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6804596
+</td>
+<td style="text-align:right;">
+345600
+</td>
+<td style="text-align:right;">
+2.539460
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SGP
+</td>
+<td style="text-align:left;">
+Singapore
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5850343
+</td>
+<td style="text-align:right;">
+288000
+</td>
+<td style="text-align:right;">
+2.461394
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ZAF
+</td>
+<td style="text-align:left;">
+South Africa
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+59308690
+</td>
+<td style="text-align:right;">
+3093000
+</td>
+<td style="text-align:right;">
+2.607544
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KNA
+</td>
+<td style="text-align:left;">
+St. Kitts and Nevis
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+53192
+</td>
+<td style="text-align:right;">
+21600
+</td>
+<td style="text-align:right;">
+20.303805
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SUR
+</td>
+<td style="text-align:left;">
+Suriname
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+586634
+</td>
+<td style="text-align:right;">
+79200
+</td>
+<td style="text-align:right;">
+6.750376
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TTO
+</td>
+<td style="text-align:left;">
+Trinidad and Tobago
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1399491
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+3.601309
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+URY
+</td>
+<td style="text-align:left;">
+Uruguay
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3473727
+</td>
+<td style="text-align:right;">
+172800
+</td>
+<td style="text-align:right;">
+2.487242
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VEN
+</td>
+<td style="text-align:left;">
+Venezuela
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+28435943
+</td>
+<td style="text-align:right;">
+1425600
+</td>
+<td style="text-align:right;">
+2.506687
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AFG
+</td>
+<td style="text-align:left;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+38928341
+</td>
+<td style="text-align:right;">
+3024000
+</td>
+<td style="text-align:right;">
+3.884060
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DZA
+</td>
+<td style="text-align:left;">
+Algeria
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+43851043
+</td>
+<td style="text-align:right;">
+2200800
+</td>
+<td style="text-align:right;">
+2.509404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AGO
+</td>
+<td style="text-align:left;">
+Angola
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+32866268
+</td>
+<td style="text-align:right;">
+2544000
+</td>
+<td style="text-align:right;">
+3.870230
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BGD
+</td>
+<td style="text-align:left;">
+Bangladesh
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+164689383
+</td>
+<td style="text-align:right;">
+12792000
+</td>
+<td style="text-align:right;">
+3.883675
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BEN
+</td>
+<td style="text-align:left;">
+Benin
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12123198
+</td>
+<td style="text-align:right;">
+936000
+</td>
+<td style="text-align:right;">
+3.860368
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BTN
+</td>
+<td style="text-align:left;">
+Bhutan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+771612
+</td>
+<td style="text-align:right;">
+113850
+</td>
+<td style="text-align:right;">
+7.377413
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BOL
+</td>
+<td style="text-align:left;">
+Bolivia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11673029
+</td>
+<td style="text-align:right;">
+992430
+</td>
+<td style="text-align:right;">
+4.250953
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BFA
+</td>
+<td style="text-align:left;">
+Burkina Faso
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+20903278
+</td>
+<td style="text-align:right;">
+1620000
+</td>
+<td style="text-align:right;">
+3.874990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CPV
+</td>
+<td style="text-align:left;">
+Cabo Verde
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+555988
+</td>
+<td style="text-align:right;">
+113850
+</td>
+<td style="text-align:right;">
+10.238530
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KHM
+</td>
+<td style="text-align:left;">
+Cambodia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+16718971
+</td>
+<td style="text-align:right;">
+1296000
+</td>
+<td style="text-align:right;">
+3.875837
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CMR
+</td>
+<td style="text-align:left;">
+Cameroon
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+26545864
+</td>
+<td style="text-align:right;">
+2052000
+</td>
+<td style="text-align:right;">
+3.865009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CAF
+</td>
+<td style="text-align:left;">
+Central African Republic
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4829764
+</td>
+<td style="text-align:right;">
+372000
+</td>
+<td style="text-align:right;">
+3.851120
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TCD
+</td>
+<td style="text-align:left;">
+Chad
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+16425859
+</td>
+<td style="text-align:right;">
+1272000
+</td>
+<td style="text-align:right;">
+3.871944
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+COM
+</td>
+<td style="text-align:left;">
+Comoros
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+869595
+</td>
+<td style="text-align:right;">
+108000
+</td>
+<td style="text-align:right;">
+6.209787
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+COD
+</td>
+<td style="text-align:left;">
+Congo, Dem. Rep. 
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+89561404
+</td>
+<td style="text-align:right;">
+6948000
+</td>
+<td style="text-align:right;">
+3.878903
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+COG
+</td>
+<td style="text-align:left;">
+Congo, Rep. 
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5518092
+</td>
+<td style="text-align:right;">
+420000
+</td>
+<td style="text-align:right;">
+3.805663
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CIV
+</td>
+<td style="text-align:left;">
+Côte d’Ivoire
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+26378275
+</td>
+<td style="text-align:right;">
+2040000
+</td>
+<td style="text-align:right;">
+3.866818
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DJI
+</td>
+<td style="text-align:left;">
+Djibouti
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+988002
+</td>
+<td style="text-align:right;">
+108000
+</td>
+<td style="text-align:right;">
+5.465576
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DMA
+</td>
+<td style="text-align:left;">
+Dominica
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+71991
+</td>
+<td style="text-align:right;">
+28800
+</td>
+<td style="text-align:right;">
+20.002500
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EGY
+</td>
+<td style="text-align:left;">
+Egypt, Arab Rep. 
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+102334403
+</td>
+<td style="text-align:right;">
+5138400
+</td>
+<td style="text-align:right;">
+2.510593
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SLV
+</td>
+<td style="text-align:left;">
+El Salvador
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6486201
+</td>
+<td style="text-align:right;">
+375480
+</td>
+<td style="text-align:right;">
+2.894452
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SWZ
+</td>
+<td style="text-align:left;">
+Eswatini
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1160164
+</td>
+<td style="text-align:right;">
+108000
+</td>
+<td style="text-align:right;">
+4.654514
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ETH
+</td>
+<td style="text-align:left;">
+Ethiopia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+114963583
+</td>
+<td style="text-align:right;">
+8928000
+</td>
+<td style="text-align:right;">
+3.882969
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FJI
+</td>
+<td style="text-align:left;">
+Fiji
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+896444
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+5.622214
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GMB
+</td>
+<td style="text-align:left;">
+Gambia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2416664
+</td>
+<td style="text-align:right;">
+180000
+</td>
+<td style="text-align:right;">
+3.724142
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GHA
+</td>
+<td style="text-align:left;">
+Ghana
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+31072945
+</td>
+<td style="text-align:right;">
+2412000
+</td>
+<td style="text-align:right;">
+3.881190
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GRD
+</td>
+<td style="text-align:left;">
+Grenada
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+112519
+</td>
+<td style="text-align:right;">
+45600
+</td>
+<td style="text-align:right;">
+20.263244
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GNB
+</td>
+<td style="text-align:left;">
+Guinea-Bissau
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1967998
+</td>
+<td style="text-align:right;">
+144000
+</td>
+<td style="text-align:right;">
+3.658540
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GUY
+</td>
+<td style="text-align:left;">
+Guyana
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+786559
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+6.407657
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HTI
+</td>
+<td style="text-align:left;">
+Haiti
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11402533
+</td>
+<td style="text-align:right;">
+876000
+</td>
+<td style="text-align:right;">
+3.841252
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HND
+</td>
+<td style="text-align:left;">
+Honduras
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+9904608
+</td>
+<td style="text-align:right;">
+496800
+</td>
+<td style="text-align:right;">
+2.507924
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IND
+</td>
+<td style="text-align:left;">
+India
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1380004385
+</td>
+<td style="text-align:right;">
+97164000
+</td>
+<td style="text-align:right;">
+3.520424
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IDN
+</td>
+<td style="text-align:left;">
+Indonesia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+273523621
+</td>
+<td style="text-align:right;">
+13708800
+</td>
+<td style="text-align:right;">
+2.505963
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KEN
+</td>
+<td style="text-align:left;">
+Kenya
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+53771300
+</td>
+<td style="text-align:right;">
+4176000
+</td>
+<td style="text-align:right;">
+3.883112
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KIR
+</td>
+<td style="text-align:left;">
+Kiribati
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+119446
+</td>
+<td style="text-align:right;">
+48000
+</td>
+<td style="text-align:right;">
+20.092762
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PRK
+</td>
+<td style="text-align:left;">
+Korea, Dem. People’s Rep. 
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+25778815
+</td>
+<td style="text-align:right;">
+1992000
+</td>
+<td style="text-align:right;">
+3.863638
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+XKX
+</td>
+<td style="text-align:left;">
+Kosovo
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1810366
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+2.783967
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KGZ
+</td>
+<td style="text-align:left;">
+Kyrgyz Republic
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6524191
+</td>
+<td style="text-align:right;">
+504000
+</td>
+<td style="text-align:right;">
+3.862548
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LAO
+</td>
+<td style="text-align:left;">
+Lao PDR
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7275556
+</td>
+<td style="text-align:right;">
+564000
+</td>
+<td style="text-align:right;">
+3.875992
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LSO
+</td>
+<td style="text-align:left;">
+Lesotho
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2142252
+</td>
+<td style="text-align:right;">
+156000
+</td>
+<td style="text-align:right;">
+3.641028
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LBR
+</td>
+<td style="text-align:left;">
+Liberia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5057677
+</td>
+<td style="text-align:right;">
+384000
+</td>
+<td style="text-align:right;">
+3.796209
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MWI
+</td>
+<td style="text-align:left;">
+Malawi
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+19129955
+</td>
+<td style="text-align:right;">
+1476000
+</td>
+<td style="text-align:right;">
+3.857824
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDV
+</td>
+<td style="text-align:left;">
+Maldives
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+540542
+</td>
+<td style="text-align:right;">
+113850
+</td>
+<td style="text-align:right;">
+10.531097
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MLI
+</td>
+<td style="text-align:left;">
+Mali
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+20250834
+</td>
+<td style="text-align:right;">
+1572000
+</td>
+<td style="text-align:right;">
+3.881322
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MHL
+</td>
+<td style="text-align:left;">
+Marshall Islands
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+59194
+</td>
+<td style="text-align:right;">
+24000
+</td>
+<td style="text-align:right;">
+20.272325
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MRT
+</td>
+<td style="text-align:left;">
+Mauritania
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4649660
+</td>
+<td style="text-align:right;">
+360000
+</td>
+<td style="text-align:right;">
+3.871251
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FSM
+</td>
+<td style="text-align:left;">
+Micronesia, Fed. Sts.
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+115021
+</td>
+<td style="text-align:right;">
+48000
+</td>
+<td style="text-align:right;">
+20.865755
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDA
+</td>
+<td style="text-align:left;">
+Moldova
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4033963
+</td>
+<td style="text-align:right;">
+180570
+</td>
+<td style="text-align:right;">
+2.238122
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MNG
+</td>
+<td style="text-align:left;">
+Mongolia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3278292
+</td>
+<td style="text-align:right;">
+188940
+</td>
+<td style="text-align:right;">
+2.881683
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MAR
+</td>
+<td style="text-align:left;">
+Morocco
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+36910558
+</td>
+<td style="text-align:right;">
+1881600
+</td>
+<td style="text-align:right;">
+2.548864
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MOZ
+</td>
+<td style="text-align:left;">
+Mozambique
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+31255435
+</td>
+<td style="text-align:right;">
+2424000
+</td>
+<td style="text-align:right;">
+3.877726
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MMR
+</td>
+<td style="text-align:left;">
+Myanmar
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+54409794
+</td>
+<td style="text-align:right;">
+4224000
+</td>
+<td style="text-align:right;">
+3.881654
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NPL
+</td>
+<td style="text-align:left;">
+Nepal
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+29136808
+</td>
+<td style="text-align:right;">
+2256000
+</td>
+<td style="text-align:right;">
+3.871392
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NIC
+</td>
+<td style="text-align:left;">
+Nicaragua
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6624554
+</td>
+<td style="text-align:right;">
+504000
+</td>
+<td style="text-align:right;">
+3.804030
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NER
+</td>
+<td style="text-align:left;">
+Niger
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+24206636
+</td>
+<td style="text-align:right;">
+1872000
+</td>
+<td style="text-align:right;">
+3.866708
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NGA
+</td>
+<td style="text-align:left;">
+Nigeria
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+206139587
+</td>
+<td style="text-align:right;">
+16008000
+</td>
+<td style="text-align:right;">
+3.882806
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PAK
+</td>
+<td style="text-align:left;">
+Pakistan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+220892331
+</td>
+<td style="text-align:right;">
+17160000
+</td>
+<td style="text-align:right;">
+3.884245
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PNG
+</td>
+<td style="text-align:left;">
+Papua New Guinea
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8947027
+</td>
+<td style="text-align:right;">
+684000
+</td>
+<td style="text-align:right;">
+3.822499
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PHL
+</td>
+<td style="text-align:left;">
+Philippines
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+109581085
+</td>
+<td style="text-align:right;">
+5617800
+</td>
+<td style="text-align:right;">
+2.563307
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RWA
+</td>
+<td style="text-align:left;">
+Rwanda
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+12952209
+</td>
+<td style="text-align:right;">
+1098960
+</td>
+<td style="text-align:right;">
+4.242365
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WSM
+</td>
+<td style="text-align:left;">
+Samoa
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+198410
+</td>
+<td style="text-align:right;">
+79200
+</td>
+<td style="text-align:right;">
+19.958671
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+STP
+</td>
+<td style="text-align:left;">
+São Tomé and Principe
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+219161
+</td>
+<td style="text-align:right;">
+96000
+</td>
+<td style="text-align:right;">
+21.901707
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SEN
+</td>
+<td style="text-align:left;">
+Senegal
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+16743930
+</td>
+<td style="text-align:right;">
+1296000
+</td>
+<td style="text-align:right;">
+3.870059
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SLE
+</td>
+<td style="text-align:left;">
+Sierra Leone
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+7976985
+</td>
+<td style="text-align:right;">
+612000
+</td>
+<td style="text-align:right;">
+3.836036
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SLB
+</td>
+<td style="text-align:left;">
+Solomon Islands
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+686878
+</td>
+<td style="text-align:right;">
+108000
+</td>
+<td style="text-align:right;">
+7.861658
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SOM
+</td>
+<td style="text-align:left;">
+Somalia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+15893219
+</td>
+<td style="text-align:right;">
+1224000
+</td>
+<td style="text-align:right;">
+3.850699
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SSD
+</td>
+<td style="text-align:left;">
+South Sudan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11193729
+</td>
+<td style="text-align:right;">
+864000
+</td>
+<td style="text-align:right;">
+3.859304
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LKA
+</td>
+<td style="text-align:left;">
+Sri Lanka
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+21413250
+</td>
+<td style="text-align:right;">
+1692000
+</td>
+<td style="text-align:right;">
+3.950825
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LCA
+</td>
+<td style="text-align:left;">
+St. Lucia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+183629
+</td>
+<td style="text-align:right;">
+74400
+</td>
+<td style="text-align:right;">
+20.258238
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VCT
+</td>
+<td style="text-align:left;">
+St. Vincent and the Grenadines
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+110947
+</td>
+<td style="text-align:right;">
+45600
+</td>
+<td style="text-align:right;">
+20.550353
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SDN
+</td>
+<td style="text-align:left;">
+Sudan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+43849269
+</td>
+<td style="text-align:right;">
+3396000
+</td>
+<td style="text-align:right;">
+3.872356
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SYR
+</td>
+<td style="text-align:left;">
+Syrian Arab Republic
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+17500657
+</td>
+<td style="text-align:right;">
+1020000
+</td>
+<td style="text-align:right;">
+2.914176
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TJK
+</td>
+<td style="text-align:left;">
+Tajikistan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+9537642
+</td>
+<td style="text-align:right;">
+732000
+</td>
+<td style="text-align:right;">
+3.837426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GIN
+</td>
+<td style="text-align:left;">
+The Guinea
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+13132792
+</td>
+<td style="text-align:right;">
+1020000
+</td>
+<td style="text-align:right;">
+3.883409
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TLS
+</td>
+<td style="text-align:left;">
+Timor-Leste
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1318442
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+3.822694
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TGO
+</td>
+<td style="text-align:left;">
+Togo
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8278737
+</td>
+<td style="text-align:right;">
+636000
+</td>
+<td style="text-align:right;">
+3.841166
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TON
+</td>
+<td style="text-align:left;">
+Tonga
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+105697
+</td>
+<td style="text-align:right;">
+43200
+</td>
+<td style="text-align:right;">
+20.435774
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TUN
+</td>
+<td style="text-align:left;">
+Tunisia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11818618
+</td>
+<td style="text-align:right;">
+686400
+</td>
+<td style="text-align:right;">
+2.903893
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TUV
+</td>
+<td style="text-align:left;">
+Tuvalu
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11792
+</td>
+<td style="text-align:right;">
+4800
+</td>
+<td style="text-align:right;">
+20.352781
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UGA
+</td>
+<td style="text-align:left;">
+Uganda
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+45741000
+</td>
+<td style="text-align:right;">
+3552000
+</td>
+<td style="text-align:right;">
+3.882731
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UKR
+</td>
+<td style="text-align:left;">
+Ukraine
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+43733759
+</td>
+<td style="text-align:right;">
+2332200
+</td>
+<td style="text-align:right;">
+2.666361
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UZB
+</td>
+<td style="text-align:left;">
+Uzbekistan
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+33469199
+</td>
+<td style="text-align:right;">
+2640000
+</td>
+<td style="text-align:right;">
+3.943925
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VUT
+</td>
+<td style="text-align:left;">
+Vanuatu
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+307150
+</td>
+<td style="text-align:right;">
+100800
+</td>
+<td style="text-align:right;">
+16.408921
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VNM
+</td>
+<td style="text-align:left;">
+Vietnam
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+97338583
+</td>
+<td style="text-align:right;">
+4886400
+</td>
+<td style="text-align:right;">
+2.510002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PSE
+</td>
+<td style="text-align:left;">
+West Bank and Gaza
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5101416
+</td>
+<td style="text-align:right;">
+277440
+</td>
+<td style="text-align:right;">
+2.719245
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+YEM
+</td>
+<td style="text-align:left;">
+Yemen, Rep. 
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+29825968
+</td>
+<td style="text-align:right;">
+2316000
+</td>
+<td style="text-align:right;">
+3.882523
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ZMB
+</td>
+<td style="text-align:left;">
+Zambia
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+18383956
+</td>
+<td style="text-align:right;">
+1428000
+</td>
+<td style="text-align:right;">
+3.883821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ZWE
+</td>
+<td style="text-align:left;">
+Zimbabwe
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+14862927
+</td>
+<td style="text-align:right;">
+1152000
+</td>
+<td style="text-align:right;">
+3.875414
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interim-allocation-population-coverage" class="section level3">
+<h3>Interim allocation population coverage</h3>
+<p>We can see from the data that the coverage rate provided by the interim allocation forecast is not constant across all countries. In this section, I plot these coverage rates, grouped by region, to have a better understanding of the differences.</p>
+<p><img src="/posts/2021-02-08-covax-overview_files/figure-html/unnamed-chunk-23-1.png" width="864" /></p>
+<p>In the figure above, I plot the total deaths per million vs the share of the population covered by the interim allocation, broken up by region. The size of the points are scaled by the country’s population.</p>
+<p>It’s clear from looking at the plot that the majority of countries have allocations that cover 2-5% of their populations, and there does not seem to be any relationship between the severity of the mortality rates in-country with the size of the allocation they received. In terms of the countries receiving significantly larger relative shares of the vaccine, by filtering the data for all countries with coverage above 5%, we learn that all of these cases pertain to small countries with populations of less than one million.</p>
+<p><img src="/posts/2021-02-08-covax-overview_files/figure-html/unnamed-chunk-24-1.png" width="864" /></p>
+<p>After we drop all countries with populations of over one million people, we can see a very clear negative linear relationship between population size and vaccine coverage from the COVAX allocations, as illustrated in the plot above. As we can also see, this relationship holds across all regions. Most likely, there are practicalities related to shipping or other logistics that makes it impractical to send small countries vaccines 2-3% proportional to their size.</p>
+<p>In fact, when we look at just the countries in the interim allocation forecast with populations of over one million, we find that the mean coverage for all countries is 3.2%.</p>
+<pre class="r"><code>summary(dat_dist[dat_dist$population &gt; 1000000, ]$doses_pct)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+##   2.238   2.510   3.520   3.224   3.872   4.655       6</code></pre>
+</div>
+<div id="countries-with-no-interim-allocations" class="section level3">
+<h3>Countries with no interim allocations</h3>
+From the 188 countries we have on our current COVAX participants list, 48 countries (26%) were not allocated any vaccines in this initial allocation plan. According to the forecast document, these countries “either exercised their rights to opt-out, have not submitted vaccine requests, or have not yet been allocated doses.” The list of participating countries with no initial allocations can be viewed in the table below.
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:300px; ">
+<table>
+<caption>
+<span id="tab:unnamed-chunk-27">Table 4: </span>Feb.3 COVAX interim distribution forecast: countries with no initial allocation
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+iso_code
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+participant
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+WB_region
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+WB_income_group
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+AMC
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+population2019
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+doses_interim
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+GNQ
+</td>
+<td style="text-align:left;">
+Equatorial Guinea
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1402985
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GAB
+</td>
+<td style="text-align:left;">
+Gabon
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2225728
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BDI
+</td>
+<td style="text-align:left;">
+Burundi
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Low income
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+11890781
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ERI
+</td>
+<td style="text-align:left;">
+Eritrea
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Low income
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3546427
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MDG
+</td>
+<td style="text-align:left;">
+Madagascar
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Low income
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+27691019
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TZA
+</td>
+<td style="text-align:left;">
+Tanzania
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:left;">
+Low income
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+59734213
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ISR
+</td>
+<td style="text-align:left;">
+Israel
+</td>
+<td style="text-align:left;">
+Middle East &amp; North Africa
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8655541
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KWT
+</td>
+<td style="text-align:left;">
+Kuwait
+</td>
+<td style="text-align:left;">
+Middle East &amp; North Africa
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4270563
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MLT
+</td>
+<td style="text-align:left;">
+Malta
+</td>
+<td style="text-align:left;">
+Middle East &amp; North Africa
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+441539
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARE
+</td>
+<td style="text-align:left;">
+United Arab Emirates
+</td>
+<td style="text-align:left;">
+Middle East &amp; North Africa
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9890400
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CUB
+</td>
+<td style="text-align:left;">
+Cuba
+</td>
+<td style="text-align:left;">
+Latin America &amp; Caribbean
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11326616
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AUT
+</td>
+<td style="text-align:left;">
+Austria
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9006400
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BEL
+</td>
+<td style="text-align:left;">
+Belgium
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11589616
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BGR
+</td>
+<td style="text-align:left;">
+Bulgaria
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6948445
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HRV
+</td>
+<td style="text-align:left;">
+Croatia
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4105268
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CYP
+</td>
+<td style="text-align:left;">
+Cyprus
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+875899
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CZE
+</td>
+<td style="text-align:left;">
+Czech Republic
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10708982
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DNK
+</td>
+<td style="text-align:left;">
+Denmark
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5792203
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EST
+</td>
+<td style="text-align:left;">
+Estonia
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1326539
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FIN
+</td>
+<td style="text-align:left;">
+Finland
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5540718
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FRA
+</td>
+<td style="text-align:left;">
+France
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+65273512
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DEU
+</td>
+<td style="text-align:left;">
+Germany
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+83783945
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GRC
+</td>
+<td style="text-align:left;">
+Greece
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10423056
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HUN
+</td>
+<td style="text-align:left;">
+Hungary
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+9660350
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ISL
+</td>
+<td style="text-align:left;">
+Iceland
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+341250
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IRL
+</td>
+<td style="text-align:left;">
+Ireland
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+4937796
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ITA
+</td>
+<td style="text-align:left;">
+Italy
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+60461828
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LVA
+</td>
+<td style="text-align:left;">
+Latvia
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1886202
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LTU
+</td>
+<td style="text-align:left;">
+Lithuania
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2722291
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LUX
+</td>
+<td style="text-align:left;">
+Luxembourg
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+625976
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NLD
+</td>
+<td style="text-align:left;">
+Netherlands
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17134873
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NOR
+</td>
+<td style="text-align:left;">
+Norway
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5421242
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+POL
+</td>
+<td style="text-align:left;">
+Poland
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+37846605
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PRT
+</td>
+<td style="text-align:left;">
+Portugal
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10196707
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ROU
+</td>
+<td style="text-align:left;">
+Romania
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+19237682
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SVK
+</td>
+<td style="text-align:left;">
+Slovakia
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5459643
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SVN
+</td>
+<td style="text-align:left;">
+Slovenia
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2078932
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ESP
+</td>
+<td style="text-align:left;">
+Spain
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+46754783
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SWE
+</td>
+<td style="text-align:left;">
+Sweden
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+10099270
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHE
+</td>
+<td style="text-align:left;">
+Switzerland
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8654618
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TUR
+</td>
+<td style="text-align:left;">
+Turkey
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+84339067
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TKM
+</td>
+<td style="text-align:left;">
+Turkmenistan
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6031187
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GBR
+</td>
+<td style="text-align:left;">
+United Kingdom
+</td>
+<td style="text-align:left;">
+Europe &amp; Central Asia
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+67886004
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AUS
+</td>
+<td style="text-align:left;">
+Australia
+</td>
+<td style="text-align:left;">
+East Asia &amp; Pacific
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+25499881
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CHN
+</td>
+<td style="text-align:left;">
+China
+</td>
+<td style="text-align:left;">
+East Asia &amp; Pacific
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1439323774
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+JPN
+</td>
+<td style="text-align:left;">
+Japan
+</td>
+<td style="text-align:left;">
+East Asia &amp; Pacific
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+126476458
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLW
+</td>
+<td style="text-align:left;">
+Palau
+</td>
+<td style="text-align:left;">
+East Asia &amp; Pacific
+</td>
+<td style="text-align:left;">
+High income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+18092
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+THA
+</td>
+<td style="text-align:left;">
+Thailand
+</td>
+<td style="text-align:left;">
+East Asia &amp; Pacific
+</td>
+<td style="text-align:left;">
+Upper-middle income
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+69799978
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The “Team Europe” EU27+ group is on this list, along with most other high-income and upper-middle income countries. There are only 4 low-income/AMC-eligible countries in this list–Burundi, Eritrea, Madagascar and Tanzania–and one would imagine their allocations are pending.</p>
+<p>In addition, 36 of the 60 countries (60%) who have already begun COVID vaccinations in advance of COVAX distribution are included in this list of those who have opted out or are otherwise not receiving initial COVAX allocations.</p>
+<p>Among the other countries who already have bilateral with vaccine manufacturers, it is interesting to see that New Zealand, Chile and Canada have chosen not to withdraw their names from this initial round of distribution despite having already secured enough doses outside of the COVAX platform to vaccinate their populations 2 to 5 times over (see EIU report figure above).</p>
+<p>While COVAX was able to meet its 3% coverage target with this initial allocation plan, this was also done with 26% of COVAX participants not receiving their allocations in this round. Referencing the COVAX Phase 1 allocation needs calculations from above, current supplies put the Facility on the orange dotted line (“All (no bilats)”), far under the total dosages needed to cover all participating countries. It remains to be seen whether enough vaccines will be secured over the remainder of the year to move back to the blue line, where enough supply is on hand to distribute to all participants.</p>
+</div>
+</div>
