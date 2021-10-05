@@ -18,7 +18,7 @@ The data in the app is time-stamped and updated automatically along with the JSU
 
 A separate tab in the app allows for the generation of bar charts of daily case and death totals for the same selection of countries, including a 5-day moving average trend line.
   
-**UPDATE (5 Oct. 2021)**: I created this app so that I could quickly visualize and compare data for the countries that I was personally most interested in during the early days of the pandemic, before the subsequent explosion of dashboards and apps appeared online relating to all things COVID-19. I haven't had time to work on this in over a year, and others have created far better versions, so I've decided to archive the project. For reference, the [code for this app remains available on my Github](https://github.com/anguyen1210/covid19-tracker). 
+>**UPDATE (5 Oct. 2021)**: I created this app so that I could quickly visualize and compare data for the countries that I was personally most interested in during the early days of the pandemic, before the subsequent explosion of dashboards and apps appeared online relating to all things COVID-19. I haven't had time to work on this in over a year, and others have created far better versions, so I've decided to archive the project. For reference, the [code for this app remains available on my Github](https://github.com/anguyen1210/covid19-tracker). 
 
 ![](/portfolio/covid19-tracker_files/mentalBreaks_covid-19-tracker_daily.png)
   
