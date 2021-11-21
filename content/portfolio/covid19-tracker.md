@@ -8,7 +8,7 @@ layout: 'portfolio'
 featured: 'false'
 ---
 
-This COVID-19 Tracker Shiny app allows easy comparison of cumulative outcomes and growth rates of the COVID-19 coronavius between countries using the data provided by the [Johns Hopkins University Coronavirus Resource Center](https://coronavirus.jhu.edu/).      
+This [COVID-19 Tracker Shiny app]() allows easy comparison of cumulative outcomes and growth rates of the COVID-19 coronavius between countries using the data provided by the [Johns Hopkins University Coronavirus Resource Center](https://coronavirus.jhu.edu/).      
   
 Users can select any of the country/region units available in the entire JHU GSSE dataset, standardize them on the x-axis using "Days since *N*", and automatically generate clean level- and log- plots with dynamically rendered titles and axis labels. 
 

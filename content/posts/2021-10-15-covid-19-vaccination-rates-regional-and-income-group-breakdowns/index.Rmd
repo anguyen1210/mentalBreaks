@@ -1,0 +1,226 @@
+---
+title: 'COVID-19 vaccination rates: Regional and income group breakdowns'
+author: Anthony Nguyen
+date: '2021-10-15'
+slug: []
+categories: []
+tags:
+  - COVID19
+  - covid-19
+  - owid
+  - wdi
+  - vaccination
+  - data-viz
+lastmod: '2021-10-15T01:13:13+02:00'
+layout: post
+type: post
+highlight: tango
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(fig.align="center", warning=FALSE, message=FALSE)
+```  
+
+```{r include=FALSE}
+library(tidyverse)
+
+```
+
+In this blog post, I examine global disparities in COVID-19 vaccination rates using
+the Our World in Data (OWID) COVID-19 dataset and the `WDI` package available on CRAN.
+
+
+## Background 
+
+As of September 2021, over 6 billion COVID-19 vaccines have been administered globally. The development of COVID-19 vaccines has occurred at an unprecedented pace, but numerous obstacles still pose barriers to access to vaccines for all who need them, and data seems to confirm that there are drastic differences between countries in the proportion of their populations that have been vaccinated to date.
+
+
+
+
+## Data
+
+Since 1 January 2020, Our World in Data (OWID) has collected data on a range of COVID-19 related indicators--cases, deaths, hospitalizations, testing, vaccinations, etc. The [OWID COVID-19 dataset](https://github.com/owid/covid-19-data/tree/master/public/data) currently includes 66 variables, covers 233 countries and regions and is very well-documented
+
+While the OWID data does include the variables "continent" and "gdp_per_capita", for this analysis, 
+I will use the regional and income group classifications set by the World Bank, which are not included in the OWID data. Fortunately, Vincent Arel-Bundock's excellent [`WDI` package](https://cran.r-project.org/web/packages/WDI/index.html) can help simplify retrieving and working with this data directly from your R-console.
+
+### OWID COVID-19 data
+
+While the OWID vaccination data is currently available as a smaller subset for download, if memory is not a major issue, it's easy enough to read the full OWID dataset directly into R from Github with the following command:
+
+```{r read OWID data, echo=TRUE, eval=FALSE}
+owid <- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+```
+
+For the purposes of this analysis, there are two important notes to bear in mind when working with this data: (1) while this dataset is updated on a daily basis, not all countries and variables are updated at the same frequency and (2) the "iso_code" variable is based on the ISO3c standard, but includes a few custom codes beginning with the prefix "OWID_" to handles regions and special cases.  
+  
+### World Bank World Development Indicators  
+  
+>The WDI package allows users to search and download data from over 40 datasets hosted by the World Bank, including the World Development Indicators ('WDI'), International Debt Statistics, Doing Business, Human Capital Index, and Sub-national Poverty indicators. 
+
+The WDI database is vast, and the package pulls from all of it. I find it easier to browse through [all of the different WDI variables](https://data.worldbank.org/indicator?tab=all) on the World Bank (WB) site to get an idea of what I need, and then use the search functions in the package to get the exact indicator name to pull afterwards. For this analysis, I am only only looking for data on country GNI per capita, their region and income group. In fact, the region and income group information is not listed as separate indicators but, rather, can be returned as additional columns to any `WDI()` call by setting the argument `extra=TRUE`.    
+  
+Like the OWID data, it should also be noted that not all countries and variables are updated at the same frequency, but quite usefully, the `latest` argument can be used to pull a specified number of the most recent non-NA values in each `WDI()` call. Similarly, the WDI data also reports data for countries as well as regional groupings, but these regional groupings can be easily filtered out by dropping observations labelled as "Aggregates" in the "income" column.
+   
+```{r read WDI data, echo=TRUE, eval=FALSE}
+library(WDI)
+
+wb <- WDI(
+  country = "all", 
+  indicator = "NY.GNP.PCAP.CD",
+  extra = TRUE, 
+  latest = 1
+  )
+```
+
+### Final data frame
+```{r , echo=FALSE, eval=FALSE}
+
+# tidy WB data
+wb <- wb %>% 
+  filter(income!="Aggregates") 
+# %>% 
+#   filter(income != "High income")
+
+wb <- wb %>% 
+  select(
+    iso_code = iso3c, 
+    region,
+    income,
+    gni_per_capita = NY.GNP.PCAP.CD
+)
+
+wb_pax <- unique(wb$iso_code)
+```
+
+```{r echo=FALSE, eval=FALSE}
+# tidy OWID data
+
+# select only the variables needed 
+owid_final <- owid %>% 
+  #filter(date >= "2021-09-01") %>% 
+  filter(!is.na(people_vaccinated_per_hundred)) %>% 
+  select(
+    iso_code,
+    population, 
+    location,
+    date,
+    people_vaccinated_per_hundred
+    # people_vaccinated_per_hundred,
+    # people_fully_vaccinated_per_hundred
+  )
+
+owid_final <- owid_final %>% 
+    group_by(iso_code) %>% 
+    arrange(desc(date)) %>%
+    slice(1) %>% 
+    ungroup()
+
+owid_final$iso_code[owid_final$location=="Kosovo"] <- "XKX"
+
+owid_final <- owid_final %>% 
+  filter(iso_code %in% wb_pax)
+
+owid_final <- left_join(owid_final, wb, by="iso_code")
+
+owid_final <- owid_final %>% select(iso_code, location, population, region, income, gni_per_capita, people_vaccinated_per_hundred)
+```
+  
+After we finishing tidying and merging the data, our final data frame looks like this:
+```{r echo=FALSE}
+glimpse(owid_final)
+```
+
+While extensive, the OWID dataset does have some blind spots. The following countries, for example, do not have data for their "total vaccinations per hundred" in OWID:
+```{r echo=FALSE}
+#Show countries from WB data that are missing in the OWID data
+wb %>% filter(!(iso_code %in% unique(owid_final$iso_code))) 
+```
+  
+## Global vaccination rates
+
+```{r}
+plot1 <- 
+  owid_final %>% 
+  ggplot(aes(
+    x=gni_per_capita, 
+    #x=fct_rev(fct_reorder(location, people_fully_vaccinated_per_hundred)), 
+    y=people_vaccinated_per_hundred,
+    size=population,
+    color=income
+    ) #fill = WB_region
+  ) + 
+  geom_point() +
+  #geom_col(fill = "#E91F50", width=0.6) + #COVAX hot pink
+  #geom_col(fill = "#082F3B") + #COVAX midnight blue
+  #geom_hline(yintercept = median_amc, linetype="dashed", alpha=0.5) +
+  theme_minimal() +
+  scale_y_continuous(n.breaks=6)+
+  theme(
+    panel.grid.major.x = element_blank(),
+    axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    #fill = "",
+    title = "Vaccination rate",
+    subtitle = paste0("N = ", n_distinct(owid_final$iso_code, " countries")
+    # caption = stringr::str_wrap(
+    #   paste0("Note: The dashed line represents the median overall
+    #          coverage across all participants of ", median_amc,"%.",
+    #          "Source: Our World in Data, September 2021"),
+    #   width=70, exdent=2
+      # paste0("Note: Participants listed from left to right in descending order of
+      # population size. The dashed line represents the median overall
+      #        coverage across all participants of ", median_amc,"%."),
+      # width=89, exdent=2
+    )
+  ) +
+  ylab("Percentage of population with at least one dose (%)") +
+  xlab("GNI per capita") 
+
+plot1
+```
+  
+```{r}
+plot2 <- 
+  owid_final %>% 
+  ggplot(aes(
+    x=income, 
+    #x=fct_rev(fct_reorder(location, people_fully_vaccinated_per_hundred)), 
+    y=people_vaccinated_per_hundred,
+    fill = income
+    ) #fill = WB_region
+  ) + 
+  geom_boxplot() +
+  #geom_col(fill = "#E91F50", width=0.6) + #COVAX hot pink
+  #geom_col(fill = "#082F3B") + #COVAX midnight blue
+  #geom_hline(yintercept = median_amc, linetype="dashed", alpha=0.5) +
+  theme_minimal() +
+  scale_y_continuous(n.breaks=6)+
+  theme(
+    panel.grid.major.x = element_blank(),
+    axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    fill = "",
+    title = "Vaccination rate",
+    subtitle = paste0("N = ", n_distinct(owid_final$iso_code, " countries")
+    # caption = stringr::str_wrap(
+    #   paste0("Note: The dashed line represents the median overall
+    #          coverage across all participants of ", median_amc,"%.",
+    #          "Source: Our World in Data, September 2021"),
+    #   width=70, exdent=2
+      # paste0("Note: Participants listed from left to right in descending order of
+      # population size. The dashed line represents the median overall
+      #        coverage across all participants of ", median_amc,"%."),
+      # width=89, exdent=2
+    )
+  ) +
+  ylab("Percentage of population with at least one dose (%)") +
+  xlab("") 
+
+plot2
+```
+
