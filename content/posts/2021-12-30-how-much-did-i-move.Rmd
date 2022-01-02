@@ -32,7 +32,7 @@ The mobile app and online platform offer some basic aggregate statistics, but mo
 After you've requested and downloaded your data, you should receive a .ZIP file that looks like this:
 ![](/posts/2021-12-30-how-much-did-i-move_files/export_filestructure.png)
 
-In this post, I'll just be looking at the "activities.csv" file, which contains a complete record of all your activities, along with the main variables of interest.
+In this post, I'll just be looking at the "activities.csv" file, which contains a complete record of all activities recorded in the app, along with the main variables of interest.
 
 ## A few data cleaning tips
 
@@ -163,13 +163,13 @@ Finally, I have a look at the total count of my rides and runs per year. Here, I
 
 While 2016 was a close second to my 2021 in terms of total running miles, last year I went for nearly twice as many runs, though, on average, they were shorter in length.  
   
-The other surprise I see from this chart is that in 2020, I went out for nearly the same number of rides--or greater--than in my peak cycling years. Clearly my efforts were much less than before, but I find this somewhat encouraging that I might be able to claw back some of my cycling form from years past.
+The other surprise I see from this chart is that in 2020, I went out for nearly the same number of rides--or greater--than in my peak cycling years. Clearly my efforts were much less than before, but I find this somewhat encouraging and keeps my hope alive that I might be able to reclaim some of my cycling form from years past.
 
 All in all, given all of the various constraints I have on my time these days to train, I'm pleased with my 2021 and am starting to get a picture of how I want to tackle 2022.
   
 ## Just the cycling
 
-To complete this picture, I want to focus just a bit only my cycling habits to see how my efforts have evolved over time as well.  
+To complete this picture, I want to focus just a bit exclusively on my cycling habits to see how my efforts have evolved over time as well.  
 
 First, I plot all bike rides by year to see where I'm landing on distances and climbing:
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
@@ -195,7 +195,7 @@ dat %>%
   coord_flip()
 ```
 
-While a boxplot might offer a more informative summary, I really wanted to see all of the data points, which can be captured in this jitter chart.  The outlier points in years 2014-2017 are mostly linked to organized rides I used to do (grand fondos/cyclosportives). What stands out more to me, however, is that post-2018 I don't have any rides in the 80-100km range. Locally, these would be the loops from Geneva to Vallée Verte/Valle Riise, or Geneva to Lac de Joux, for example.  Great rides that I used to do more frequently, that I haven't re-visited in several years now.  
+While a boxplot might offer a more informative summary, I really wanted to see all of the actual data points, which can be captured in this jitter chart.  The outlier points in years 2014-2017 are mostly linked to organized rides I used to do (cyclosportives/gran fondos). What stands out more to me, however, is that post-2018 I don't have any rides in the 80-100km range. Locally, these would be the loops from Geneva to Vallée Verte/Valle Riise, or Geneva to Lac de Joux, for example.  Great rides that I used to do more frequently, that I haven't re-visited in several years now.  
       
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 dat %>% 
@@ -224,9 +224,9 @@ Here, I replicate the same chart, but plotting the meters climbed.  I'm slightly
   
 ## Time spent per activity
 
-Looking at the data, and thinking about it some more, I suspect the main factor driving the changes in my Strava habits over the years is the time I spend per activity. I've been able to increase my running frequency because it's easy to squeeze in runs when you have limited time free, whereas, there is no real substitute for biking to further destinations and going over different climbs, which in the end, require more time as a minimum.
+Looking at the data, and thinking about it some more, I suspect the main factor driving the changes in my Strava habits over the years is the time I spend per activity. I've been able to increase my running frequency because it's easy to squeeze in runs when you have limited free time, whereas, there is no real substitute for biking to further destinations and going over different climbs, which in the end, require more time as a minimum.
 
-I can see this concretly, when I plot the average time I spend per activity, as below:
+I can see this, concretly, when I plot the average time I spend per activity, as below:
 ```{r }
 dat %>% 
   filter(activity_type!="Walk") %>% 
