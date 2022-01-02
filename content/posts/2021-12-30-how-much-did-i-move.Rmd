@@ -1,0 +1,266 @@
+---
+title: How much did I move? (i.e. Looking at my Strava stats over the years)
+author: Anthony Nguyen
+date: '2021-12-31'
+slug: []
+categories:
+tags:
+  - strava
+lastmod: '2021-12-30T16:02:03+01:00'
+layout: post
+type: post
+highlight: tango
+---
+
+```{r setup environment, include = FALSE}
+knitr::opts_chunk$set(fig.align="center", warning=FALSE, message=FALSE)
+
+library(tidyverse)
+library(lubridate)
+library(ggridges)
+```
+
+My two favorite apps that I use the most frequently are Meteo Suisse and Strava. But really, it's my use of Strava that makes me obsessive about checking the weather in the first place. To mark the end of 2021, I mine my own Strava data to get some additional statistics not currently available in the app and make a few different visualizations that allow me to compare my cycling and running habits over the years.  
+
+## Get the data
+
+In case you aren't familiar with Strava, in a nutshell, it's a social media platform that  
+allows you to log your outdoor activities and then share them with other users. They made their mark with the cycling community, but the app is also popular with runners, and I've seen it used for hiking, skiing, swimming and for indoor training of various types. I'm not gonna go into any more detail on the app itself; I'll just highlight that one its most addictive features is the detailed data it collects on your rides or runs, and the ease in which it presents all sorts of stats that you can use to benchmark your performance against yourself and others, which in turn creates more incentives for you to keep going out and logging additional miles. 
+
+The mobile app and online platform offer some basic aggregate statistics, but more detailed comparisons over time are lacking. Fortunately, you can [download all of your own Strava data](https://support.strava.com/hc/en-us/articles/216918437-Exporting-your-Data-and-Bulk-Export) as a bulk export, which allows you to analyze your own data to your heart's content.   
+  
+After you've requested and downloaded your data, you should receive a .ZIP file that looks like this:
+![](/posts/2021-12-30-how-much-did-i-move_files/export_filestructure.png)
+
+In this post, I'll just be looking at the "activities.csv" file, which contains a complete record of all your activities, along with the main variables of interest.
+
+## A few data cleaning tips
+
+When importing your data into `R` and preparing it for analysis, here are a couple of things to take note of: 
+  
+* Some of the columns in the CSV file have the same name so `readR` will assign them different numeric identifiers.    
+* Pay attention to the units--one distance column is in kilometers, another will be in meters, for example.   
+* The "Activity Date" field is a character, but this can be handled easily with `lubridate`.   
+* The "Elapsed Time" and "Moving Time" fields are stored as seconds.  Again, this can be handled with `lubridate` if you want to convert these values to hours, mins, etc.  
+  
+```{r read in data, message=FALSE, warning=FALSE, echo=TRUE}
+#Read in Activities data as-is
+activities <- readr::read_csv("D:/strava/export_2021-12-30/activities.csv")
+
+# select cols for analysis
+dat <- activities %>% select(
+  activity_datetime = `Activity Date`,
+  activity_type = `Activity Type`,
+  distance = `Distance...7`,
+  elapsed_time = `Elapsed Time...15`,
+  moving_time = `Moving Time`,
+  max_speed = `Max Speed`,
+  avg_speed = `Average Speed`,
+  elevation_gain = `Elevation Gain`,
+  max_elevation = `Elevation High`,
+  max_grade = `Max Grade`,
+  avg_grade = `Average Grade`,
+  max_watts = `Max Watts`,
+  avg_watts = `Average Watts`
+  )
+
+# parse date cols using `lubridate` functions
+dat <- dat %>% 
+  mutate(
+    activity_datetime = mdy_hms(activity_datetime),
+    date = date(activity_datetime),
+    year = year(activity_datetime),
+    month = month(activity_datetime)
+  )
+```
+
+## Yearly totals
+
+At the end of each year, the Strava mobile app prepares a short year-in-review video with your top-line stats, and the online platform allows you to flip back and forth between years to see some basic aggregated numbers, but both none of available tools allows you to compare all of your annual stats simultaneously, nor go for you to drill down on specific indicators, activity types, etc. As a start, I'm usually most interested to see how my years stack up against one another, which we can see clearly with some simple bar charts.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dat %>% 
+  filter(activity_type!="Walk") %>% 
+  group_by(activity_type, year) %>% 
+  summarise(
+    tot_activities = n(),
+    tot_distance = sum(distance),
+    tot_elevation = sum(elevation_gain),
+    tot_time = sum(elapsed_time)
+  ) %>% 
+  ggplot(aes(x=as.factor(year), y=tot_distance, fill=activity_type)) + 
+  theme_minimal()+
+  geom_col(width=0.6) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Total distance by year",
+    fill = ""
+  ) + 
+  ylab("Kilometers (Km)") +
+  xlab("") 
+```
+     
+I start with the question of what was my biggest year.  Looking at this, the pattern more or less fits what I had in my head.  While I started cycling before Strava, after getting the app in 2014, I know that my miles were increasing steadily, until I got crazy busy in 2018, to which I'm only starting to claw back some more time for sport in the last year or two. Looking at this chart, however, I was surprised at how little I actually ran in 2020, and I was a little surprised that my total mileage in 2021 wasn't greater. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+dat %>% 
+  filter(activity_type!="Walk") %>% 
+  group_by(activity_type, year) %>% 
+  summarise(
+    tot_distance = sum(distance, na.rm = T),
+    tot_elevation = sum(elevation_gain, na.rm = T),
+    tot_time = sum(elapsed_time, na.rm = T)
+  ) %>% 
+  ggplot(aes(x=as.factor(year), y=tot_time/60/60, fill=activity_type)) + 
+  theme_minimal() +
+  geom_col(width=0.6) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Total elapsed time by year",
+    fill = ""
+  ) + 
+  ylab("Hours") +
+  xlab("") 
+```
+  
+When I look at the total time I spent outside cycling and running, my picture of 2021 changes somewhat--while the total mileage wasn't as high as I thought it might be (though my running miles was the biggest so far), the total time I spent on logging miles on the app was 50% greater than the year before. The greater amount of time I spent running isn't necessarily reflected in the total distance stats, but you can see this clearly in the total hours figures. This is pretty remarkable for me, considering I had some major ankle injuries a few years ago and thought I might have to give up running completely as of two years ago.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+dat %>% 
+  filter(activity_type!="Walk") %>% 
+  group_by(activity_type, year) %>% 
+  summarise(
+    N_activities=n(),
+    N_days = n_distinct(date),
+    tot_distance = sum(distance, na.rm = T),
+    tot_elevation = sum(elevation_gain, na.rm = T),
+    tot_time = sum(elapsed_time, na.rm = T)
+  ) %>% 
+  ggplot(aes(x=as.factor(year), y=N_activities, fill=activity_type)) + 
+  theme_minimal() +
+  geom_col(width=0.6) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Total number of activities by year",
+    fill = ""
+  ) + 
+  ylab("Count") +
+  xlab("") 
+```
+  
+Finally, I have a look at the total count of my rides and runs per year. Here, I'm very surprised by the results. Just by the number of times I got out of the house, 2021 was the biggest year of all! 
+
+While 2016 was a close second to my 2021 in terms of total running miles, last year I went for nearly twice as many runs, though, on average, they were shorter in length.  
+  
+The other surprise I see from this chart is that in 2020, I went out for nearly the same number of rides--or greater--than in my peak cycling years. Clearly my efforts were much less than before, but I find this somewhat encouraging that I might be able to claw back some of my cycling form from years past.
+
+All in all, given all of the various constraints I have on my time these days to train, I'm pleased with my 2021 and am starting to get a picture of how I want to tackle 2022.
+  
+## Just the cycling
+
+To complete this picture, I want to focus just a bit only my cycling habits to see how my efforts have evolved over time as well.  
+
+First, I plot all bike rides by year to see where I'm landing on distances and climbing:
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dat %>% 
+  filter(activity_type=="Ride") %>% 
+  group_by(year) %>% 
+  ggplot(aes(x=distance, y=as.factor(year),group=year)) + 
+  theme_minimal() +
+  #geom_boxplot() +
+  geom_jitter(aes(color=as.factor(year)), width=0.25, alpha=0.6) +
+  #geom_boxplot(alpha=0.1, color="grey50")+
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Cycling distance: all rides, by year",
+    color = ""
+  ) +
+  xlab("Kilometers (Km)") + 
+  ylab("") +
+  coord_flip()
+```
+
+While a boxplot might offer a more informative summary, I really wanted to see all of the data points, which can be captured in this jitter chart.  The outlier points in years 2014-2017 are mostly linked to organized rides I used to do (grand fondos/cyclosportives). What stands out more to me, however, is that post-2018 I don't have any rides in the 80-100km range. Locally, these would be the loops from Geneva to Vallée Verte/Valle Riise, or Geneva to Lac de Joux, for example.  Great rides that I used to do more frequently, that I haven't re-visited in several years now.  
+      
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+dat %>% 
+  filter(activity_type=="Ride") %>% 
+  group_by(year) %>% 
+  ggplot(aes(x=elevation_gain, y=as.factor(year),group=year)) + 
+  theme_minimal() +
+  geom_jitter(aes(color=as.factor(year)), width=0.25, alpha=0.6) +
+  #geom_boxplot(alpha=0.1, color="grey50")+
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Cycling elevation gained: all rides, by year",
+    color = ""
+  ) +
+  xlab("Meters") + 
+  ylab("") +
+  coord_flip()
+
+```
+  
+Here, I replicate the same chart, but plotting the meters climbed.  I'm slightly more encouraged by this one. Again, the outlier points are typically tied to big organized rides over multiple cols, but on the local level, I'm still getting in 1000+ M climbing rides in with some regularity.  What's missing here to me are the 2000+ climbing days, which locally, means going for multiple cols per ride, which I've been less inclined to try as I've been trying to keep my rides shorter the past couple years.  
+  
+## Time spent per activity
+
+Looking at the data, and thinking about it some more, I suspect the main factor driving the changes in my Strava habits over the years is the time I spend per activity. I've been able to increase my running frequency because it's easy to squeeze in runs when you have limited time free, whereas, there is no real substitute for biking to further destinations and going over different climbs, which in the end, require more time as a minimum.
+
+I can see this concretly, when I plot the average time I spend per activity, as below:
+```{r }
+dat %>% 
+  filter(activity_type!="Walk") %>% 
+  group_by(year, activity_type) %>% 
+  summarise(
+    avg_duration = mean(elapsed_time, na.rm=TRUE)/60/60
+  ) %>% 
+  ggplot(aes(x=as.factor(year), y=avg_duration, group = activity_type, color=activity_type)) +
+  theme_minimal() +
+  geom_point() +
+  geom_line()+
+  theme(
+    panel.grid.major.x = element_blank(),
+    #axis.text.x = element_text(size=8, angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Average time spent per activity",
+    color = ""
+  ) +
+  ylab("") + 
+  xlab("Hours") 
+```
+
+# Final thoughts
+
+My takeaway from this exercise is that I'm pretty happy with the consistency in which I've been getting out of the house for sport. This is thanks mostly to making time for more frequent, shorter runs. When I have been getting out for bike rides, I'm still working in some decent climbs, but I'm also still avoiding being out on the road for longer periods, which I will have to get over if I'm to do the more interesting local area rides that I've neglected the past couple of years. I'm so much busier now than I used to be (at least in my mind) that I don't know how feasible it will be to make as much time for the really long rides that I used to do, but surely, this year, I can make time for a few of them. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+source("https://raw.githubusercontent.com/iascchen/VisHealth/master/R/calendarHeat.R")
+
+#r2g <- c("#D61818", "#FFAE63", "#FFFFBD", "#B5E384")
+ 
+dat2021 <- dat %>% filter(year=="2021") %>% mutate(elapsed_time=elapsed_time/60/60)
+
+calendarHeat(dat2021$date, dat2021$elapsed_time, ncolors = 99, color = "g2r", varname="Total time (Hours)")
+```
